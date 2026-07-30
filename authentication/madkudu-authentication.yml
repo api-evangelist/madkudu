@@ -1,0 +1,29 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.madkudu.com/getting-started
+summary:
+  types: [apiKey, http]
+  api_key_in: [header]
+  http_schemes: [basic]
+  oauth2_flows: []
+schemes:
+- name: MadAPIKey
+  type: apiKey
+  in: header
+  parameter_name: X-API-Key
+  description: >-
+    The current MadKudu API (MadAPI) authenticates with a raw API key sent in the
+    X-API-Key request header. Base URL https://madapi.madkudu.com (staging
+    https://madapi.wisekudu.com). Applies to all MadAPI endpoints.
+  applies_to: MadKudu API (MadAPI)
+- name: LegacyBasicAuth
+  type: http
+  scheme: basic
+  description: >-
+    The legacy Scoring API uses HTTP Basic authentication with the API key as the
+    username and an empty password, i.e. Authorization: Basic base64(YOUR_API_KEY:).
+    Base URL https://api.madkudu.com.
+  applies_to: MadKudu Legacy Scoring API
+notes: >-
+  API keys are issued from the MadKudu account settings. The MCP server embeds the
+  same API key as a path segment in the server URL (see mcp/madkudu-mcp.yml).

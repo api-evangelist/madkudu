@@ -1,0 +1,37 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.madkudu.com/getting-started
+authentication:
+  style: api-key-header
+  header: X-API-Key
+  legacy: HTTP Basic (api key as username) on api.madkudu.com
+  ref: authentication/madkudu-authentication.yml
+idempotency:
+  supported: false
+  notes: No idempotency-key header is documented. Read endpoints are GET; write-style
+    search/enrich/discover operations use POST but no idempotency contract is published.
+pagination:
+  supported: true
+  style: filter-sort-paginate
+  applies_to:
+  - POST /search/accounts
+  - POST /search/persons
+  - POST /sourcing/persons/discover
+  notes: Search and discover endpoints accept advanced filters, sorting, and pagination
+    in the request body.
+request_tracing:
+  request_id_header: null
+  notes: No request-id tracing header documented.
+versioning:
+  style: host-separated
+  current: MadAPI (madapi.madkudu.com)
+  legacy: Legacy Scoring API (api.madkudu.com)
+  ref: lifecycle/madkudu-lifecycle.yml
+rate_limiting:
+  legacy: 600 requests per endpoint per minute; HTTP 429 on exceed.
+  madapi: Credit-based metering; HTTP 429 with "credits exhausted" message on exhaustion.
+  headers: null
+error_envelope:
+  content_type: application/json
+  shape: '{ "message": "...", "details"?: "..." }'
+  ref: errors/madkudu-problem-types.yml

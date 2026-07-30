@@ -1,0 +1,42 @@
+generated: '2026-07-20'
+method: searched
+status: published
+source: https://developers.madkudu.com/mcp
+server:
+  name: madkudu
+  transport: http
+  # The API key is embedded in the URL path; substitute YOUR_API_KEY.
+  url: https://mcp.madkudu.com/YOUR_API_KEY/mcp
+  sse_url: https://mcp.madkudu.com/YOUR_API_KEY/sse
+  auth: api-key-in-path
+notes: >-
+  Official hosted MadKudu MCP server. Two endpoints are published: a streamable-HTTP
+  endpoint (/mcp) and an SSE endpoint (/sse) for clients not yet compatible with
+  streamable HTTP. The API key is supplied as the YOUR_API_KEY path segment.
+  Documented client integrations include Claude (Anthropic), Cursor, ChatGPT (OpenAI),
+  Dust, Make, n8n, Relevance AI, Windsurf, and Zapier.
+tools:
+- name: madkudu-account-details
+  description: Get full account details for a company.
+- name: madkudu-account-activities
+  description: Retrieve activity history for an account.
+- name: madkudu-account-top-users
+  description: Return the top engaged people for an account.
+- name: madkudu-search-accounts
+  description: Search accounts using advanced filters.
+- name: madkudu-account-news-deep-search
+  description: Deep-search recent news and signals for an account.
+- name: madkudu-account-brief-instructions
+  description: Generate account brief instructions.
+- name: madkudu-person-activities
+  description: Retrieve activity history for a person.
+- name: madkudu-person-details
+  description: Get full person details.
+- name: madkudu-discover-persons
+  description: Discover persons via connected sourcing providers.
+- name: madkudu-enrich-persons
+  description: Enrich a person with contact information.
+- name: madkudu-search-persons
+  description: Search persons using advanced filters.
+- name: madkudu-value-prop
+  description: Return tenant value propositions per persona.

@@ -1,0 +1,59 @@
+generated: '2026-07-20'
+method: derived
+source: https://developers.madkudu.com/api (documented MadAPI endpoints)
+entities:
+- name: Account
+  id: mk_id
+  description: A company/account with MadKudu fit, intent, and engagement scores.
+  endpoints:
+  - GET /lookup/accounts
+  - GET /accounts/{mk_id}
+  - POST /search/accounts
+- name: Person
+  id: mk_id
+  description: A person/contact with MadKudu scores and enriched attributes.
+  endpoints:
+  - GET /lookup/persons
+  - GET /persons/{mk_id}
+  - POST /search/persons
+  - POST /sourcing/persons/discover
+  - POST /sourcing/persons/enrich
+- name: Activity
+  description: An engagement activity attached to an account or person.
+  endpoints:
+  - POST /accounts/{mk_id}/activities
+  - POST /persons/{mk_id}/activities
+- name: JobPosting
+  description: A hiring event / job posting for a company domain.
+  endpoints:
+  - POST /enrichment/job-postings
+- name: SourcingProvider
+  description: A connected data/sourcing provider and its connection status.
+  endpoints:
+  - GET /sourcing/providers
+- name: Organisation
+  description: The authenticated tenant organisation profile and its value props.
+  endpoints:
+  - GET /organisation
+  - GET /organisation/value-prop
+relationships:
+- from: Account
+  to: Person
+  kind: has_many
+  via: /accounts/{mk_id}/top-persons
+- from: Account
+  to: Activity
+  kind: has_many
+  via: /accounts/{mk_id}/activities
+- from: Person
+  to: Activity
+  kind: has_many
+  via: /persons/{mk_id}/activities
+- from: Person
+  to: SourcingProvider
+  kind: belongs_to
+  via: sourcing provider + provider-specific id (enrich/discover)
+- from: Account
+  to: JobPosting
+  kind: has_many
+  via: company domain (/enrichment/job-postings)

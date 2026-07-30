@@ -1,0 +1,26 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.madkudu.com/getting-started
+versioning:
+  scheme: host-separated
+  current: MadAPI
+  current_host: https://madapi.madkudu.com
+  staging_host: https://madapi.wisekudu.com
+  legacy: Legacy Scoring API (https://api.madkudu.com), documented as "Legacy API"
+    and superseded by MadAPI.
+deprecation:
+  policy_url: null
+  sunset_header: false
+  notes: MadKudu labels the older Scoring API as its "Legacy API" and steers new
+    integrations to MadAPI, but publishes no formal dated deprecation/sunset policy.
+sla:
+  url: null
+  uptime_target: null
+status_page: null
+rate_limits:
+  legacy: 600 requests per endpoint per minute
+  madapi: credit-based metering
+deprecated_operations: []
+notes: >-
+  No public status page, SLA page, or formal deprecation policy was found. MadKudu
+  is now part of HG Insights (HG Sales Copilot login at https://msi.madkudu.com/).

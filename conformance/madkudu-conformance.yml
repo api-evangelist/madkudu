@@ -1,0 +1,26 @@
+generated: '2026-07-20'
+method: derived
+source: https://developers.madkudu.com/getting-started
+standards:
+- id: oauth2
+  conforms: false
+  evidence: MadAPI uses X-API-Key header auth; legacy API uses HTTP Basic. No OAuth2.
+- id: openid-connect
+  conforms: false
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: 'Errors are plain application/json { "message": ... }, not application/problem+json.'
+- id: json-api
+  conforms: false
+- id: rest-json
+  conforms: true
+  evidence: JSON request/response bodies over HTTPS REST endpoints.
+- id: pagination
+  conforms: true
+  evidence: Search and discover endpoints support filters, sorting, and pagination.
+- id: idempotency
+  conforms: false
+  evidence: No idempotency-key contract documented.
+- id: mcp
+  conforms: true
+  evidence: Official hosted Model Context Protocol server at mcp.madkudu.com (streamable HTTP + SSE).

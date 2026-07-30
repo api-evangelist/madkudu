@@ -1,0 +1,23 @@
+generated: '2026-07-20'
+method: searched
+source: live probes of /.well-known/ on MadKudu hosts
+hosts:
+- host: https://developers.madkudu.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+- host: https://api.madkudu.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 401
+- host: https://madapi.madkudu.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+notes: >-
+  No /.well-known/ discovery documents (security.txt, openid-configuration,
+  oauth-authorization-server, api-catalog, ai-plugin.json) were served with 200 on
+  the developer, legacy-API, or MadAPI hosts. Absence recorded as valid data.
+  MadKudu does publish an llms.txt at https://developers.madkudu.com/llms.txt (see
+  llms/madkudu-llms.txt) and a hosted MCP server (see mcp/madkudu-mcp.yml).

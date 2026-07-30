@@ -1,0 +1,21 @@
+generated: '2026-07-20'
+method: generated
+source: https://developers.madkudu.com/api (documented MadAPI endpoints)
+skills:
+- file: madkudu-account-intelligence.md
+  name: MadKudu account intelligence lookup
+  api: MadKudu API (MadAPI)
+  operations:
+  - GET /lookup/accounts
+  - GET /accounts/{mk_id}
+  - POST /accounts/{mk_id}/activities
+  - GET /accounts/{mk_id}/top-persons
+- file: madkudu-person-enrichment.md
+  name: MadKudu person discovery and enrichment
+  api: MadKudu API (MadAPI)
+  operations:
+  - GET /sourcing/providers
+  - POST /sourcing/persons/discover
+  - POST /sourcing/persons/enrich
+  - POST /search/persons
+  - GET /persons/{mk_id}

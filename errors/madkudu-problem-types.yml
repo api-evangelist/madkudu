@@ -1,0 +1,41 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.madkudu.com/getting-started
+format: json
+envelope:
+  content_type: application/json
+  fields:
+    message: Human-readable error message (present on all errors).
+    details: Additional detail (present on 429 rate-limit errors).
+notes: >-
+  MadKudu returns plain JSON error bodies (not RFC 9457 application/problem+json).
+  All errors carry a "message" field; 429 responses additionally carry a "details"
+  field describing the credit/rate-limit condition.
+problems:
+- status: 401
+  name: AuthenticationError
+  title: Authentication or authorization error
+  body: '{ "message": "..." }'
+  remediation: Verify the X-API-Key header (MadAPI) or Basic credentials (legacy) are correct and active.
+- status: 404
+  name: NotFoundError
+  title: Resource not found
+  body: '{ "message": "..." }'
+  remediation: Confirm the MadKudu ID / path exists.
+- status: 422
+  name: ValidationError
+  title: Client validation error
+  body: '{ "message": "..." }'
+  remediation: Correct invalid or missing request parameters / body fields.
+- status: 429
+  name: RateLimitError
+  title: Rate limit / credits exhausted
+  body: '{ "message": "...", "details": "..." }'
+  remediation: >-
+    Legacy API is capped at 600 requests per endpoint per minute; MadAPI is
+    credit-metered. Back off and retry, or increase the plan credit allowance.
+- status: 500
+  name: InternalServerError
+  title: Internal server error
+  body: '{ "message": "..." }'
+  remediation: Retry with backoff; contact support@madkudu.com if it persists.

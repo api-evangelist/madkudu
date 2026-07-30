@@ -1,0 +1,17 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.madkudu.com/getting-started
+environments:
+- name: production
+  base_url: https://madapi.madkudu.com
+  api: MadKudu API (MadAPI)
+- name: staging
+  base_url: https://madapi.wisekudu.com
+  api: MadKudu API (MadAPI)
+  notes: Published staging host for MadAPI on the wisekudu.com domain.
+test_credentials:
+  notes: >-
+    MadKudu issues a real API key per account; there is no separate published set
+    of test-mode key prefixes or magic test identifiers. Credit usage is metered,
+    so evaluation happens against a plan's credit allowance rather than a distinct
+    sandbox key. No fabricated test values are recorded here.
