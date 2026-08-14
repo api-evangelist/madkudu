@@ -3,9 +3,12 @@ name: MadKudu
 description: 'MadKudu is a predictive lead scoring and account intelligence platform for B2B sales and
   marketing teams, using AI-driven propensity modeling and dynamic scoring across fit, intent, and engagement
   signals to surface high-propensity accounts and people. Its developer surface (MadAPI) programmatically
-  exposes account and person lookup, enrichment, activity, search, discovery, and organisation endpoints,
-  plus a hosted Model Context Protocol (MCP) server for AI agents. MadKudu is now part of HG Insights (HG
-  Sales Copilot). Originally backed by Partech and Techstars.'
+  exposes account and person lookup, enrichment, activity, search, sourcing discovery, AI web search,
+  organisation endpoints and a "coming soon" custom ingestion API, alongside a legacy Scoring API and
+  a hosted Model Context Protocol (MCP) server for AI agents. MadKudu publishes OpenAPI 3.1.0 for both
+  surfaces, but only as per-operation blocks embedded in its GitBook reference — no spec document is
+  served. MadKudu was acquired by HG Insights in 2025; the docs are now titled "HG Platform API" and API
+  access is contact-sales. Originally backed by Partech and Techstars.'
 url: https://raw.githubusercontent.com/api-evangelist/madkudu/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -15,21 +18,22 @@ x-backed-by:
 x-tier: stub
 x-tier-reason: portfolio-lead
 accessModel:
-  pricing: unknown
-  onboarding: self-serve
+  pricing: contact-sales
+  onboarding: sales-gate
   trial: false
   try_now: false
   public: false
-  label: Self-serve signup
-  confidence: medium
+  label: API access add-on, contact sales
+  confidence: high
   source:
-  - authentication
-  generated: '2026-07-22'
-  method: derived
+  - https://developers.madkudu.com/getting-started/usage-and-credits
+  - https://developers.madkudu.com/readme.md
+  generated: '2026-08-14'
+  method: searched
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-20'
-image: https://developers.madkudu.com/~gitbook/image
+modified: '2026-08-14'
+image: https://cdn.prod.website-files.com/6107b1101d4d3e748743f234/65f31ad2b4ac6cf0cb8bd691_og-img.png
 tags:
 - Company
 - Applicative Saas
@@ -39,21 +43,30 @@ tags:
 - Account Intelligence
 - Data Enrichment
 - MCP
+- Agents
+- Go To Market
 apis:
 - name: MadKudu API (MadAPI)
   description: 'The current MadKudu API (MadAPI) exposes account and person lookup, full account/person
-    details and activities, company hiring/job-posting enrichment, person contact enrichment, advanced
-    account and person search, sourcing provider discovery, and tenant organisation/value-prop endpoints.
-    Authentication is via an X-API-Key header; rate limiting is credit-based (HTTP 429 on exhaustion).'
+    details and activities, company hiring/job-posting enrichment, advanced account and person search,
+    prospect discovery and contact enrichment through connected sourcing providers (Apollo, Cognism,
+    ZoomInfo), Tavily-backed AI web search, tenant organisation/value-prop endpoints, and a custom ingestion
+    API documented as "Coming Soon" — 19 operations in all. Authentication is a raw API key in the x-api-key
+    header; billing is credit-metered per call (HTTP 429 on exhaustion) with no rate-limit response headers.'
   humanURL: https://developers.madkudu.com/api
   baseURL: https://madapi.madkudu.com
   tags:
   - Sales Intelligence
   - Enrichment
   - Search
+  - Sourcing
   properties:
   - type: Documentation
     url: https://developers.madkudu.com/api
+  - type: OpenAPI
+    url: openapi/madkudu-madapi-openapi.yml
+  - type: Overlay
+    url: overlays/madkudu-madapi-overlay.yaml
   - type: Authentication
     url: authentication/madkudu-authentication.yml
   - type: ErrorCatalog
@@ -64,10 +77,17 @@ apis:
     url: data-model/madkudu-data-model.yml
   - type: Sandbox
     url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
 - name: MadKudu Legacy Scoring API
-  description: 'The legacy MadKudu Scoring API returns customer-fit, likelihood-to-buy and lead-grade
-    scores for accounts and persons. Authentication is HTTP Basic (API key as username); rate limited
-    to 600 requests per endpoint per minute (HTTP 429 when exceeded).'
+  description: 'The legacy MadKudu Scoring API returns customer-fit (demographics), likelihood-to-buy
+    and lead-grade scores for companies by domain and persons by email, plus a job-changes watch list
+    and a ping utility — 6 operations. Authentication is HTTP Basic (API key as username, empty password)
+    with a different key from MadAPI; rate limited to 600 requests per endpoint per minute (HTTP 429 when
+    exceeded). MadKudu labels this surface "Legacy" and steers new integrations to MadAPI, but publishes
+    no dated deprecation or sunset policy.'
   humanURL: https://developers.madkudu.com/legacy-api
   baseURL: https://api.madkudu.com
   tags:
@@ -76,6 +96,18 @@ apis:
   properties:
   - type: Documentation
     url: https://developers.madkudu.com/legacy-api
+  - type: OpenAPI
+    url: openapi/madkudu-legacy-api-openapi.yml
+  - type: Overlay
+    url: overlays/madkudu-legacy-api-overlay.yaml
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: SDKs
+    url: packages/madkudu-packages.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -91,15 +123,29 @@ common:
 - type: APIReference
   url: https://developers.madkudu.com/api
 - type: GettingStarted
-  url: https://developers.madkudu.com/getting-started
+  url: https://developers.madkudu.com/getting-started/quickstart
 - type: MCPServer
   url: mcp/madkudu-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/madkudu-tool-crosswalk.yml
 - type: GitHubOrganization
   url: https://github.com/MadKudu
 - type: Support
   url: mailto:support@madkudu.com
+- type: HelpCenter
+  url: https://help.madkudu.com/
+- type: Blog
+  url: https://madkudu.com/blog
 - type: Login
   url: https://msi.madkudu.com/
+- type: Pricing
+  url: https://hginsights.com/product/pricing-guide/
+- type: TermsOfService
+  url: https://hginsights.com/terms-of-service/
+- type: PrivacyPolicy
+  url: https://hginsights.com/privacy-page/
+- type: StatusPage
+  url: https://status.madkudu.com
 - type: Authentication
   url: authentication/madkudu-authentication.yml
 - type: ErrorCatalog
@@ -114,16 +160,26 @@ common:
   url: sandbox/madkudu-sandbox.yml
 - type: Conformance
   url: conformance/madkudu-conformance.yml
-- type: WellKnown
-  url: well-known/madkudu-well-known.yml
+- type: Compliance
+  url: security/madkudu-trust-center.yml
+- type: TrustCenter
+  url: security/madkudu-trust-center.yml
 - type: DomainSecurity
   url: security/madkudu-domain-security.yml
+- type: Packages
+  url: packages/madkudu-packages.yml
+- type: SDKs
+  url: packages/madkudu-packages.yml
+- type: Plans
+  url: plans/madkudu-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/madkudu-rate-limits.yml
 - type: AgentSkill
   url: skills/_index.yml
 - type: LLMsTxt
   url: llms/madkudu-llms.txt
 x-enrichment:
-  date: '2026-07-20'
+  date: '2026-08-14'
   status: enriched
   artifacts_added: 13
   pass: local-v1
