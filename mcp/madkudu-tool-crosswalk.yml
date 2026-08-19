@@ -1,0 +1,168 @@
+generated: '2026-08-14'
+method: derived
+source: mcp/madkudu-mcp.yml + openapi/madkudu-madapi-openapi.yml
+note: >-
+  Binds each published MadMCP tool to the MadAPI operation(s) that back it. The live MCP schemas
+  are auth-gated (the API key is a path segment and tools/list requires an initialized session —
+  anonymous POST returns JSON-RPC -32000), so bindings are mapped by name and by the provider's own
+  tool descriptions against the OpenAPI operations MadKudu publishes in its GitBook API reference.
+  Confidence is set accordingly; nothing here was invented.
+surfaces:
+  openapi: openapi/madkudu-madapi-openapi.yml
+  openapi_legacy: openapi/madkudu-legacy-api-openapi.yml
+  mcp: https://mcp.madkudu.com/YOUR_API_KEY/mcp
+  mcp_sse: https://mcp.madkudu.com/YOUR_API_KEY/sse
+  graphql: null
+  gated:
+  - surface: mcp
+    reason: API key is a required path segment; tools/list needs an initialized session.
+  - surface: openapi
+    reason: >-
+      Not gated to read — but not served as a downloadable document either. The specs live only as
+      per-operation OpenAPI blocks inside the docs pages (and their llms-full.txt rendering);
+      madapi.madkudu.com/openapi.json returns the gateway's 404 ("no Route matched with those
+      values").
+crosswalk:
+- tool: madkudu-account-details
+  category: account
+  rest:
+  - Lookup_lookupAccounts
+  - Accounts_getAccount
+  binding: composite
+  confidence: high
+  note: >-
+    Tool takes a domain, MadAPI takes an mk_id — the documented flow is lookup by domain then
+    fetch details, so the tool almost certainly chains GET /lookup/accounts into
+    GET /accounts/{mk_id}.
+- tool: madkudu-account-activities
+  category: account
+  rest:
+  - Accounts_getAccountActivities
+  binding: direct
+  confidence: high
+  note: POST /accounts/{mk_id}/activities, body Common.Models.AccountActivitySearchRequest.
+- tool: madkudu-account-top-users
+  category: account
+  rest:
+  - Accounts_getAccountTopPersons
+  binding: direct
+  confidence: high
+  note: GET /accounts/{mk_id}/top-persons?limit=. Tool description says "past 90 days".
+- tool: madkudu-search-accounts
+  category: account
+  rest:
+  - Search_searchAccounts
+  binding: direct
+  confidence: high
+  note: POST /search/accounts, body AccountSearchRequest (limit/cursor/search/filters).
+- tool: madkudu-account-news-deep-search
+  category: account
+  rest:
+  - AI_webSearch
+  binding: direct
+  confidence: medium
+  note: >-
+    POST /ai/web-search is the only news/web-search operation MadAPI publishes (Tavily-backed).
+    Named differently on each surface, so the binding is by semantics.
+- tool: madkudu-account-brief-instructions
+  category: account
+  rest: []
+  binding: none
+  confidence: high
+  note: Prompt-shaped tool — returns instructions that call other MadMCP tools. No REST equivalent.
+- tool: madkudu-person-activities
+  category: person
+  rest:
+  - Persons_getPersonActivities
+  binding: direct
+  confidence: high
+  note: POST /persons/{mk_id}/activities, body Common.Models.PersonActivitySearchRequest.
+- tool: madkudu-person-details
+  category: person
+  rest:
+  - Lookup_lookupPersons
+  - Persons_getPerson
+  binding: composite
+  confidence: high
+  note: >-
+    Same shape as the account tool — the docs and the npm README describe lookup by email, which
+    means GET /lookup/persons then GET /persons/{mk_id}.
+- tool: madkudu-search-persons
+  category: person
+  rest:
+  - Search_searchPersons
+  binding: direct
+  confidence: high
+  note: POST /search/persons, body PersonSearchRequest.
+- tool: madkudu-discover-persons
+  category: sourcing
+  rest:
+  - Sourcing_discoverPersons
+  binding: direct
+  confidence: high
+  note: POST /sourcing/persons/discover. Requires a connected Apollo, Cognism or ZoomInfo account.
+- tool: madkudu-enrich-persons
+  category: sourcing
+  rest:
+  - Sourcing_enrichPerson
+  binding: direct
+  confidence: high
+  note: POST /sourcing/persons/enrich (email + phone from the chosen provider).
+- tool: madkudu-value-prop
+  category: organisation
+  rest:
+  - Organisation_getValueProposition
+  binding: direct
+  confidence: high
+  note: GET /organisation/value-prop.
+mcp_only:
+- tool: madkudu-account-brief-instructions
+  reason: Prompt/instruction tool with no backing REST operation; it orchestrates other tools.
+rest_only:
+- operationId: Enrichment_searchJobPostings
+  path: POST /enrichment/job-postings
+  reason: Hiring/job-posting enrichment is not exposed as an MCP tool.
+- operationId: Sourcing_getProviders
+  path: GET /sourcing/providers
+  reason: Provider-connection listing is a setup call, not surfaced as a tool.
+- operationId: Organisation_getOrganisation
+  path: GET /organisation
+  reason: Tenant profile / auth verification, not surfaced as a tool.
+- operationId: Ingestion_uploadJson
+  path: POST /ingestion/upload-json
+  reason: Ingestion API is documented as "Coming Soon"; no MCP tool.
+- operationId: Ingestion_generateUploadUrl
+  path: POST /ingestion/generate-upload-url
+  reason: Ingestion API is documented as "Coming Soon"; no MCP tool.
+- operationId: Ingestion_confirmUpload
+  path: POST /ingestion/confirm-upload
+  reason: Ingestion API is documented as "Coming Soon"; no MCP tool.
+- operationId: Utilities_ping
+  path: GET /v1/ping
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+- operationId: Companies_lookupCompany
+  path: GET /v1/companies
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+- operationId: Companies_lookupCompanyWithPayload
+  path: POST /v1/companies
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+- operationId: Persons_lookupPerson
+  path: GET /v1/persons
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+- operationId: Persons_lookupPersonWithPayload
+  path: POST /v1/persons
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+- operationId: JobChanges_setWatchList
+  path: POST /v1/integrations/job_changes/watch-list/csv
+  reason: Legacy Scoring API — not covered by MadMCP at all.
+coverage:
+  mcp_tools: 12
+  mcp_tools_bound: 11
+  mcp_only: 1
+  rest_operations_madapi: 19
+  rest_operations_legacy: 6
+  rest_operations_bound: 13
+  rest_only: 12
+  note: >-
+    11 of 12 tools map onto MadAPI operations; the twelfth is a prompt tool. On the REST side the
+    MCP surface covers 13 of 19 MadAPI operations and none of the 6 legacy Scoring API operations.

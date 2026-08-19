@@ -1,26 +1,107 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
-source: https://developers.madkudu.com/getting-started
+source: https://developers.madkudu.com/
+sources:
+- https://developers.madkudu.com/legacy-api/introduction
+- https://developers.madkudu.com/custom-ingestion-api-coming-soon
+- https://status.madkudu.com/api/v2/summary.json
+- https://registry.npmjs.org/
 versioning:
   scheme: host-separated
   current: MadAPI
   current_host: https://madapi.madkudu.com
   staging_host: https://madapi.wisekudu.com
-  legacy: Legacy Scoring API (https://api.madkudu.com), documented as "Legacy API"
-    and superseded by MadAPI.
+  path_versioning: >-
+    MadAPI paths carry no version segment at all (/lookup/accounts, /accounts/{mk_id}). The legacy
+    Scoring API versions in the path (/v1/companies, /v1/persons). Both OpenAPI documents MadKudu
+    publishes declare info.version "0.0.0", so there is no released API version number to pin to.
+  legacy: Legacy Scoring API (https://api.madkudu.com), documented as "Legacy API" and superseded
+    by MadAPI.
 deprecation:
   policy_url: null
   sunset_header: false
-  notes: MadKudu labels the older Scoring API as its "Legacy API" and steers new
-    integrations to MadAPI, but publishes no formal dated deprecation/sunset policy.
+  deprecation_header: false
+  notes: >-
+    MadKudu labels the older Scoring API as its "Legacy API" and steers new integrations to
+    MadAPI, but publishes no dated deprecation or sunset policy, no RFC 8594 Sunset/Deprecation
+    headers, and no end-of-life date. A legacy consumer has no published signal telling them when
+    api.madkudu.com stops.
+status_page:
+  url: https://status.madkudu.com
+  platform: Atlassian Statuspage
+  machine_readable: https://status.madkudu.com/api/v2/summary.json
+  http_status: 200
+  page_id: ldsyf1mdms85
+  components:
+  - msi.madkudu.com
+  - api.madkudu.com
+  - app.madkudu.com
+  - data.madkudu.com
+  - cdn.madkudu.com
+  - Realtime scoring
+  - AWS ec2-eu-west-1
+  - AWS ec2-eu-west-2
+  - AWS ec2-eu-west-3
+  - AWS rds-eu-west-1
+  - AWS rds-eu-west-2
+  - AWS rds-eu-west-3
+  - AWS redshift-eu-west-1
+  - AWS redshift-eu-west-2
+  - AWS redshift-eu-west-3
+  note: >-
+    Live and machine-readable (Statuspage v2 API, probed 2026-08-14, last updated the same day).
+    It covers the legacy api.madkudu.com host and the app/data/cdn estate but does NOT list a
+    component for madapi.madkudu.com or for mcp.madkudu.com — the two surfaces a developer or an
+    agent actually calls today are unmonitored on the public status page.
 sla:
   url: null
   uptime_target: null
-status_page: null
+  note: No published SLA or uptime commitment.
 rate_limits:
+  ref: rate-limits/madkudu-rate-limits.yml
   legacy: 600 requests per endpoint per minute
-  madapi: credit-based metering
+  madapi: credit-metered; HTTP 429 on exhaustion
 deprecated_operations: []
-notes: >-
-  No public status page, SLA page, or formal deprecation policy was found. MadKudu
-  is now part of HG Insights (HG Sales Copilot login at https://msi.madkudu.com/).
+pre_release_operations:
+- operationId: Ingestion_uploadJson
+  path: POST /ingestion/upload-json
+  state: coming-soon
+- operationId: Ingestion_generateUploadUrl
+  path: POST /ingestion/generate-upload-url
+  state: coming-soon
+- operationId: Ingestion_confirmUpload
+  path: POST /ingestion/confirm-upload
+  state: coming-soon
+  note: >-
+    The Custom Ingestion API page is titled "(Coming Soon)" while its OpenAPI blocks are already
+    published. Its prose also names two paths the specs do not define —
+    POST /ingestion/request-upload-url and POST /ingestion/notify-upload-complete — against the
+    specs' /ingestion/generate-upload-url and /ingestion/confirm-upload. A reader following the
+    prose calls paths that do not exist.
+changelog:
+  url: null
+  note: >-
+    No changelog or release-notes page on the developer portal, the help center or the marketing
+    site (developers.madkudu.com/changelog, help.madkudu.com/changelog and
+    help.madkudu.com/docs/release-notes all 404 on 2026-08-14). API changes are not announced
+    anywhere public.
+sdk_decay:
+  ref: packages/madkudu-packages.yml
+  note: >-
+    Both first-party client libraries are stale and their repositories are archived — the Node
+    bindings the Legacy API docs still link to last shipped 2017-03-24, the browser library
+    2023-05-24. There is no first-party SDK for MadAPI in any language. The only actively
+    maintained package is @madkudu/mcp (1.10.1, 2025-06-04).
+ownership:
+  parent: HG Insights
+  acquired: 2025
+  evidence: >-
+    "MadKudu was acquired by HG Insights in 2025. Please contact HG Insights or your account
+    manager if you're interested in the MadKudu API." — https://developers.madkudu.com/readme.md
+  effects:
+  - The developer docs are titled "HG Platform API" in the published llms.txt.
+  - github.com/MadKudu now has zero public repositories; every repo 301-redirects into
+    github.com/HGData/mk-* and the two SDK repos there are archived.
+  - madkudu.com serves HG Insights marketing content; legal and trust pages live on
+    hginsights.com.
+  - Login/admin surfaces remain on madkudu.com (admin.madkudu.com, msi.madkudu.com).

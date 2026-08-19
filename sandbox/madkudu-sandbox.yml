@@ -1,17 +1,52 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
-source: https://developers.madkudu.com/getting-started
+source: https://developers.madkudu.com/madkudu-mcp/madkudu-mcp-playground
+derived_from: openapi/madkudu-madapi-openapi.yml
 environments:
 - name: production
   base_url: https://madapi.madkudu.com
   api: MadKudu API (MadAPI)
+  declared_in: OpenAPI servers[] — "Production server"
 - name: staging
   base_url: https://madapi.wisekudu.com
   api: MadKudu API (MadAPI)
-  notes: Published staging host for MadAPI on the wisekudu.com domain.
+  declared_in: OpenAPI servers[] — "Staging server"
+  note: >-
+    Declared as a server in every OpenAPI block MadKudu publishes, on a separate domain
+    (wisekudu.com). No documentation describes how to obtain access to it or whether a production
+    key works there, so it is a declared environment rather than a usable sandbox.
+- name: production
+  base_url: https://api.madkudu.com
+  api: MadKudu Legacy Scoring API
+  declared_in: OpenAPI servers[] — production only, no staging counterpart.
 test_credentials:
+  test_mode: false
+  key_prefixes: null
+  test_fixtures: null
+  test_clock: false
   notes: >-
-    MadKudu issues a real API key per account; there is no separate published set
-    of test-mode key prefixes or magic test identifiers. Credit usage is metered,
-    so evaluation happens against a plan's credit allowance rather than a distinct
-    sandbox key. No fabricated test values are recorded here.
+    MadKudu issues one real API key per user and publishes no test-mode key prefix, no magic test
+    identifiers, no fixtures and no trigger tooling. Evaluation runs against the account's real
+    credit allowance, so every exploratory call is a billed call. No fabricated test values are
+    recorded here.
+connectivity_check:
+  api: MadKudu Legacy Scoring API
+  operation: Utilities_ping (GET /v1/ping)
+  description: 'The only published smoke-test endpoint on either surface: returns status "ok" when
+    the Basic credentials are valid. MadAPI has no equivalent — the closest is
+    Organisation_getOrganisation (GET /organisation), documented as "useful for verifying the
+    account authenticated" and costing 0 credits.'
+playground:
+  name: MadKudu MCP Playground
+  url: https://madkudu-mcp-demo.vercel.app/agents
+  description: >-
+    Web-based environment for running prompts powered by MadKudu MCP, creating and running an
+    agent, and testing the available MadMCP tools without installing anything. Hosted on
+    vercel.app rather than a madkudu.com host.
+  scope: MCP only — there is no interactive try-it console for the REST surface. The GitBook API
+    reference renders request/response shapes but is not a live console.
+free_access:
+  self_serve: false
+  note: API access is an add-on to a paid subscription and, since the HG Insights acquisition, the
+    docs direct prospective users to contact HG Insights or their account manager. There is no free
+    tier, trial key or public demo key.

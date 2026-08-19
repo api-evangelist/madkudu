@@ -1,42 +1,120 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
 status: published
-source: https://developers.madkudu.com/mcp
+source: https://developers.madkudu.com/madkudu-mcp/what-is-madkudu-mcp
+sources:
+- https://developers.madkudu.com/madkudu-mcp/install-in-ai-platforms-in-2min
+- https://developers.madkudu.com/madkudu-mcp/madmcp-tools
+- https://www.npmjs.com/package/@madkudu/mcp
 server:
-  name: madkudu
+  name: MadMCP
   transport: http
-  # The API key is embedded in the URL path; substitute YOUR_API_KEY.
   url: https://mcp.madkudu.com/YOUR_API_KEY/mcp
   sse_url: https://mcp.madkudu.com/YOUR_API_KEY/sse
   auth: api-key-in-path
-notes: >-
-  Official hosted MadKudu MCP server. Two endpoints are published: a streamable-HTTP
-  endpoint (/mcp) and an SSE endpoint (/sse) for clients not yet compatible with
-  streamable HTTP. The API key is supplied as the YOUR_API_KEY path segment.
-  Documented client integrations include Claude (Anthropic), Cursor, ChatGPT (OpenAI),
-  Dust, Make, n8n, Relevance AI, Windsurf, and Zapier.
+notes: 'Official hosted MadKudu MCP server ("MadMCP"). Two endpoints are published: a streamable-HTTP
+  endpoint (/mcp) and an SSE endpoint (/sse) for clients not yet compatible with streamable HTTP. The
+  API key is supplied as the YOUR_API_KEY path segment rather than in a header, so the credential
+  travels in the URL. Documented client integrations include Claude (Anthropic), Cursor, Dust, Make,
+  n8n, Relevance AI and Windsurf; ChatGPT (OpenAI) and Zapier are documented as "Coming Soon".
+  Relevance AI is documented as NOT supporting MCP connections — MadKudu ships importable
+  REST-backed tools there instead.'
+deployment:
+  mode: both
+  endpoint: https://mcp.madkudu.com/YOUR_API_KEY/mcp
+  install: npx -y @madkudu/mcp
+  package: https://www.npmjs.com/package/@madkudu/mcp
+  auth: api-key
+  verified: probed
+  checked: '2026-08-14'
+  evidence:
+    remote:
+      url: https://mcp.madkudu.com/mcp
+      method: POST tools/list (anonymous)
+      http_status: 400
+      body: '{"jsonrpc":"2.0","error":{"code":-32000,"message":"Bad Request: No valid session ID
+        provided or not an initialization request."},"id":null}'
+      reading: >-
+        A real MCP JSON-RPC server answers here — the error is the protocol's own session error,
+        not an HTTP 404 or an HTML shell. tools/list could not be completed anonymously because
+        the server requires an initialization handshake and the API key is carried in the path, so
+        the live inputSchemas remain auth-gated. The tool list below is the provider's own
+        published table, names and descriptions only.
+    local:
+      package: '@madkudu/mcp'
+      version: 1.10.1
+      published: '2025-06-04'
+      bin: mcp
+      reading: >-
+        First-party npm package that ships the MCP server with a `mcp` bin, so an operator CAN run
+        it over stdio. MadKudu's own docs do NOT document this install path: the documented local
+        route is a third-party bridge to the hosted endpoint —
+        `npx -y supergateway --sse https://mcp.madkudu.com/YOUR_API_KEY/sse`. Recorded as `both`
+        because the vendor publishes both a reachable URL and a runnable package.
+documented_local_bridge:
+  command: npx
+  args:
+  - -y
+  - supergateway
+  - --sse
+  - https://mcp.madkudu.com/YOUR_API_KEY/sse
+  note: >-
+    Verbatim from https://developers.madkudu.com/madkudu-mcp/install-in-ai-platforms-in-2min. This
+    is a generic third-party stdio<->SSE gateway wrapping MadKudu's own remote endpoint, not a
+    MadKudu package.
 tools:
 - name: madkudu-account-details
-  description: Get full account details for a company.
+  entity: Account
+  description: Returns enriched account information including firmographics, scoring, social handles
+    and engagement stats.
 - name: madkudu-account-activities
-  description: Retrieve activity history for an account.
+  entity: Account
+  description: Get all activities associated with an account.
 - name: madkudu-account-top-users
-  description: Return the top engaged people for an account.
+  entity: Account
+  description: Lists the top users from the account based on activity volume. Useful for identifying
+    champions or active contacts.
 - name: madkudu-search-accounts
-  description: Search accounts using advanced filters.
+  entity: Account
+  description: Search for accounts existing in MadKudu (your known contacts from all your integrations
+    connected to MadKudu).
 - name: madkudu-account-news-deep-search
-  description: Deep-search recent news and signals for an account.
+  entity: Account
+  description: Search for relevant news online about an account.
 - name: madkudu-account-brief-instructions
-  description: Generate account brief instructions.
+  entity: Account
+  description: Provides instructions as a structured prompt to generate a sales account brief, calling
+    other MadMCP tools.
 - name: madkudu-person-activities
-  description: Retrieve activity history for a person.
+  entity: Person
+  description: Get all activities associated with a person.
 - name: madkudu-person-details
-  description: Get full person details.
+  entity: Person
+  description: Returns enriched contact information including title, persona, email, LinkedIn, scoring,
+    company and engagement stats.
 - name: madkudu-discover-persons
-  description: Discover persons via connected sourcing providers.
+  entity: Person
+  description: Finds new prospects not in your CRM based on title, seniority and company.
 - name: madkudu-enrich-persons
-  description: Enrich a person with contact information.
+  entity: Person
+  description: Finds contact details like email and phone numbers for people discovered.
 - name: madkudu-search-persons
-  description: Search persons using advanced filters.
+  entity: Person
+  description: Search for persons existing in MadKudu (your known contacts from all your integrations
+    connected to MadKudu).
 - name: madkudu-value-prop
-  description: Return tenant value propositions per persona.
+  entity: Organization
+  description: Get the value prop for your company to provide context when generating an account brief
+    or personalizing email.
+undocumented_tools_referenced:
+- name: madkudu-account-research
+  seen_in:
+  - https://developers.madkudu.com/madkudu-mcp/ai-agent-templates (Cursor rule template)
+  - '@madkudu/mcp npm README'
+  note: >-
+    Referenced by MadKudu in a published Cursor rule and in the npm package README ("generates a
+    comprehensive research report for a given domain, takes 1-2 minutes"), but absent from the
+    official MadMCP tools table. Recorded as a discrepancy, not added to the tool list.
+playground: https://madkudu-mcp-demo.vercel.app/agents
+feedback: product@madkudu.com
+crosswalk: mcp/madkudu-tool-crosswalk.yml

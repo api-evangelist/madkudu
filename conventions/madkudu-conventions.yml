@@ -1,37 +1,118 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
-source: https://developers.madkudu.com/getting-started
+source: https://developers.madkudu.com/api/authentication
+derived_from:
+- openapi/madkudu-madapi-openapi.yml
+- openapi/madkudu-legacy-api-openapi.yml
 authentication:
   style: api-key-header
-  header: X-API-Key
-  legacy: HTTP Basic (api key as username) on api.madkudu.com
+  header: x-api-key
+  header_case_note: >-
+    The docs write it as `X-API-Key`; the OpenAPI securityScheme MadKudu publishes declares
+    `name: x-api-key`. HTTP header names are case-insensitive, so both work — recorded because the
+    two published sources disagree.
+  scope: Keys are personal — tied to a user and that user's permissions — and are created per
+    integration from admin.madkudu.com > Personal Settings > My API Keys. Admin role required.
+  transport: HTTPS only; plain HTTP calls fail.
+  legacy: >-
+    HTTP Basic with the API key as username and an empty password, e.g. `Authorization: Basic
+    base64("YOUR_API_KEY:")`, on api.madkudu.com.
+  mcp: The same API key is embedded as a PATH SEGMENT in the MCP server URL
+    (https://mcp.madkudu.com/YOUR_API_KEY/mcp), so the credential appears in the URL rather than a
+    header.
   ref: authentication/madkudu-authentication.yml
 idempotency:
   supported: false
-  notes: No idempotency-key header is documented. Read endpoints are GET; write-style
-    search/enrich/discover operations use POST but no idempotency contract is published.
+  header: null
+  notes: >-
+    No idempotency-key contract is documented or declared anywhere in either OpenAPI. This matters
+    more than usual here because MadAPI uses POST for read-shaped operations — /search/accounts,
+    /search/persons, /accounts/{mk_id}/activities, /persons/{mk_id}/activities,
+    /enrichment/job-postings, /ai/web-search — and every one of them costs credits. A retried POST
+    is billed again with no way to deduplicate it.
 pagination:
   supported: true
-  style: filter-sort-paginate
+  style: cursor
+  where: request body (POST) for search/activity operations
+  request_fields:
+    limit: Number of results to return (integer). Job-postings search defaults to 20.
+    cursor: Cursor for pagination (integer; job-postings defaults to 0).
+    search: Free-text query.
+    filters: Array of {property, operator, value} filters, with `property` constrained by an enum
+      per entity.
+    sort: Sort clause on the search operations.
+  response_envelope:
+    data: Array of results.
+    meta: Object carrying pagination state.
+  response_meta_fields:
+    limit: Number of results requested.
+    total: Total number of results available.
+    has_next_page: Whether more results exist.
+    next_cursor: Cursor to pass on the next call.
   applies_to:
-  - POST /search/accounts
-  - POST /search/persons
-  - POST /sourcing/persons/discover
-  notes: Search and discover endpoints accept advanced filters, sorting, and pagination
-    in the request body.
+  - Search_searchAccounts (POST /search/accounts)
+  - Search_searchPersons (POST /search/persons)
+  - Accounts_getAccountActivities (POST /accounts/{mk_id}/activities)
+  - Persons_getPersonActivities (POST /persons/{mk_id}/activities)
+  - Enrichment_searchJobPostings (POST /enrichment/job-postings)
+  exception:
+    operation: Sourcing_discoverPersons (POST /sourcing/persons/discover)
+    style: provider-dependent
+    note: >-
+      Discovery pages by page/size for Apollo and ZoomInfo (size max 100) and by an opaque string
+      cursor for Cognism — the pagination contract changes with the connected data provider, and
+      the response pagination object mixes next_page/page/size/total.
+filtering:
+  style: structured filter objects
+  shape: '{property, operator, value}'
+  account_properties: [name, domain, industry, employees_count, founded_year, raised_amount,
+    country, city, active_users, activities_count]
+  person_properties: [email, first_name, last_name, name, title, persona, company_domain, country,
+    state, city, activities, has_left_company]
+  note: The filterable property set is a closed enum in the spec, so an agent can validate a query
+    before spending a credit.
+field_expansion:
+  supported: false
+  notes: No sparse-fieldset or expand parameter; detail vs mini shapes are separate operations
+    (AccountDetailsMini from lookup vs the full account from /accounts/{mk_id}).
+metadata:
+  custom_fields: false
+  notes: No user-defined metadata on requests. Records carry a `source_system` object
+    ({id, system, object}) identifying the CRM/tool the record came from.
 request_tracing:
   request_id_header: null
-  notes: No request-id tracing header documented.
+  notes: No request-id or correlation-id header is documented or declared in either OpenAPI.
 versioning:
   style: host-separated
-  current: MadAPI (madapi.madkudu.com)
-  legacy: Legacy Scoring API (api.madkudu.com)
+  current: MadAPI (madapi.madkudu.com), unversioned paths
+  legacy: Legacy Scoring API (api.madkudu.com), /v1/ paths
+  spec_version: Both published OpenAPI documents declare info.version "0.0.0".
   ref: lifecycle/madkudu-lifecycle.yml
 rate_limiting:
   legacy: 600 requests per endpoint per minute; HTTP 429 on exceed.
-  madapi: Credit-based metering; HTTP 429 with "credits exhausted" message on exhaustion.
+  madapi: Credit-metered; HTTP 429 with a "credits exhausted" message on exhaustion.
   headers: null
+  headers_note: No X-RateLimit-*, RateLimit-* or Retry-After headers are published for either
+    surface.
+  ref: rate-limits/madkudu-rate-limits.yml
 error_envelope:
   content_type: application/json
   shape: '{ "message": "...", "details"?: "..." }'
+  validation_shape: 'Client validation errors (HTTP 422) use a different, richer envelope declared
+    in the OpenAPI as Common.Errors.ValidationError: { "detail": [ { "loc": [...], "msg": "...",
+    "type": "...", "input": ..., "ctx": ... } ] } — FastAPI/Pydantic-shaped, not the flat message
+    envelope the getting-started page describes.'
+  problem_json: false
   ref: errors/madkudu-problem-types.yml
+response_shapes:
+  note: >-
+    Lookup operations return a bare JSON ARRAY at the top level; search operations return a
+    {data, meta} object. Two different top-level shapes on the same API, so a client cannot use
+    one unwrapping path.
+webhooks:
+  supported: false
+  notes: MadKudu publishes no webhook, event or streaming surface — no AsyncAPI, no event catalog,
+    no subscription endpoints.
+sandbox:
+  staging_host: https://madapi.wisekudu.com
+  ref: sandbox/madkudu-sandbox.yml

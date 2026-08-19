@@ -1,41 +1,92 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
-source: https://developers.madkudu.com/getting-started
+source: https://developers.madkudu.com/getting-started/usage-and-credits
+derived_from:
+- openapi/madkudu-madapi-openapi.yml
+- openapi/madkudu-legacy-api-openapi.yml
 format: json
+rfc9457: false
 envelope:
   content_type: application/json
   fields:
-    message: Human-readable error message (present on all errors).
-    details: Additional detail (present on 429 rate-limit errors).
-notes: >-
-  MadKudu returns plain JSON error bodies (not RFC 9457 application/problem+json).
-  All errors carry a "message" field; 429 responses additionally carry a "details"
-  field describing the credit/rate-limit condition.
+    message: Human-readable error message (the shape the docs describe for auth, rate-limit and
+      server errors).
+    details: Additional detail (present on 429 credit/rate-limit errors).
+validation_envelope:
+  content_type: application/json
+  schema: Common.Errors.ValidationError
+  declared_in: openapi/madkudu-madapi-openapi.yml
+  shape: '{ "detail": [ { "loc": ["body","field"], "msg": "...", "type": "...", "input": ...,
+    "ctx": ... } ] }'
+  fields:
+    loc: What part is invalid (array; path through the request).
+    msg: Message describing the error (spelled "discribing" in the published spec).
+    type: Type of the error.
+    input: The offending input.
+    ctx: Additional context.
+  note: >-
+    This is the ONLY error schema MadKudu declares in a machine-readable form, and it is
+    FastAPI/Pydantic-shaped — a different envelope from the flat {message} the prose documents.
+    A client must handle both.
+coverage:
+  documented_error_responses:
+    '422': 5 operations (Lookup_lookupAccounts, Lookup_lookupPersons, Enrichment_searchJobPostings,
+      Search_searchAccounts, Search_searchPersons)
+  note: >-
+    14 of MadAPI's 19 published operations declare NO error response at all — only a 200. Every
+    detail, activity, sourcing, AI, organisation and ingestion operation is specified as if it
+    cannot fail, so 401/404/429/500 handling cannot be generated from the contract. The six legacy
+    Scoring API operations declare no error responses either.
 problems:
 - status: 401
   name: AuthenticationError
   title: Authentication or authorization error
   body: '{ "message": "..." }'
-  remediation: Verify the X-API-Key header (MadAPI) or Basic credentials (legacy) are correct and active.
+  declared_in_spec: false
+  remediation: Verify the x-api-key header (MadAPI) or Basic credentials (legacy) are correct and
+    active. Keys are personal and carry the issuing user's permissions.
+  observed: 'Probed 2026-08-14: api.madkudu.com returns 401 {"message":"Please provide either an
+    Authorization..."} on every unauthenticated path, including /.well-known/ paths.'
 - status: 404
   name: NotFoundError
   title: Resource not found
   body: '{ "message": "..." }'
-  remediation: Confirm the MadKudu ID / path exists.
+  declared_in_spec: false
+  remediation: Confirm the MadKudu ID (mk_id) exists. Note that an unrouted path on
+    madapi.madkudu.com returns the gateway body {"message":"no Route matched with those values"},
+    not an application 404.
 - status: 422
   name: ValidationError
   title: Client validation error
-  body: '{ "message": "..." }'
-  remediation: Correct invalid or missing request parameters / body fields.
+  body: '{ "detail": [ { "loc": [...], "msg": "...", "type": "..." } ] }'
+  declared_in_spec: true
+  schema: Common.Errors.ValidationError
+  operations:
+  - Lookup_lookupAccounts
+  - Lookup_lookupPersons
+  - Enrichment_searchJobPostings
+  - Search_searchAccounts
+  - Search_searchPersons
+  remediation: Correct the invalid or missing request parameters / body fields identified by
+    detail[].loc. Search filters only accept properties from the published enum.
 - status: 429
   name: RateLimitError
   title: Rate limit / credits exhausted
   body: '{ "message": "...", "details": "..." }'
+  declared_in_spec: false
   remediation: >-
-    Legacy API is capped at 600 requests per endpoint per minute; MadAPI is
-    credit-metered. Back off and retry, or increase the plan credit allowance.
+    Legacy API is capped at 600 requests per endpoint per minute; MadAPI is credit-metered and
+    returns a "credits exhausted" message. No Retry-After or RateLimit-* header is returned, so a
+    client must back off blind. Credit balance is only visible in the Admin console.
+  ref: rate-limits/madkudu-rate-limits.yml
 - status: 500
   name: InternalServerError
   title: Internal server error
   body: '{ "message": "..." }'
-  remediation: Retry with backoff; contact support@madkudu.com if it persists.
+  declared_in_spec: false
+  remediation: Retry with backoff; contact support@madkudu.com if it persists. Check
+    https://status.madkudu.com — though note it publishes no component for madapi.madkudu.com.
+notes: >-
+  MadKudu returns plain JSON error bodies, never application/problem+json, and publishes no error
+  code vocabulary — there is no stable machine-readable error identifier to branch on, only an HTTP
+  status and free text.

@@ -1,0 +1,78 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.madkudu.com/getting-started/usage-and-credits
+sources:
+- https://developers.madkudu.com/getting-started/usage-and-credits
+- https://developers.madkudu.com/getting-started/your-api-usage
+- https://hginsights.com/product/pricing-guide/
+plan_count: 0
+currency: null
+note: >-
+  MadKudu publishes NO priced API plans. There is no tier list, no price, no published credit
+  allowance and no self-serve checkout. API access is an add-on to a MadKudu/HG Insights
+  subscription: "With the API access add-on you get a credit allowance. If you need more credits
+  talk to your CSM." The parent company's pricing page (hginsights.com/product/pricing-guide/) is a
+  contact-sales guide, not a rate card. What MadKudu DOES publish is the metering unit and the
+  credit cost of each endpoint category, recorded below — that is the whole of the public
+  commercial surface. MadKudu's docs also state the API is only available on request since the HG
+  Insights acquisition ("Please contact HG Insights or your account manager if you're interested in
+  the MadKudu API").
+plans: []
+metering:
+  unit: credit
+  model: prepaid allowance, consumed per call
+  rollover: true
+  rollover_note: '"Do unused credits roll over? Yes" — published FAQ.'
+  exhaustion: HTTP 429 with a "credits exhausted" message.
+  counted_surfaces:
+  - MadAPI REST calls
+  - MadMCP tool calls ("API calls made via MCP tools also count toward your usage")
+  monitoring: MadKudu Admin console > Settings > API Usage (per API key and per endpoint).
+  admin_console: https://admin.madkudu.com/
+credit_costs:
+- category: Lookup
+  example_endpoint: POST /lookup/accounts
+  credits: 1
+  note: >-
+    Published verbatim as POST; the OpenAPI MadKudu publishes for this operation declares it as
+    GET /lookup/accounts.
+- category: Detailed Info
+  example_endpoint: GET /accounts/{id}
+  credits: 3
+- category: Search
+  example_endpoint: POST /search/accounts
+  credits: 1
+  per: 10 results
+- category: Enrichment
+  example_endpoint: POST /enrichment/job-postings
+  credits: 3
+  per: 20 postings
+- category: Sourcing
+  example_endpoint: POST /sourcing/persons/discover
+  credits: 0
+  note: Consumes your connected data provider's credits (Apollo / Cognism / ZoomInfo) rather than
+    MadKudu credits.
+- category: AI Web Search
+  example_endpoint: POST /ai/web-search
+  credits: 5
+- category: Organisation
+  example_endpoint: /organization
+  credits: 0
+- category: Ingestion Upload
+  example_endpoint: /ingestion/*
+  credits: 0
+worked_examples:
+- use_case: Enrich 1,000 new sign-ups (lookup)
+  calls: 1000 x 1
+  credits: 1000
+- use_case: Pull detailed profiles for 100 target accounts
+  calls: 100 x 2
+  credits: 200
+- use_case: Discover 500 net-new prospects
+  calls: 20 batches x 5
+  credits: 100
+access:
+  self_serve: false
+  requires: An active MadKudu account, admin role, and the API access add-on.
+  key_issuance: https://admin.madkudu.com/ > Personal Settings > My API Keys
+  contact: https://hginsights.com/contact-us/

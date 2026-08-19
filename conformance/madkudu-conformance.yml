@@ -1,26 +1,90 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: derived
-source: https://developers.madkudu.com/getting-started
+source: openapi/madkudu-madapi-openapi.yml + https://developers.madkudu.com/ + https://trust.hginsights.com/
 standards:
+- id: openapi
+  conforms: true
+  version: 3.1.0
+  evidence: >-
+    MadKudu publishes OpenAPI 3.1.0 for both surfaces — 19 operations for MadAPI, 6 for the legacy
+    Scoring API — but only as per-operation blocks embedded in its GitBook reference pages. There
+    is no downloadable spec document: madapi.madkudu.com/openapi.json and every equivalent path on
+    the docs host return 404. Assembled into openapi/ from those blocks.
 - id: oauth2
   conforms: false
-  evidence: MadAPI uses X-API-Key header auth; legacy API uses HTTP Basic. No OAuth2.
+  evidence: MadAPI uses a raw API key in the x-api-key header; the legacy API uses HTTP Basic. No
+    OAuth2 securityScheme is declared and no OAuth discovery document is served.
 - id: openid-connect
   conforms: false
+  evidence: No /.well-known/openid-configuration on any host (all 404/401).
 - id: rfc9457-problem-details
   conforms: false
-  evidence: 'Errors are plain application/json { "message": ... }, not application/problem+json.'
+  evidence: 'Errors are plain application/json — {"message": ...} in prose, and a Pydantic-shaped
+    {"detail":[...]} for the one declared 422 schema. Never application/problem+json.'
+- id: rfc8594-sunset
+  conforms: false
+  evidence: No Sunset or Deprecation headers, and no dated deprecation policy, despite an
+    explicitly labelled "Legacy API".
 - id: json-api
   conforms: false
 - id: rest-json
   conforms: true
-  evidence: JSON request/response bodies over HTTPS REST endpoints.
+  evidence: JSON request/response bodies over HTTPS. HTTP is rejected.
 - id: pagination
   conforms: true
-  evidence: Search and discover endpoints support filters, sorting, and pagination.
+  evidence: >-
+    Cursor pagination in the request body (limit/cursor) with a meta envelope carrying total,
+    has_next_page and next_cursor, declared in the spec for search, activity and job-posting
+    operations. Sourcing discovery deviates — page/size for Apollo and ZoomInfo, opaque cursor for
+    Cognism.
 - id: idempotency
   conforms: false
-  evidence: No idempotency-key contract documented.
+  evidence: >-
+    No idempotency-key contract anywhere, while read-shaped operations are POST and every call is
+    billed in credits — a retried search is charged twice.
+- id: rate-limit-headers
+  conforms: false
+  evidence: No X-RateLimit-*, RateLimit-* (RFC 9110/draft) or Retry-After headers published or
+    declared. The only runtime signal on exhaustion is the 429 status itself.
 - id: mcp
   conforms: true
-  evidence: Official hosted Model Context Protocol server at mcp.madkudu.com (streamable HTTP + SSE).
+  evidence: >-
+    Official hosted Model Context Protocol server at mcp.madkudu.com (streamable HTTP + SSE),
+    probed live 2026-08-14 — an anonymous tools/list returns the MCP protocol's own JSON-RPC
+    session error, not an HTTP error. First-party implementation published as @madkudu/mcp on npm.
+  note: Authentication is non-standard for MCP — the API key is a URL path segment, not an OAuth
+    token or header, and no OAuth protected-resource metadata is served.
+- id: a2a
+  conforms: false
+  evidence: No agent card at /.well-known/agent-card.json or /.well-known/agent.json on any host
+    (probed 2026-08-14).
+- id: asyncapi
+  conforms: false
+  evidence: No event, webhook or streaming surface of any kind is published, so there is nothing
+    for AsyncAPI to describe.
+- id: llms-txt
+  conforms: true
+  evidence: https://developers.madkudu.com/llms.txt returns 200 (GitBook-generated), alongside a
+    207 KB llms-full.txt.
+compliance:
+- id: soc2-type2
+  conforms: true
+  evidence: >-
+    Listed under Compliance on the HG Insights Trust Center (https://trust.hginsights.com/,
+    SafeBase), with a SOC 2 report available on request. HG Insights acquired MadKudu in 2025 and
+    is the operating parent; MadKudu itself publishes no compliance page.
+  scope: parent-company
+  ref: security/madkudu-trust-center.yml
+- id: iso-27001
+  conforms: false
+  evidence: Not claimed on the trust center.
+- id: pci-dss
+  conforms: false
+- id: hipaa
+  conforms: false
+- id: fedramp
+  conforms: false
+- id: gdpr
+  conforms: unknown
+  evidence: A privacy policy is published (https://hginsights.com/privacy-page/) but no GDPR/DPA
+    conformance statement was found on a public page.

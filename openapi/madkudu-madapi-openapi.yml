@@ -1,0 +1,3223 @@
+openapi: 3.1.0
+info:
+  title: MadAPI
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Lookup
+- name: Accounts
+- name: Persons
+- name: Enrichment
+- name: Search
+- name: Sourcing
+- name: AI
+- name: Organisation
+- name: Ingestion
+paths:
+  /lookup/accounts:
+    get:
+      operationId: Lookup_lookupAccounts
+      summary: Lookup account by identifiers
+      description: Lookup accounts in your database using domain names, social media handles, or CRM IDs. Returns
+        company profile with contact details, firmographics, and customer fit scoring. Use it to get the MadKudu
+        ID to fetch more information in the Detailed Information endpoints.
+      parameters:
+      - name: domain
+        in: query
+        required: false
+        description: Company website domain (e.g., 'madkudu.com')
+        schema:
+          type: string
+        explode: false
+      - name: linkedin
+        in: query
+        required: false
+        description: LinkedIn company page handle (e.g., 'company/madkudu')
+        schema:
+          type: string
+        explode: false
+      - name: twitter
+        in: query
+        required: false
+        description: Twitter company handle
+        schema:
+          type: string
+        explode: false
+      - name: crunchbase
+        in: query
+        required: false
+        description: Crunchbase company profile handle (e.g., 'organization/madkudu')
+        schema:
+          type: string
+        explode: false
+      - name: external_id
+        in: query
+        required: false
+        description: Your CRM account ID (Salesforce, HubSpot, etc.)
+        schema:
+          type: string
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDetailsMini'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Lookup
+  /lookup/persons:
+    get:
+      operationId: Lookup_lookupPersons
+      summary: Lookup person by identifiers
+      description: 'Lookup people in your database using email addresses, social media profiles, or CRM IDs. Returns
+        contact profile with job details, company information, and lead scoring. Use it to get the MadKudu ID to
+        fetch more information in the Detailed Information endpoints. '
+      parameters:
+      - name: email
+        in: query
+        required: false
+        description: Person's email address
+        schema:
+          type: string
+        explode: false
+      - name: linkedin
+        in: query
+        required: false
+        description: LinkedIn profile handle (e.g., 'in/francisbrero')
+        schema:
+          type: string
+        explode: false
+      - name: twitter
+        in: query
+        required: false
+        description: Twitter profile handle
+        schema:
+          type: string
+        explode: false
+      - name: external_id
+        in: query
+        required: false
+        description: Your CRM contact ID (Salesforce Lead/Contact, HubSpot Contact, etc.)
+        schema:
+          type: string
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonDetailsMini'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Lookup
+  /accounts/{mk_id}:
+    get:
+      operationId: Accounts_getAccount
+      summary: Get Account By Id
+      description: Retrieve comprehensive account information including firmographics, customer fit scoring, activity
+        metrics, and contact details.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.AccountDetail'
+      tags:
+      - Accounts
+  /accounts/{mk_id}/activities:
+    post:
+      operationId: Accounts_getAccountActivities
+      summary: Get Account Activities
+      description: Get activities associated with an account including website visits, email engagement, product
+        usage, and sales touchpoints. Filter by activity type, date range, or specific team members.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.AccountActivityResponse'
+      tags:
+      - Accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Common.Models.AccountActivitySearchRequest'
+  /accounts/{mk_id}/top-persons:
+    get:
+      operationId: Accounts_getAccountTopPersons
+      summary: Get Account Top Persons
+      description: Fetch the most engaged contacts at a company, ranked by activity level and seniority. Helps identify
+        champions, decision makers, and active stakeholders for targeted outreach and relationship building.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Common.Models.PersonDetail'
+      tags:
+      - Accounts
+  /persons/{mk_id}:
+    get:
+      operationId: Persons_getPerson
+      summary: Get Person By Id
+      description: Retrieve comprehensive person information including job details, company background, engagement
+        scoring, and activity metrics.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.PersonDetail'
+      tags:
+      - Persons
+  /persons/{mk_id}/activities:
+    post:
+      operationId: Persons_getPersonActivities
+      summary: Get Person Activities
+      description: Get activities associated with a person including email opens, website visits, content downloads,
+        and meeting attendance. Filter by activity type or date range to understand engagement patterns and optimize
+        outreach timing.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.PersonActivityResponse'
+      tags:
+      - Persons
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Common.Models.PersonActivitySearchRequest'
+  /enrichment/job-postings:
+    post:
+      operationId: Enrichment_searchJobPostings
+      summary: Search job postings from a company
+      description: Find a company's job openings to identify growth, expansion plans and relevant roles they are
+        hiring for. Filter by department, seniority, or keywords.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobPostingSearchResponse'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Enrichment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobPostingSearchRequestBody'
+  /search/accounts:
+    post:
+      operationId: Search_searchAccounts
+      summary: Search accounts
+      description: Search for accounts with advanced filtering capabilities. Supports filtering by company attributes
+        like domain, name, industry, employee count, funding, location, and activity levels. Includes pagination,
+        sorting, and full-text search.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSearchResponse'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountSearchRequest'
+  /search/persons:
+    post:
+      operationId: Search_searchPersons
+      summary: Search persons
+      description: Search for persons with advanced filtering capabilities. Supports filtering by personal attributes
+        like email, name, title, persona, company domain, location, and activity levels. Includes pagination, sorting,
+        and full-text search.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonSearchResponse'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonSearchRequest'
+  /sourcing/providers:
+    get:
+      operationId: Sourcing_getProviders
+      summary: Get available sourcing providers
+      description: Retrieves a list of all available sourcing data providers and their connection status for the
+        current tenant.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SourcingProvider'
+      tags:
+      - Sourcing
+  /sourcing/persons/discover:
+    post:
+      operationId: Sourcing_discoverPersons
+      summary: Discover persons using data providers
+      description: Discovers persons using various data providers with optional filtering criteria including company
+        domain, job title, location, and seniority level.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDiscoverResponse'
+      tags:
+      - Sourcing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonDiscoverRequest'
+  /sourcing/persons/enrich:
+    post:
+      operationId: Sourcing_enrichPerson
+      summary: Enrich person with contact information
+      description: Enriches an existing person record with additional contact information (email and phone) using
+        the specified data provider and provider-specific ID.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourcingPersonResult'
+      tags:
+      - Sourcing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonEnrichRequest'
+  /ai/web-search:
+    post:
+      operationId: AI_webSearch
+      summary: AI Web Search
+      description: Performs a web search using advanced AI-powered search capabilities. This endpoint leverages
+        the Tavily API to provide comprehensive search results with optional LLM-generated answers, image results,
+        and content extraction.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebSearchResponse'
+      tags:
+      - AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebSearchRequest'
+  /organisation:
+    get:
+      operationId: Organisation_getOrganisation
+      summary: Get your Organisation information
+      description: Retrieve your organization's profile. Useful for verifying the account authenticated
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationResponse'
+      tags:
+      - Organisation
+  /organisation/value-prop:
+    get:
+      operationId: Organisation_getValueProposition
+      summary: Get Organisation Value Proposition
+      description: Retrieves the value proposition for your tenant, containing persona-specific value propositions
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValueProposition'
+      tags:
+      - Organisation
+  /ingestion/upload-json:
+    post:
+      operationId: Ingestion_uploadJson
+      summary: Import data via API
+      description: Directly upload contact, account, or activity data in JSON format through the API for immediate
+        processing.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonUploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonUploadRequest'
+  /ingestion/generate-upload-url:
+    post:
+      operationId: Ingestion_generateUploadUrl
+      summary: Generate Upload Url
+      description: Generate a presigned URL for file upload.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+  /ingestion/confirm-upload:
+    post:
+      operationId: Ingestion_confirmUpload
+      summary: Confirm Upload
+      description: Confirm that a file has been uploaded.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmUploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmUploadRequest'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    AccountDetailsMini:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - name
+      - domain
+      - socials
+      - location
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the account in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        name:
+          type: string
+          description: Name of the account
+        domain:
+          type: string
+          description: Domain of the account
+        logo:
+          type: string
+          description: URL of the account's logo
+        description:
+          type: string
+          description: Description of the account
+        industry:
+          type: string
+          description: Industry the account operates in
+        founded_year:
+          type: integer
+          format: int32
+          description: Year the account was founded
+        raised_amount:
+          type: number
+          format: double
+          description: Total amount raised by the account
+        employees_count:
+          type: integer
+          format: int32
+          description: Number of employees in the account
+        active_users:
+          type: integer
+          format: int32
+          description: Number of active users
+        activities_count:
+          type: integer
+          format: int32
+          description: Number of activities
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    PersonDetailsMini:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email of the person
+        name:
+          type: string
+          description: Full name of the person
+        first_name:
+          type: string
+          description: First name of the person
+        last_name:
+          type: string
+          description: Last name of the person
+        title:
+          type: string
+          description: Title of the person
+        persona:
+          type: string
+          description: Persona of the person
+        avatar:
+          type: string
+          description: Avatar URL of the person
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Whether the person has left the company
+        activities:
+          description: Activities information
+    Common.Models.CompanyReference:
+      type: object
+      required:
+      - domain
+      - mk_id
+      properties:
+        domain:
+          type: string
+          description: Domain of the company
+        mk_id:
+          type: string
+          description: MadKudu ID of the company
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
+    Common.Models.AccountDetail:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - name
+      - domain
+      - socials
+      - location
+      - scores
+      - aggregations
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the account in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        name:
+          type: string
+          description: Account name
+        domain:
+          type: string
+          description: Account domain
+        logo:
+          type: string
+          description: Logo URL
+        description:
+          type: string
+          description: Account description
+        industry:
+          type: string
+          description: Industry
+        founded_year:
+          type: integer
+          format: int32
+          description: Founded year
+        raised_amount:
+          type: number
+          format: double
+          description: Raised amount
+        employees_count:
+          type: integer
+          format: int32
+          description: Number of employees
+        active_users:
+          type: integer
+          format: int32
+          description: Number of active users
+        activities_count:
+          type: integer
+          format: int32
+          description: Total activities count
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        aggregations:
+          type: object
+          unevaluatedProperties:
+            $ref: '#/components/schemas/Common.Models.AggregationValue'
+          description: Aggregations data
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
+    Common.Models.CustomerFit:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Customer fit score
+        segment:
+          type: string
+          description: Customer fit segment
+        signals:
+          type: string
+          description: Customer fit signals
+    Common.Models.LikelihoodToBuy:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Likelihood to buy score
+        segment:
+          type: string
+          description: Likelihood to buy segment
+    Common.Models.AggregationValue:
+      type: object
+      required:
+      - aggregation_name_display
+      - aggregation_value
+      properties:
+        aggregation_name_display:
+          type: string
+          description: Display name for the aggregation
+        aggregation_value:
+          type: number
+          format: double
+          description: Aggregation value
+    Common.Models.AccountActivityResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.AccountActivity'
+          description: Account activity data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    Common.Models.AccountActivity:
+      type: object
+      required:
+      - person
+      properties:
+        person:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonDetail'
+          description: Person who performed the activity
+      allOf:
+      - $ref: '#/components/schemas/Common.Models.ActivityBase'
+    Common.Models.PersonDetail:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      - scores
+      - aggregations
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email address
+        name:
+          type: string
+          description: Full name
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        title:
+          type: string
+          description: Job title
+        persona:
+          type: string
+          description: Persona
+        avatar:
+          type: string
+          description: Avatar URL
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Has left company
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        activities:
+          description: Activities information
+        aggregations:
+          type: object
+          unevaluatedProperties:
+            $ref: '#/components/schemas/Common.Models.AggregationValue'
+          description: Aggregations data
+    Common.Models.ActivityBase:
+      type: object
+      required:
+      - event_id
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - account_id
+      properties:
+        event_id:
+          type: string
+          description: Event ID
+        event:
+          type: string
+          description: Event name
+        event_display:
+          type: string
+          description: Event display name
+        event_timestamp:
+          type: string
+          description: Event timestamp
+        activity_type:
+          type: string
+          description: Activity type
+        account_id:
+          type: string
+          description: Account ID
+    Common.Models.Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results returned
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results
+        next_cursor:
+          type: integer
+          format: int32
+          description: Next cursor for pagination
+    Common.Models.AccountActivitySearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.AccountActivityFilter'
+          description: Filters to apply
+        filterLogic:
+          type: string
+          enum:
+          - AND
+          - OR
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    Common.Models.AccountActivityFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountActivityFilterProperty'
+          description: Property to filter by
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: array
+            items:
+              type: string
+          description: Filter value
+    Common.Models.AccountActivityFilterProperty:
+      type: string
+      enum:
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - name
+      - email
+      - title
+    Common.Models.FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - LIKE
+      - NOT_LIKE
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+      - IS_EMPTY
+      - IS_NOT_EMPTY
+    Common.Models.SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
+          type: string
+          description: Field to sort by
+        sort_order:
+          type: string
+          enum:
+          - asc
+          - desc
+          description: Sort order
+    Common.Models.PersonActivityResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.PersonActivity'
+          description: Person activity data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    Common.Models.PersonActivity:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Common.Models.ActivityBase'
+    Common.Models.PersonActivitySearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.PersonActivityFilter'
+          description: Filters to apply
+        filterLogic:
+          type: string
+          enum:
+          - AND
+          - OR
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    Common.Models.PersonActivityFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonActivityFilterProperty'
+          description: Property to filter by
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: array
+            items:
+              type: string
+          description: Filter value
+    Common.Models.PersonActivityFilterProperty:
+      type: string
+      enum:
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+    JobPostingSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPosting'
+          description: Array of job posting results
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/SearchMeta'
+          description: Metadata about the search results
+    JobPosting:
+      type: object
+      required:
+      - company_domain
+      - job_opening_title
+      - job_opening_url
+      - event
+      - event_on
+      - first_event_on
+      properties:
+        company_domain:
+          type: string
+          description: Company domain
+        job_opening_title:
+          type: string
+          description: Job opening title
+        job_opening_url:
+          type: string
+          description: URL to the job posting
+        keywords:
+          type: string
+          description: Keywords associated with the job
+        categories:
+          type: string
+          description: Categories associated with the job
+        location:
+          type: string
+          description: Location of the job
+        event:
+          type: string
+          description: Event type
+        event_on:
+          type: string
+          description: Date when the event occurred
+        first_event_on:
+          type: string
+          description: Date when the first event occurred
+    SearchMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results requested
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results available
+        next_cursor:
+          type: integer
+          format: int32
+          description: Cursor for the next page of results
+    JobPostingSearchRequestBody:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain to search for job postings
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of results to return
+          default: 20
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+          default: 0
+        search:
+          type: string
+          description: Free text search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPostingFilter'
+          description: Array of filters to apply to the search
+        filter_logic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Logic to apply between filters (AND or OR)
+          default: AND
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortingParam'
+          description: Array of sorting parameters
+    JobPostingFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/JobPostingFilterField'
+          description: Property to filter on
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Operator to apply for the filter
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Value to filter by
+    JobPostingFilterField:
+      type: string
+      enum:
+      - job_opening_title
+      - keywords
+      - categories
+      - location
+      - event
+      - event_on
+      - first_event_on
+    FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+    FilterLogic:
+      type: string
+      enum:
+      - AND
+      - OR
+    SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
+          type: string
+          description: Field to sort by
+        sort_order:
+          allOf:
+          - $ref: '#/components/schemas/SortOrder'
+          description: Sort order (ascending or descending)
+    SortOrder:
+      type: string
+      enum:
+      - asc
+      - desc
+    AccountSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDetailSearch'
+          description: Account search data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    AccountDetailSearch:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - name
+      - domain
+      - socials
+      - location
+      - scores
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the account in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        name:
+          type: string
+          description: Account name
+        domain:
+          type: string
+          description: Account domain
+        logo:
+          type: string
+          description: Logo URL
+        description:
+          type: string
+          description: Account description
+        industry:
+          type: string
+          description: Industry
+        founded_year:
+          type: integer
+          format: int32
+          description: Founded year
+        raised_amount:
+          type: number
+          format: double
+          description: Raised amount
+        employees_count:
+          type: integer
+          format: int32
+          description: Number of employees
+        active_users:
+          type: integer
+          format: int32
+          description: Number of active users
+        activities_count:
+          type: integer
+          format: int32
+          description: Total activities count
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+    AccountSearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountSearchFilter'
+          description: Filters to apply - restricted to account fields
+        filterLogic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    AccountSearchFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          type: string
+          enum:
+          - name
+          - domain
+          - industry
+          - employees_count
+          - founded_year
+          - raised_amount
+          - country
+          - city
+          - active_users
+          - activities_count
+          description: Property to filter by - restricted to account fields
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Filter value
+    PersonSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonDetailSearch'
+          description: Person search data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    PersonDetailSearch:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      - scores
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email address
+        name:
+          type: string
+          description: Full name
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        title:
+          type: string
+          description: Job title
+        persona:
+          type: string
+          description: Persona
+        avatar:
+          type: string
+          description: Avatar URL
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Has left company
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        activities:
+          description: Activities information
+    PersonSearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonSearchFilter'
+          description: Filters to apply - restricted to person fields
+        filterLogic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    PersonSearchFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          type: string
+          enum:
+          - email
+          - first_name
+          - last_name
+          - name
+          - title
+          - persona
+          - company_domain
+          - country
+          - state
+          - city
+          - activities
+          - has_left_company
+          description: Property to filter by - restricted to person fields
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Filter value
+    SourcingProvider:
+      type: object
+      required:
+      - provider
+      - isConnected
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: The name of the sourcing provider
+        isConnected:
+          type: boolean
+          description: Whether the provider is properly configured and connected for this tenant
+    PersonDiscoverResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourcingPersonResult'
+          description: Array of discovered persons
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverResponsePagination'
+          description: Pagination information
+    SourcingPersonResult:
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - provider
+      properties:
+        id:
+          type: string
+          description: Provider-specific person ID
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        email:
+          type: string
+          description: Email address (available after enrichment)
+        phone:
+          type: string
+          description: Phone number (available after enrichment)
+        photo:
+          type: string
+          description: Photo URL
+        title:
+          type: string
+          description: Job title
+        company_name:
+          type: string
+          description: Company name
+        company_domain:
+          type: string
+          description: Company domain
+        linkedin_url:
+          type: string
+          description: LinkedIn profile URL
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider used
+        enrich_token:
+          type: string
+          description: Token for enrichment (optional)
+    PersonDiscoverResponsePagination:
+      type: object
+      required:
+      - size
+      - total
+      properties:
+        next_page:
+          type: integer
+          format: int32
+          description: Next page number (for Apollo/ZoomInfo)
+        page:
+          type: integer
+          format: int32
+          description: Current page number
+        size:
+          type: integer
+          format: int32
+          description: Number of results per page
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        next_cursor:
+          type: string
+          description: Next cursor for pagination (for Cognism)
+    PersonDiscoverRequest:
+      anyOf:
+      - $ref: '#/components/schemas/ApolloDiscoverRequest'
+      - $ref: '#/components/schemas/ZoomInfoDiscoverRequest'
+      - $ref: '#/components/schemas/CognismDiscoverRequest'
+    ApolloDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ApolloFilters'
+          description: Apollo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    ApolloFilters:
+      type: object
+      properties:
+        person_titles:
+          type: array
+          items:
+            type: string
+          description: Job titles held by the people you want to find. Use lowercase for better matching accuracy
+            (e.g., 'software engineer', 'marketing manager')
+        include_similar_titles:
+          type: boolean
+          description: Whether people with similar job titles are included
+        q_keywords:
+          type: string
+          description: Keywords to search for
+        person_locations:
+          type: array
+          items:
+            type: string
+          description: Location where people live (cities, US states, countries)
+        person_seniorities:
+          type: array
+          items:
+            type: string
+          description: Job seniority levels
+        organization_locations:
+          type: array
+          items:
+            type: string
+          description: Company headquarters locations
+        q_organization_domains_list:
+          type: array
+          items:
+            type: string
+          description: Domain names for person's current or previous employer
+        contact_email_status:
+          type: array
+          items:
+            type: string
+          description: Email statuses for people
+        organization_ids:
+          type: array
+          items:
+            type: string
+          description: Apollo company IDs to include in search
+        organization_num_employees_ranges:
+          type: array
+          items:
+            type: string
+          description: Number of employees range for person's current company
+        revenue_range_min:
+          type: integer
+          format: int32
+          description: Minimum revenue for person's current employer
+        revenue_range_max:
+          type: integer
+          format: int32
+          description: Maximum revenue for person's current employer
+        currently_using_all_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must use (all of)
+        currently_using_any_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must use (any of)
+        currently_not_using_any_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must not use
+        q_organization_job_titles:
+          type: array
+          items:
+            type: string
+          description: Job titles in active job postings at current employer
+        organization_job_locations:
+          type: array
+          items:
+            type: string
+          description: Locations of jobs being recruited by employer
+        organization_num_jobs_range_min:
+          type: integer
+          format: int32
+          description: Minimum number of active job postings at current employer
+        organization_num_jobs_range_max:
+          type: integer
+          format: int32
+          description: Maximum number of active job postings at current employer
+        organization_job_posted_at_range_min:
+          type: string
+          format: date
+          description: Earliest date when jobs were posted by current employer
+        organization_job_posted_at_range_max:
+          type: string
+          format: date
+          description: Latest date when jobs were posted by current employer
+    PersonDiscoverPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Page number (for Apollo/ZoomInfo)
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Number of results per page
+        cursor:
+          type: string
+          description: Cursor for pagination (for Cognism)
+    ZoomInfoDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - zoominfo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoFilters'
+          description: ZoomInfo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    ZoomInfoFilters:
+      type: object
+      properties:
+        rpp:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Limits the results returned to the given number of results per page. Default is 25.
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Provides the results for the given page, used in conjunction with rpp
+        sortBy:
+          type: string
+          enum:
+          - contactAccuracyScore
+          - lastName
+          - companyName
+          - hierarchy
+          - sourceCount
+          - lastMentioned
+          - relevance
+          description: Sort results by valid output fields
+        sortOrder:
+          type: string
+          enum:
+          - asc
+          - ascending
+          - desc
+          - descending
+          description: Sort order for results
+        personId:
+          type: string
+          description: Unique ZoomInfo identifier for the contact. Can include a comma-separated list.
+        emailAddress:
+          type: string
+          description: Work email address for the contact
+        supplementalEmail:
+          type: array
+          items:
+            type: string
+          description: Supplemental email address for the contact
+        hashedEmail:
+          type: string
+          description: Hashed email value for the contact (MD5, SHA1, SHA256, SHA512)
+        phone:
+          type: array
+          items:
+            type: string
+          description: List of person phones or mobile numbers
+        fullName:
+          type: string
+          description: Contact full name
+        firstName:
+          type: string
+          description: Contact first name
+        middleInitial:
+          type: string
+          description: Contact middle initial
+        lastName:
+          type: string
+          description: Contact last name
+        jobTitle:
+          type: string
+          description: Contact title at current place of employment. Use OR to input multiple job titles.
+        excludeJobTitle:
+          type: string
+          description: Exclude comma-separated list of job titles
+        managementLevel:
+          type: string
+          description: Contact management level at current place of employment
+        excludeManagementLevel:
+          type: string
+          description: Exclude contact based on management level
+        department:
+          type: string
+          description: Contact department at current place of employment
+        jobFunction:
+          type: string
+          description: Contact job function at their current place of employment
+        boardMember:
+          type: string
+          description: Exclude or include board members from search results
+        executivesOnly:
+          type: boolean
+          description: Return only executives
+        excludePartialProfiles:
+          type: boolean
+          description: Exclude contacts with a partial profile from search results
+        contactAccuracyScore:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoAccuracyScoreRange'
+          description: Contact accuracy score range
+        hasBeenNotified:
+          type: string
+          enum:
+          - exclude
+          - include
+          - only
+          description: Contacts who have been notified of inclusion in ZoomInfo's database
+        lastUpdatedDateAfter:
+          type: string
+          format: date
+          description: The date after which the contact's profile was last updated (YYYY-MM-DD)
+        validDateAfter:
+          type: string
+          format: date
+          description: The date after which the contact's profile was last validated (YYYY-MM-DD)
+        lastUpdatedInMonths:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Number of months within which the contact's profile was last updated
+        positionStartDateMin:
+          type: string
+          format: date
+          description: Minimum date for when a contact began current employment (YYYY-MM-DD)
+        positionStartDateMax:
+          type: string
+          format: date
+          description: Maximum date for when a contact began current employment (YYYY-MM-DD)
+        companyPastOrPresent:
+          type: string
+          enum:
+          - present
+          - past
+          - pastAndPresent
+          description: Returns companies based on a contact's work history
+        school:
+          type: string
+          description: Contact educational institution
+        degree:
+          type: string
+          description: Contact education degree
+        locationCompanyId:
+          type: array
+          items:
+            type: string
+          description: Searches by contact's location IDs
+        companyId:
+          type: string
+          description: ZoomInfo unique identifier for the company. Will accept a comma-separated list.
+        companyName:
+          type: string
+          description: Company name. Can use OR and NOT operators to include or exclude companies
+        companyWebsite:
+          type: string
+          description: URL to the company website
+        companyTicker:
+          type: array
+          items:
+            type: string
+          description: Company stock ticker symbol
+        companyDescription:
+          type: string
+          description: Text description unique to the company
+        parentId:
+          type: string
+          description: ZoomInfo Company ID for parent company
+        ultimateParentId:
+          type: string
+          description: ZoomInfo Company ID for ultimate parent company
+        companyType:
+          type: string
+          description: Company type (private, public, etc.)
+        address:
+          type: string
+          description: Company address
+        street:
+          type: string
+          description: Company street
+        state:
+          type: string
+          description: Company state (U.S.) or province (Canada)
+        zipCode:
+          type: string
+          description: Zip Code of the company's primary address
+        country:
+          type: string
+          description: Country for the company's primary address
+        continent:
+          type: string
+          description: Continent for the company's primary address
+        zipCodeRadiusMiles:
+          type: string
+          description: Geographical radius in miles from the zipCode provided
+        metroRegion:
+          type: string
+          description: Company metro area
+        excludedRegions:
+          type: string
+          description: Exclude a company metro area
+        locationSearchType:
+          type: string
+          enum:
+          - PersonOrHQ
+          - PersonAndHQ
+          - Person
+          - HQ
+          - PersonThenHQ
+          description: Location criteria for search
+        hashTagString:
+          type: string
+          description: Hash tags for a company
+        techAttributeTagList:
+          type: string
+          description: Technology product tags using numerical dot notation
+        subUnitTypes:
+          type: string
+          description: Company sub types (e.g., division, subsidiary)
+        companyStructureIncludedSubUnitTypes:
+          type: string
+          description: Company hierarchical structure
+        primaryIndustriesOnly:
+          type: boolean
+          description: Used with industryCodes - when true, results must have specified industries as primary
+        industryCodes:
+          type: string
+          description: Top-level industry that the contact works in
+        industryKeywords:
+          type: string
+          description: Industry keywords associated with a company
+        sicCodes:
+          type: string
+          description: Standard Industrial Classification four-digit codes
+        naicsCodes:
+          type: string
+          description: North American Industry Classification System codes
+        revenue:
+          type: string
+          description: Annual revenue range
+        revenueRange:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoRevenueRange'
+          description: Annual revenue range in U.S. dollars
+        employeeCount:
+          type: string
+          description: Employee count range
+        employeeRange:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoEmployeeRange'
+          description: Employee count range (granular)
+        companyRanking:
+          type: string
+          description: Company ranking list (e.g., Fortune 500)
+        zoominfoContacts:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoContactRange'
+          description: Number of ZoomInfo contacts associated with company
+        oneYearEmployeeGrowthRate:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoGrowthRateRange'
+          description: One year employee growth rate range
+        twoYearEmployeeGrowthRate:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoGrowthRateRange'
+          description: Two year employee growth rate range
+        fundingAmount:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoFundingRange'
+          description: Funding amount range in thousands
+        fundingStartDate:
+          type: string
+          format: date
+          description: Start date of the funding (YYYY-MM-DD)
+        fundingEndDate:
+          type: string
+          format: date
+          description: End date of the funding (YYYY-MM-DD)
+        webReferences:
+          type: array
+          items:
+            type: string
+          description: List of web references for a contact
+        filterByBuyingCommittee:
+          type: boolean
+          description: Boolean flag for Buying Committee filtering
+        techSkills:
+          type: array
+          items:
+            type: string
+          description: List of technology skills for a contact
+        yearsOfExperience:
+          type: string
+          description: Years of overall experience
+        engagementStartDate:
+          type: string
+          format: date
+          description: Engagement start date (YYYY-MM-DD)
+        engagementEndDate:
+          type: string
+          format: date
+          description: Engagement end date (YYYY-MM-DD)
+        engagementType:
+          type: array
+          items:
+            type: string
+            enum:
+            - email
+            - phone
+            - online meeting
+          description: List of engagement types to search for
+    ZoomInfoAccuracyScoreRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Minimum accuracy score (70-99)
+        max:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Maximum accuracy score (70-99)
+    ZoomInfoRevenueRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int64
+          description: Minimum annual revenue in U.S. dollars
+        max:
+          type: integer
+          format: int64
+          description: Maximum annual revenue in U.S. dollars
+    ZoomInfoEmployeeRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum employee count
+        max:
+          type: integer
+          format: int32
+          description: Maximum employee count
+    ZoomInfoContactRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum number of ZoomInfo contacts
+        max:
+          type: integer
+          format: int32
+          description: Maximum number of ZoomInfo contacts
+    ZoomInfoGrowthRateRange:
+      type: object
+      properties:
+        min:
+          type: string
+          description: Minimum growth rate
+        max:
+          type: string
+          description: Maximum growth rate
+    ZoomInfoFundingRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum funding amount in thousands
+        max:
+          type: integer
+          format: int32
+          description: Maximum funding amount in thousands
+    CognismDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - cognism
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/CognismFilters'
+          description: Cognism-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    CognismFilters:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: Contact ids
+        fullName:
+          type: string
+          description: Contact full name
+        firstName:
+          type: string
+          description: Contact first name
+        lastName:
+          type: string
+          description: Contact last name
+        jobTitles:
+          type: array
+          items:
+            type: string
+          description: Contact current position job titles
+        excludeJobTitles:
+          type: array
+          items:
+            type: string
+          description: Contact current position excluded job titles
+        seniority:
+          type: array
+          items:
+            type: string
+            enum:
+            - Manager
+            - Director
+            - Partner
+            - CXO
+            - Owner
+            - VP
+          description: Contact current position seniority
+        jobFunctions:
+          type: array
+          items:
+            type: string
+            enum:
+            - Oversight
+            - Technology
+            - Operations
+            - Sales
+            - Marketing
+            - Client Success
+            - HR
+            - Accounting
+            - Business
+            - Production
+          description: Contact current position job functions
+        managementLevel:
+          type: array
+          items:
+            type: string
+            enum:
+            - Entry-Level
+            - Team-Lead
+            - Experienced Staff
+            - Executive-Level
+            - Senior Leadership
+            - Middle-Management
+            - CxO
+          description: Contact current position management levels
+        regions:
+          type: array
+          items:
+            type: string
+          description: Contact location world regions
+        countries:
+          type: array
+          items:
+            type: string
+          description: Contact location countries
+        excludeCountries:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded countries
+        states:
+          type: array
+          items:
+            type: string
+          description: Contact location states
+        excludeStates:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded states
+        cities:
+          type: array
+          items:
+            type: string
+          description: Contact location cities
+        excludeCities:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded cities
+        zip:
+          type: array
+          items:
+            type: string
+          description: Contact location zip codes
+        skills:
+          type: array
+          items:
+            type: string
+          description: Contact skills
+        excludeSkills:
+          type: array
+          items:
+            type: string
+          description: Contact excluded skills
+        linkedinUrl:
+          type: string
+          description: Contact LinkedIn URL
+        education:
+          allOf:
+          - $ref: '#/components/schemas/CognismEducation'
+          description: Contact education information
+        mobilePhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with mobile phone numbers
+        directPhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with direct phone numbers
+        emailQuality:
+          allOf:
+          - $ref: '#/components/schemas/CognismEmailQuality'
+          description: Search contacts with email quality
+        sha256:
+          type: array
+          items:
+            type: string
+          description: Search contacts by sha256 hashed email
+        lastConfirmed:
+          allOf:
+          - $ref: '#/components/schemas/CognismDateRange'
+          description: Contact profile time updated range
+        account:
+          allOf:
+          - $ref: '#/components/schemas/CognismAccountFilters'
+          description: Contact current account filters
+        searchOptions:
+          allOf:
+          - $ref: '#/components/schemas/CognismSearchOptions'
+          description: Search options
+    CognismEducation:
+      type: object
+      properties:
+        schools:
+          type: array
+          items:
+            type: string
+          description: Contact education school names
+        degrees:
+          type: array
+          items:
+            type: string
+          description: Contact education degree names
+    CognismPhoneQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality phone numbers
+        high:
+          type: boolean
+          description: Search contacts with high quality phone numbers
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality phone numbers
+    CognismEmailQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality email
+        high:
+          type: boolean
+          description: Search contacts with high quality email
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality email
+    CognismDateRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int64
+          description: Start timestamp (Unix timestamp in milliseconds)
+        to:
+          type: integer
+          format: int64
+          description: End timestamp (Unix timestamp in milliseconds)
+    CognismAccountFilters:
+      type: object
+      properties:
+        names:
+          type: array
+          items:
+            type: string
+          description: Contact current account names
+        excludeNames:
+          type: array
+          items:
+            type: string
+          description: Contact current account exclude names
+        domains:
+          type: array
+          items:
+            type: string
+          description: Contact current account domains
+        excludeDomains:
+          type: array
+          items:
+            type: string
+          description: Contact current account exclude domains
+        websites:
+          type: array
+          items:
+            type: string
+          description: Contact current account websites
+        description:
+          type: string
+          description: Contact current account description keyword
+        shortDescription:
+          type: string
+          description: Contact current account short description keyword
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Contact current account keywords
+        revenue:
+          allOf:
+          - $ref: '#/components/schemas/CognismRevenueRange'
+          description: Contact current account revenue range
+        founded:
+          allOf:
+          - $ref: '#/components/schemas/CognismFoundedRange'
+          description: Contact current account founded year range
+        types:
+          type: array
+          items:
+            type: string
+            enum:
+            - Public Company
+            - Educational
+            - Educational Institution
+            - Government Agency
+            - Partnership
+            - Privately Held
+            - Self-Employed
+            - non profit
+          description: Contact current account types
+        regions:
+          type: array
+          items:
+            type: string
+          description: Contact current account world regions
+        countries:
+          type: array
+          items:
+            type: string
+          description: Contact current account countries
+        excludeCountries:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded countries
+        states:
+          type: array
+          items:
+            type: string
+          description: Contact current account states
+        excludeStates:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded states
+        cities:
+          type: array
+          items:
+            type: string
+          description: Contact current account cities
+        excludeCities:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded cities
+        zip:
+          type: array
+          items:
+            type: string
+          description: Contact current account zip codes
+        industries:
+          type: array
+          items:
+            type: string
+          description: Contact current account industries
+        excludeIndustries:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded industries
+        sic:
+          type: array
+          items:
+            type: string
+          description: Contact current account SIC codes
+        isic:
+          type: array
+          items:
+            type: string
+          description: Contact current account ISIC codes
+        naics:
+          type: array
+          items:
+            type: string
+          description: Contact current account NAICS codes
+        headcount:
+          allOf:
+          - $ref: '#/components/schemas/CognismHeadcountRange'
+          description: Contact current account headcount range
+        technologies:
+          type: array
+          items:
+            type: string
+          description: Contact current account technologies used
+        excludedTechnologies:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded technologies
+        lastConfirmed:
+          allOf:
+          - $ref: '#/components/schemas/CognismDateRange'
+          description: Contact current account time updated range
+        hqPhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with account having HQ phone numbers
+        officePhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with account having office phone numbers
+    CognismRevenueRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int64
+          description: Revenue range minimum
+        to:
+          type: integer
+          format: int64
+          description: Revenue range maximum
+    CognismFoundedRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int32
+          description: Founded year range minimum
+        to:
+          type: integer
+          format: int32
+          description: Founded year range maximum
+    CognismHeadcountRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int32
+          description: Headcount minimum
+        to:
+          type: integer
+          format: int32
+          description: Headcount maximum
+    CognismSearchOptions:
+      type: object
+      properties:
+        match_exact_job_title:
+          type: boolean
+          description: Match exact job title
+        ai_job_title:
+          type: boolean
+          description: AI expansion of job titles
+        sort_fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - LastConfirmedContactDESC
+            - LastConfirmedContactASC
+            - EmailQualityDESC
+            - EmailQualityASC
+            - ProfileScoreDESC
+            - ProfileScoreASC
+          description: Sort fields
+    PersonEnrichRequest:
+      type: object
+      required:
+      - provider
+      - provider_id
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider to use
+        provider_id:
+          type: string
+          description: Provider-specific identifier for the person to enrich
+    WebSearchResponse:
+      type: object
+      required:
+      - query
+      - images
+      - results
+      - response_time
+      properties:
+        query:
+          type: string
+          description: Your search query
+        follow_up_questions:
+          type: string
+          description: Follow-up questions related to the search
+        answer:
+          type: string
+          description: The answer to your search query, generated by an LLM based on Tavily's search results. This
+            is only available if includeAnswer is set to true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebSearchImageResult'
+          description: A list of query-related image URLs or ImageResult objects. This is only available if includeImages
+            is set to true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebSearchResult'
+          description: A list of sorted search results ranked by relevancy
+        response_time:
+          type: number
+          format: double
+          description: Your search result response time
+    WebSearchImageResult:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+          description: The URL of the image
+        description:
+          type: string
+          description: An LLM-generated description of the image. This is only available if includeImageDescriptions
+            is set to true
+    WebSearchResult:
+      type: object
+      required:
+      - title
+      - url
+      - content
+      - score
+      properties:
+        title:
+          type: string
+          description: The title of the search result
+        url:
+          type: string
+          description: The URL of the search result
+        content:
+          type: string
+          description: The most query-related content from the scraped URL
+        score:
+          type: number
+          format: double
+          description: The relevance score of the search result
+        raw_content:
+          type: string
+          description: The parsed and cleaned HTML content of the site. This is only available if includeRawContent
+            is set to true
+        publishedDate:
+          type: string
+          description: The publication date of the source. This is only available if the search topic is set to
+            news
+    WebSearchRequest:
+      type: object
+      required:
+      - query
+      properties:
+        query:
+          type: string
+          description: The query to run a search on
+        searchDepth:
+          type: string
+          enum:
+          - basic
+          - advanced
+          description: The depth of the search. 'advanced' search is tailored to retrieve the most relevant sources
+            and content snippets for your query, while 'basic' search provides generic content snippets from each
+            source
+        topic:
+          type: string
+          enum:
+          - general
+          - news
+          description: The category of the search. Determines which agent will be used
+        days:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 365
+          description: The number of days back from the current date to include in the results. Available only when
+            using the 'news' topic
+        timeRange:
+          type: string
+          enum:
+          - day
+          - week
+          - month
+          - year
+          - d
+          - w
+          - m
+          - y
+          description: The time range back from the current date
+        maxResults:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 20
+          description: The maximum number of search results to return
+        chunksPerSource:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 10
+          description: Maximum number of relevant chunks returned per source. Available only when searchDepth is
+            'advanced'
+        includeImages:
+          type: boolean
+          description: Include a list of query-related images in the response
+        includeImageDescriptions:
+          type: boolean
+          description: Include a list of query-related images and their descriptions in the response
+        includeAnswer:
+          anyOf:
+          - type: boolean
+          - type: string
+            enum:
+            - basic
+            - advanced
+          description: Include an answer to the query generated by an LLM based on search results. A 'basic' (or
+            true) answer is quick but less detailed; an 'advanced' answer is more detailed
+        includeRawContent:
+          anyOf:
+          - type: boolean
+          - type: string
+            enum:
+            - markdown
+            - text
+          description: Include the cleaned and parsed HTML content of each search result. 'markdown' or True returns
+            search result content in markdown format. 'text' returns the plain text from the results and may increase
+            latency
+        includeDomains:
+          type: array
+          items:
+            type: string
+          description: A list of domains to specifically include in the search results
+        excludeDomains:
+          type: array
+          items:
+            type: string
+          description: A list of domains to specifically exclude from the search results
+        country:
+          type: string
+          description: Boost search results from a specific country. This will prioritize content from the selected
+            country in the search results. Available only if topic is general
+        timeout:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 300
+          description: A timeout to be used in requests to the Tavily API
+    OrganisationResponse:
+      type: object
+      required:
+      - _id
+      - domain
+      - name
+      - created_at
+      - updated_at
+      properties:
+        _id:
+          type: integer
+          format: int32
+          description: Organisation ID
+        domain:
+          type: string
+          description: Organisation domain
+        name:
+          type: string
+          description: Organisation name
+        created_at:
+          type: string
+          description: Creation timestamp
+        updated_at:
+          type: string
+          description: Last update timestamp
+    ValueProposition:
+      type: object
+      required:
+      - persona
+      - valueProp
+      properties:
+        persona:
+          type: string
+          description: Target persona or role
+        valueProp:
+          type: string
+          description: Value proposition for this persona
+    JsonUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      - file_key
+      properties:
+        status:
+          type: string
+          description: Upload status
+        message:
+          type: string
+          description: Upload message
+        file_key:
+          type: string
+          description: Generated file key for the uploaded data
+      description: Response model for JSON upload
+    JsonUploadRequest:
+      type: object
+      required:
+      - stream
+      - data
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        data:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+          - type: array
+            items:
+              $ref: '#/components/schemas/Account'
+          - type: array
+            items:
+              $ref: '#/components/schemas/ContactEvent'
+          - type: array
+            items:
+              $ref: '#/components/schemas/AccountEvent'
+          description: Data array - contents depend on stream type
+      description: Request model for direct JSON upload
+    AcceptedStream:
+      type: string
+      enum:
+      - account
+      - account_event
+      - contact
+      - contact_event
+      description: Accepted streams for customer data
+    Contact:
+      type: object
+      required:
+      - contact_id
+      - email
+      - contact_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - contact
+          description: Type identifier for contact
+          default: contact
+        contact_id:
+          type: string
+          description: Unique identifier for the contact
+        email:
+          type: string
+          description: Email address of the contact
+        contact_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional contact properties
+      description: Contact model for ingestion
+    Account:
+      type: object
+      required:
+      - account_id
+      - domain
+      - account_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - account
+          description: Type identifier for account
+          default: account
+        account_id:
+          type: string
+          description: Unique identifier for the account
+        domain:
+          type: string
+          description: Domain of the account
+        account_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional account properties
+      description: Account model for ingestion
+    ContactEvent:
+      type: object
+      required:
+      - event_id
+      - contact_id
+      - event
+      - event_timestamp
+      - event_properties
+      properties:
+        event_type:
+          type: string
+          enum:
+          - contact_event
+          description: Event type identifier
+          default: contact_event
+        event_id:
+          type: string
+          description: Unique identifier for the event
+        contact_id:
+          type: string
+          description: Contact identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Contact event model for ingestion
+    AccountEvent:
+      type: object
+      required:
+      - event_id
+      - account_id
+      - event
+      - event_timestamp
+      - event_properties
+      properties:
+        event_type:
+          type: string
+          enum:
+          - account_event
+          description: Event type identifier
+          default: account_event
+        event_id:
+          type: string
+          description: Unique identifier for the event
+        account_id:
+          type: string
+          description: Account identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Account event model for ingestion
+    UploadResponse:
+      type: object
+      required:
+      - upload_url
+      - file_key
+      properties:
+        upload_url:
+          type: string
+          description: Presigned URL for file upload
+        file_key:
+          type: string
+          description: Unique file key for the uploaded file
+    UploadRequest:
+      type: object
+      required:
+      - stream
+      - content_type
+      - content_encoding
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        content_type:
+          allOf:
+          - $ref: '#/components/schemas/ContentType'
+          description: Content type of the file to upload
+        content_encoding:
+          allOf:
+          - $ref: '#/components/schemas/ContentEncoding'
+          description: Content encoding for the file
+    ContentType:
+      type: string
+      enum:
+      - application/jsonl
+      description: Content types for customer data
+    ContentEncoding:
+      type: string
+      enum:
+      - gzip
+      description: Content encodings for customer data
+    ConfirmUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      properties:
+        status:
+          type: string
+          description: Upload confirmation status
+        message:
+          type: string
+          description: Confirmation message
+    ConfirmUploadRequest:
+      type: object
+      required:
+      - file_key
+      properties:
+        file_key:
+          type: string
+          description: File key from the upload response

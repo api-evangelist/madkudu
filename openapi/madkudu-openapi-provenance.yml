@@ -1,0 +1,95 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.madkudu.com/llms-full.txt
+discovery:
+  summary: >-
+    MadKudu serves NO OpenAPI document. Every conventional path was probed on every host on
+    2026-08-14 and all of them miss. What MadKudu does publish is the spec itself — as 25
+    per-operation OpenAPI 3.1.0 JSON blocks embedded in the GitBook API reference pages (and in
+    their llms-full.txt rendering). Those blocks are the real, first-party contract; they are just
+    not distributed as a file.
+  probes:
+  - url: https://madapi.madkudu.com/openapi.json
+    status: 404
+    body: '{"message":"no Route matched with those values"}'
+  - url: https://madapi.madkudu.com/openapi.yaml
+    status: 404
+  - url: https://madapi.madkudu.com/swagger.json
+    status: 404
+  - url: https://madapi.madkudu.com/v1/openapi.json
+    status: 404
+  - url: https://madapi.madkudu.com/api-docs
+    status: 404
+  - url: https://madapi.madkudu.com/docs
+    status: 404
+  - url: https://madapi.madkudu.com/redoc
+    status: 404
+  - url: https://api.madkudu.com/openapi.json
+    status: 401
+    note: Legacy host authenticates before routing; every path is 401.
+  - url: https://developers.madkudu.com/openapi.json
+    status: 404
+  - url: https://developers.madkudu.com/docs.json
+    status: 404
+    note: Checked for a Mintlify config; the docs host is GitBook on Vercel.
+  - url: https://developers.madkudu.com/mint.json
+    status: 404
+  - url: https://developers.madkudu.com/llms.txt
+    status: 200
+  - url: https://developers.madkudu.com/llms-full.txt
+    status: 200
+    note: 207 KB. Contains the 25 OpenAPI blocks.
+  - url: https://madkudu.com/openapi.json
+    status: 200
+    valid: false
+    note: SOFT-200. The marketing host is an SPA catch-all — it returns the identical
+      377,456-byte HTML page for every path, including invented ones. Not a spec.
+  graphql: none — no /graphql surface is documented or served.
+  grpc: none — github.com/MadKudu has zero public repositories; no .proto is published.
+assembly:
+  method: >-
+    Each of the 25 blocks is a complete, standalone OpenAPI 3.1.0 document describing ONE
+    operation, all cut from the same master spec. They were extracted verbatim and merged by
+    info.title into two documents. The merge was conflict-checked: every schema, securityScheme and
+    path defined in more than one block was byte-identical across blocks (0 conflicts), which is
+    what makes the assembly faithful rather than interpretive. No path, schema, description,
+    parameter or response was added, removed or rewritten.
+  verbatim_blocks: openapi/_original/madkudu-gitbook-openapi-blocks.jsonl
+  outputs:
+  - file: madkudu-madapi-openapi.yml
+    title: MadAPI
+    blocks: 19
+    operations: 19
+    schemas: 93
+    servers:
+    - https://madapi.madkudu.com
+    - https://madapi.wisekudu.com
+    tags: [Lookup, Accounts, Persons, Enrichment, Search, Sourcing, AI, Organisation, Ingestion]
+  - file: madkudu-legacy-api-openapi.yml
+    title: MadKudu Legacy API
+    blocks: 6
+    operations: 6
+    schemas: 34
+    servers:
+    - https://api.madkudu.com
+    tags: [Utilities, Companies, Persons, Job Changes]
+  format_note: Converted JSON -> YAML for consistency with the rest of the network. Content is
+    unchanged; the verbatim JSON is preserved in _original/.
+ownership_check:
+  verdict: pass
+  evidence:
+  - info.title is "MadAPI" and "MadKudu Legacy API".
+  - servers[] name madapi.madkudu.com / madapi.wisekudu.com / api.madkudu.com — exactly the
+    baseURLs already recorded in apis.yml from MadKudu's own docs.
+  - Operation descriptions reference MadKudu by name and use MadKudu's own identifiers
+    (mk_id, "MadKudu ID", "customer fit scoring"); the example handles are literally
+    'madkudu.com' and 'organization/madkudu'.
+  - securitySchemes match the documented auth exactly — x-api-key header for MadAPI, HTTP Basic
+    for the legacy host.
+  note: No sibling-product or third-party contamination. The specs describe MadKudu's own products.
+gaps:
+  info_version: Both documents declare info.version "0.0.0" — there is no released version to pin.
+  error_responses: >-
+    14 of 19 MadAPI operations and all 6 legacy operations declare only a 200 and no error
+    responses, so 401/404/429/500 handling cannot be generated from the contract.
+  contact_license: Neither document declares info.contact, info.license or info.termsOfService.

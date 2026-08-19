@@ -1,0 +1,105 @@
+generated: '2026-08-14'
+method: searched
+source: https://registry.npmjs.org/ (npm registry metadata) + https://developers.madkudu.com/legacy-api/introduction
+summary:
+  official_count: 3
+  registries:
+  - npm
+  languages:
+  - javascript
+  - typescript
+  note: >-
+    MadKudu publishes three first-party npm packages under the @madkudu scope. Two of them are
+    client libraries for the LEGACY surface and both are stale: the Node bindings last shipped in
+    2017 and the browser library in 2023, and both of their GitHub repositories are now ARCHIVED
+    and were moved into the acquiring company's org (github.com/MadKudu/madkudu-node 301s to
+    github.com/HGData/mk-madkudu-node). No first-party SDK exists for the current MadAPI surface
+    (madapi.madkudu.com) at all — the only actively maintained package is the MCP server
+    implementation. Nothing is published to PyPI, RubyGems, crates.io, Packagist, Maven Central or
+    NuGet (probed 2026-08-14, all 404).
+packages:
+- name: '@madkudu/mcp'
+  registry: npm
+  url: https://www.npmjs.com/package/@madkudu/mcp
+  official: true
+  version: 1.10.1
+  published: '2025-06-04'
+  language: typescript
+  license: ISC
+  bin: mcp
+  repository: https://github.com/MadKudu/MadAPI
+  description: MadAPI Model Context Protocol Implementation — the server behind mcp.madkudu.com.
+  releases: 17
+  first_published: '2025-04-08'
+  note: >-
+    First-party MCP server implementation. Ships a `mcp` bin and depends on
+    @modelcontextprotocol/sdk; the package's own scripts run it with USE_HTTP=true against
+    BASE_URL=https://madapi.madkudu.com, which is how the hosted mcp.madkudu.com endpoint is
+    served. Its README documents four tools (madkudu-person-details, madkudu-account-details,
+    madkudu-account-research, madkudu-account-top-users) against the twelve listed in the docs,
+    so the published package trails the hosted server. The linked repository
+    github.com/MadKudu/MadAPI is not public (404, probed 2026-08-14).
+- name: '@madkudu/madkudu.js'
+  registry: npm
+  url: https://www.npmjs.com/package/@madkudu/madkudu.js
+  official: true
+  version: 1.7.0
+  published: '2023-05-24'
+  language: javascript
+  license: SEE LICENSE IN LICENSE
+  repository: https://github.com/HGData/mk-madkudu.js
+  description: The MadKudu javascript library (browser).
+  releases: 26
+  status: stale
+  note: >-
+    Last release 2023-05-24. The documented repository github.com/MadKudu/madkudu.js 301-redirects
+    to github.com/HGData/mk-madkudu.js, which is ARCHIVED (last push 2023-05-24, probed
+    2026-08-14). Not deprecated on npm.
+- name: '@madkudu/madkudu-node'
+  registry: npm
+  url: https://www.npmjs.com/package/@madkudu/madkudu-node
+  official: true
+  version: 0.2.1
+  published: '2017-03-24'
+  language: javascript
+  license: SEE LICENSE IN LICENSE
+  repository: https://github.com/HGData/mk-madkudu-node
+  description: Javascript bindings for the MadKudu API (legacy Scoring API).
+  releases: 5
+  status: stale
+  applies_to: MadKudu Legacy Scoring API
+  note: >-
+    This is the "official language bindings — Node.js" link published in the Legacy API
+    introduction (https://developers.madkudu.com/legacy-api/introduction). Last release
+    2017-03-24; the repo it points at 301s to github.com/HGData/mk-madkudu-node, which is ARCHIVED
+    (MIT, last push 2022-06-02, probed 2026-08-14). Eight years older than the API surface it is
+    the only published binding for.
+related:
+- name: '@madkudu-core-tools/split'
+  registry: npm
+  url: https://www.npmjs.com/package/@madkudu-core-tools/split
+  official: unknown
+  version: 1.2.0
+  published: '2025-07-02'
+  license: MIT
+  bin: mct-split
+  description: CLI tool to split OpenAPI specifications by tags or routes.
+  note: >-
+    Published under the @madkudu-core-tools scope with no repository or homepage field, so
+    first-party ownership cannot be proven from registry metadata. It is internal API tooling, not
+    a MadKudu API client, and is recorded here for completeness only — not counted as an SDK.
+registries_probed:
+- registry: npm
+  result: 3 first-party packages
+- registry: pypi
+  result: 404 (madkudu, madkudu-api)
+- registry: rubygems
+  result: 404 (madkudu)
+- registry: crates.io
+  result: no crate
+- registry: packagist
+  result: none found
+- registry: maven-central
+  result: none found
+- registry: nuget
+  result: none found

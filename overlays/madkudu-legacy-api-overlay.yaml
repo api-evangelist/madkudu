@@ -1,0 +1,48 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for the MadKudu Legacy Scoring API
+  version: 1.0.0
+extends: ../openapi/madkudu-legacy-api-openapi.yml
+x-provenance:
+  generated: '2026-08-14'
+  method: generated
+  source: https://developers.madkudu.com/legacy-api/introduction
+  note: >-
+    Our enhancements to the legacy Scoring API description MadKudu publishes. The base document is
+    left untouched. The rate limit, the transport rule and the sole official binding are quoted
+    from MadKudu's own Legacy API introduction page; the superseded-by note is from the same docs,
+    which label this surface "Legacy API" and steer new work to MadAPI.
+actions:
+- target: $.info
+  update:
+    description: >-
+      The MadKudu Legacy Scoring API returns predictive customer fit (demographics score),
+      likelihood to buy and lead grade for companies (by domain) and persons (by email), plus a
+      job-changes watch list. Authentication is HTTP Basic with the API key as the username and an
+      empty password. All calls must use HTTPS. Rate limited to 600 requests per endpoint per
+      minute; exceeding it returns HTTP 429. MadKudu documents this surface as the "Legacy API"
+      and points new integrations at MadAPI (https://madapi.madkudu.com).
+    contact:
+      name: MadKudu Support
+      email: support@madkudu.com
+      url: https://developers.madkudu.com/legacy-api
+    x-documentation: https://developers.madkudu.com/legacy-api/introduction
+    x-lifecycle: legacy
+    x-superseded-by: https://madapi.madkudu.com
+    x-rate-limit: 600 requests per endpoint per minute (HTTP 429 on exceed)
+    x-official-bindings:
+    - language: node
+      package: '@madkudu/madkudu-node'
+      url: https://www.npmjs.com/package/@madkudu/madkudu-node
+      last_published: '2017-03-24'
+      repository_status: archived
+- target: $.info
+  update:
+    x-api-evangelist:
+      slug: madkudu
+      profile: https://apis.io/providers/madkudu/
+      artifacts:
+        authentication: authentication/madkudu-authentication.yml
+        errors: errors/madkudu-problem-types.yml
+        lifecycle: lifecycle/madkudu-lifecycle.yml
+        rate_limits: rate-limits/madkudu-rate-limits.yml

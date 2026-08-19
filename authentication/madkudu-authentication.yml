@@ -1,29 +1,76 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: searched
-source: https://developers.madkudu.com/getting-started
+source: https://developers.madkudu.com/api/authentication
+derived_from:
+- openapi/madkudu-madapi-openapi.yml
+- openapi/madkudu-legacy-api-openapi.yml
+docs:
+- https://developers.madkudu.com/api/authentication
+- https://developers.madkudu.com/getting-started/quickstart
+- https://developers.madkudu.com/legacy-api/authentication
 summary:
   types: [apiKey, http]
-  api_key_in: [header]
+  api_key_in: [header, path]
   http_schemes: [basic]
   oauth2_flows: []
+  oidc: false
+  mtls: false
 schemes:
-- name: MadAPIKey
+- name: ApiKeyAuth
   type: apiKey
   in: header
-  parameter_name: X-API-Key
+  parameter_name: x-api-key
+  declared_in: openapi/madkudu-madapi-openapi.yml (components.securitySchemes.ApiKeyAuth)
+  security_applied: >-
+    Global — `security: [{ApiKeyAuth: []}]` at the document root, so every MadAPI operation
+    requires it.
   description: >-
-    The current MadKudu API (MadAPI) authenticates with a raw API key sent in the
-    X-API-Key request header. Base URL https://madapi.madkudu.com (staging
-    https://madapi.wisekudu.com). Applies to all MadAPI endpoints.
+    MadAPI authenticates with a raw API key sent in the x-api-key request header on every request.
+    HTTPS is mandatory; calls over plain HTTP fail. Base URL https://madapi.madkudu.com
+    (staging https://madapi.wisekudu.com). The docs spell the header `X-API-Key` and the published
+    OpenAPI declares `x-api-key` — HTTP header names are case-insensitive, so both work.
   applies_to: MadKudu API (MadAPI)
 - name: LegacyBasicAuth
   type: http
   scheme: basic
+  declared_in: openapi/madkudu-legacy-api-openapi.yml
   description: >-
-    The legacy Scoring API uses HTTP Basic authentication with the API key as the
-    username and an empty password, i.e. Authorization: Basic base64(YOUR_API_KEY:).
-    Base URL https://api.madkudu.com.
+    The legacy Scoring API uses HTTP Basic authentication with the API key as the username and an
+    empty password — Base64 encode `YOUR_API_KEY:` (note the trailing colon) and send
+    `Authorization: Basic <encoded>`. Base URL https://api.madkudu.com. The docs state this key is
+    DIFFERENT from the MadAPI key.
   applies_to: MadKudu Legacy Scoring API
+- name: MCPPathKey
+  type: apiKey
+  in: path
+  parameter_name: YOUR_API_KEY
+  description: >-
+    The hosted MCP server takes the same MadAPI key as a URL PATH SEGMENT —
+    https://mcp.madkudu.com/YOUR_API_KEY/mcp (or /sse). The credential therefore travels in the
+    URL, where it is exposed to proxy logs, browser history, MCP client config files and any tool
+    that records server URLs, and it cannot be rotated per-request. MadKudu's own integration docs
+    tell Dust and n8n users to set "no Bearer token" / "Authentication: None" because the key is
+    already in the path.
+  applies_to: MadKudu MCP server (MadMCP)
+  ref: mcp/madkudu-mcp.yml
+key_management:
+  issuance: https://admin.madkudu.com > Personal Settings > My API Keys > Create API key
+  prerequisites:
+  - An active MadKudu account
+  - MadKudu Admin role
+  scoping: >-
+    Keys are PERSONAL — tied to the creating user and that user's permissions — and MadKudu
+    recommends creating a separate key per integration (named e.g. "Cursor", "Zapier", "Claude") so
+    usage can be attributed per key in Settings > API Usage.
+  rotation_policy: null
+  expiry: null
+  scopes: none — there is no OAuth scope or permission model on the key itself; it inherits the
+    user's permissions.
+  warning: >-
+    "Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret
+    API keys in publicly accessible areas such as GitHub, client-side code, and so forth." —
+    published verbatim by MadKudu.
 notes: >-
-  API keys are issued from the MadKudu account settings. The MCP server embeds the
-  same API key as a path segment in the server URL (see mcp/madkudu-mcp.yml).
+  No OAuth 2.0, no OpenID Connect, no mutual TLS, and no /.well-known/ discovery document on any
+  host. Every surface is a single long-lived bearer-equivalent secret, and on the agent surface
+  that secret is in the URL.

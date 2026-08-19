@@ -1,23 +1,126 @@
-generated: '2026-07-20'
-method: searched
-source: live probes of /.well-known/ on MadKudu hosts
+generated: '2026-08-14'
+method: probed
+source: live probes of /.well-known/ on every MadKudu host in apis.yml and in the OpenAPI servers[]
+checked: '2026-08-14'
+result: none
 hosts:
-- host: https://developers.madkudu.com
+- host: https://madapi.madkudu.com
+  role: MadAPI production base URL
   documents:
   - path: /.well-known/security.txt
     status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  note: 'All 404s are the API gateway''s own JSON: {"message":"no Route matched with those values"}.'
 - host: https://api.madkudu.com
+  role: Legacy Scoring API base URL
   documents:
   - path: /.well-known/security.txt
     status: 401
-- host: https://madapi.madkudu.com
+  - path: /.well-known/openid-configuration
+    status: 401
+  - path: /.well-known/oauth-authorization-server
+    status: 401
+  - path: /.well-known/oauth-protected-resource
+    status: 401
+  - path: /.well-known/api-catalog
+    status: 401
+  - path: /.well-known/ai-plugin.json
+    status: 401
+  - path: /.well-known/agent-card.json
+    status: 401
+  - path: /.well-known/agent.json
+    status: 401
+  note: 'The legacy host authenticates before routing, so every path returns 401
+    {"message":"Please provide either an Authorization..."} — including discovery paths that are
+    supposed to be anonymous.'
+- host: https://developers.madkudu.com
+  role: Developer portal / docs (GitBook)
   documents:
   - path: /.well-known/security.txt
     status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /llms.txt
+    status: 200
+    file: ../llms/madkudu-llms.txt
+  - path: /llms-full.txt
+    status: 200
     file: null
+    note: 207 KB verbatim docs dump; not committed (see .gitignore).
+- host: https://mcp.madkudu.com
+  role: Hosted MCP server
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  note: >-
+    Express 404s ("Cannot GET ..."). No OAuth discovery documents — consistent with the server
+    taking the API key as a URL path segment rather than an OAuth token.
+- host: https://madkudu.com
+  role: Marketing site
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    valid: false
+  - path: /.well-known/openid-configuration
+    status: 200
+    valid: false
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    valid: false
+  - path: /.well-known/api-catalog
+    status: 200
+    valid: false
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    valid: false
+  - path: /.well-known/agent-card.json
+    status: 200
+    valid: false
+  - path: /.well-known/agent.json
+    status: 200
+    valid: false
+  note: >-
+    SOFT-200, NOT A HIT. Every one of these returns the identical 377,456-byte marketing HTML page
+    (title "Fuel Your GTM Strategy with Actionable Revenue Growth Intelligence"). A control probe
+    of an invented path — /.well-known/security.txt.x — returns the same 200 and the same bytes,
+    which proves the host is an SPA catch-all. None of these 200s is a document and none is
+    counted.
 notes: >-
-  No /.well-known/ discovery documents (security.txt, openid-configuration,
-  oauth-authorization-server, api-catalog, ai-plugin.json) were served with 200 on
-  the developer, legacy-API, or MadAPI hosts. Absence recorded as valid data.
-  MadKudu does publish an llms.txt at https://developers.madkudu.com/llms.txt (see
-  llms/madkudu-llms.txt) and a hosted MCP server (see mcp/madkudu-mcp.yml).
+  No /.well-known/ discovery document is served anywhere in the MadKudu estate. No WellKnown or
+  SecurityTxt pointer is emitted in apis.yml, because a recorded absence must not be published as a
+  presence. MadKudu does publish an llms.txt on the docs host (saved verbatim to
+  llms/madkudu-llms.txt) and runs a live hosted MCP server (mcp/madkudu-mcp.yml); neither is a
+  /.well-known/ document.

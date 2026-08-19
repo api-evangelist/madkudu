@@ -1,0 +1,14 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.madkudu.com/llms.txt
+http_status: 200
+bytes: 5301
+file: madkudu-llms.txt
+note: >-
+  Saved VERBATIM as MadKudu serves it. Published by GitBook: it titles the site "HG Platform API",
+  indexes 39 documentation pages as .md URLs, and appends an "Agent Instructions" block advertising
+  a live query interface — GET <page>.md?ask=<question> returns an answer plus sourced excerpts.
+  MadKudu also serves /llms-full.txt (207 KB); that file is kept locally but never committed
+  (.gitignore *-llms-full.txt) because verbatim docs dumps carry secret-shaped example tokens.
+  Notably, the llms-full.txt rendering is where MadKudu's only machine-readable OpenAPI lives —
+  25 OpenAPI 3.1.0 blocks embedded in the reference pages, assembled into openapi/.

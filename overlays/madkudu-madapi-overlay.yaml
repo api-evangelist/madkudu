@@ -1,0 +1,93 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for MadKudu MadAPI
+  version: 1.0.0
+extends: ../openapi/madkudu-madapi-openapi.yml
+x-provenance:
+  generated: '2026-08-14'
+  method: generated
+  source: https://developers.madkudu.com/getting-started/usage-and-credits
+  note: >-
+    Our enhancements to the MadAPI description MadKudu publishes. The base document is left
+    untouched. Everything asserted here comes from MadKudu's own documentation: the credit cost of
+    each endpoint category is published verbatim in the "Usage and credits" page, and the info /
+    contact / documentation fields come from the developer portal. Nothing is invented.
+actions:
+- target: $.info
+  update:
+    description: >-
+      MadAPI is the current MadKudu API: account and person lookup, full account/person detail and
+      activity retrieval, company hiring/job-posting enrichment, advanced account and person
+      search, prospect discovery and contact enrichment through connected sourcing providers
+      (Apollo, Cognism, ZoomInfo), AI web search, tenant organisation/value-prop endpoints, and a
+      Custom Ingestion API documented as "Coming Soon". Authentication is a raw API key in the
+      x-api-key header on every request; HTTP calls fail. Billing is credit-metered per call and
+      exhaustion returns HTTP 429.
+    contact:
+      name: MadKudu Support
+      email: support@madkudu.com
+      url: https://developers.madkudu.com/
+    x-documentation: https://developers.madkudu.com/api
+    x-parent-company: HG Insights
+- target: $.info
+  update:
+    x-api-evangelist:
+      slug: madkudu
+      profile: https://apis.io/providers/madkudu/
+      artifacts:
+        authentication: authentication/madkudu-authentication.yml
+        conventions: conventions/madkudu-conventions.yml
+        errors: errors/madkudu-problem-types.yml
+        rate_limits: rate-limits/madkudu-rate-limits.yml
+        plans: plans/madkudu-plans-pricing.yml
+        mcp: mcp/madkudu-mcp.yml
+- target: $.paths['/lookup/accounts'].get
+  update:
+    x-credit-cost: 1
+- target: $.paths['/lookup/persons'].get
+  update:
+    x-credit-cost: 1
+- target: $.paths['/accounts/{mk_id}'].get
+  update:
+    x-credit-cost: 3
+- target: $.paths['/persons/{mk_id}'].get
+  update:
+    x-credit-cost: 3
+- target: $.paths['/search/accounts'].post
+  update:
+    x-credit-cost: 1
+    x-credit-cost-note: 1 credit per 10 results.
+- target: $.paths['/search/persons'].post
+  update:
+    x-credit-cost: 1
+    x-credit-cost-note: 1 credit per 10 results.
+- target: $.paths['/enrichment/job-postings'].post
+  update:
+    x-credit-cost: 3
+    x-credit-cost-note: 3 credits per 20 postings.
+- target: $.paths['/sourcing/persons/discover'].post
+  update:
+    x-credit-cost: 0
+    x-credit-cost-note: Consumes the connected provider's credits (Apollo / Cognism / ZoomInfo)
+      instead of MadKudu credits.
+- target: $.paths['/ai/web-search'].post
+  update:
+    x-credit-cost: 5
+- target: $.paths['/organisation'].get
+  update:
+    x-credit-cost: 0
+- target: $.paths['/organisation/value-prop'].get
+  update:
+    x-credit-cost: 0
+- target: $.paths['/ingestion/upload-json'].post
+  update:
+    x-credit-cost: 0
+    x-lifecycle: coming-soon
+- target: $.paths['/ingestion/generate-upload-url'].post
+  update:
+    x-credit-cost: 0
+    x-lifecycle: coming-soon
+- target: $.paths['/ingestion/confirm-upload'].post
+  update:
+    x-credit-cost: 0
+    x-lifecycle: coming-soon

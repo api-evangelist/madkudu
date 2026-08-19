@@ -1,0 +1,96 @@
+generated: '2026-08-14'
+method: searched
+source: https://trust.hginsights.com/
+ownership_note: >-
+  This trust center belongs to HG Insights, not to a madkudu.com host. MadKudu's own documentation
+  states plainly on its first page that "MadKudu was acquired by HG Insights in 2025. Please contact
+  HG Insights or your account manager if you're interested in the MadKudu API", and madkudu.com now
+  serves HG Insights content, so HG Insights is the operating parent whose security program covers
+  the MadKudu API. No trust center, security page or compliance page is served on any madkudu.com
+  host (probed 2026-08-14; madkudu.com answers HTTP 200 with the same marketing SPA for every path,
+  including invented ones, so its 200s are not documents).
+trust_center:
+  url: https://trust.hginsights.com/
+  operator: HG Insights
+  platform: SafeBase
+  http_status: 200
+  access: Public summary; documents require an access request ("Start your security review").
+certifications:
+- name: SOC 2 Type 2
+  status: published
+  evidence: Listed under "Compliance" on the trust center, with a SOC 2 Report available under
+    Documents (gated behind an access request).
+- name: CAIQ
+  type: self-assessment
+  status: gated
+- name: SIG Lite
+  type: self-assessment
+  status: gated
+not_claimed:
+- ISO 27001
+- PCI DSS
+- HIPAA
+- FedRAMP
+documents:
+- name: SOC 2 Report
+  category: reports
+  access: request
+- name: Pentest Report
+  category: reports
+  access: request
+- name: Network Diagram
+  category: reports
+  access: request
+- name: CAIQ
+  category: self-assessments
+  access: request
+- name: SIG Lite
+  category: self-assessments
+  access: request
+- name: Acceptable Use Policy
+  category: policies
+  access: request
+- name: Asset Management Policy
+  category: policies
+  access: request
+- name: Backup Policy
+  category: policies
+  access: request
+- name: Business Continuity/Disaster Recovery (BC/DR) Policy
+  category: policies
+  access: request
+- name: Data Classification Policy
+  category: policies
+  access: request
+- name: Data Protection Policy
+  category: policies
+  access: request
+- name: Data Retention Policy
+  category: policies
+  access: request
+program_areas:
+- Data Security
+- App Security
+- Access Control
+- Infrastructure
+- Endpoint Security
+- Corporate Security
+- Policies
+- Asset Management
+- BC/DR
+- Training
+- Physical & Environment
+subprocessors_named:
+- Amazon Web Services
+privacy:
+  privacy_policy: https://hginsights.com/privacy-page/
+  terms_of_service: https://hginsights.com/terms-of-service/
+gaps:
+  security_txt: false
+  bug_bounty: false
+  vulnerability_disclosure_policy: false
+  note: >-
+    No /.well-known/security.txt on any MadKudu or HG Insights host, no HackerOne or Bugcrowd
+    program (hackerone.com/madkudu, hackerone.com/hginsights and bugcrowd.com/madkudu all 404 on
+    2026-08-14), and no published vulnerability-disclosure or responsible-disclosure page. A
+    researcher has no documented route to report a finding.

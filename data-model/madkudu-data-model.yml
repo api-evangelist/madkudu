@@ -1,59 +1,199 @@
-generated: '2026-07-20'
+generated: '2026-08-14'
 method: derived
-source: https://developers.madkudu.com/api (documented MadAPI endpoints)
+source: openapi/madkudu-madapi-openapi.yml
+also_derived_from: openapi/madkudu-legacy-api-openapi.yml
+note: >-
+  Derived from the 93 component schemas and 19 operations in the MadAPI OpenAPI MadKudu publishes,
+  plus the 34 schemas of the legacy Scoring API. Relationships are read from $ref links and from
+  id-reference fields (mk_id, account_id, contact_id, company.mk_id, company_domain, provider_id).
+identifiers:
+- name: mk_id
+  type: string
+  description: The MadKudu ID — the single identifier the whole MadAPI surface pivots on. Both
+    Account and Person use it; there is no type prefix, so an mk_id is not self-describing.
+  note: >-
+    The two lookup operations exist specifically to resolve an external identifier (domain, email,
+    LinkedIn/Twitter/Crunchbase handle, CRM id) into an mk_id, which every detail and activity
+    operation then requires as a path parameter.
+- name: source_system
+  type: object
+  fields: [id, system, object]
+  description: Provenance of a record — the id, the system it came from (Salesforce, HubSpot, ...)
+    and the object type there. Present on every account and person shape.
+- name: enrich_token
+  type: string
+  description: Opaque token returned on a discovered person and passed back to enrich them.
+- name: file_key
+  type: string
+  description: Ingestion upload handle, returned by upload/generate-url and passed to confirm.
 entities:
 - name: Account
   id: mk_id
-  description: A company/account with MadKudu fit, intent, and engagement scores.
-  endpoints:
-  - GET /lookup/accounts
-  - GET /accounts/{mk_id}
-  - POST /search/accounts
+  description: A company/account with MadKudu firmographics, customer-fit scoring, social handles
+    and engagement counts.
+  schemas: [AccountDetailsMini, Common.Models.AccountDetail, AccountDetailSearch]
+  key_fields: [mk_id, source_system, name, domain, logo, description, industry, founded_year,
+    raised_amount, employees_count, active_users, activities_count, socials, location, scores]
+  operations:
+  - Lookup_lookupAccounts (GET /lookup/accounts)
+  - Accounts_getAccount (GET /accounts/{mk_id})
+  - Search_searchAccounts (POST /search/accounts)
 - name: Person
   id: mk_id
-  description: A person/contact with MadKudu scores and enriched attributes.
-  endpoints:
-  - GET /lookup/persons
-  - GET /persons/{mk_id}
-  - POST /search/persons
-  - POST /sourcing/persons/discover
-  - POST /sourcing/persons/enrich
+  description: A person/contact with title, persona, company reference, MadKudu scores and
+    engagement.
+  schemas: [PersonDetailsMini, Common.Models.PersonDetail, PersonDetailSearch]
+  key_fields: [mk_id, source_system, email, name, first_name, last_name, title, persona, avatar,
+    company, socials, location, has_left_company, scores]
+  operations:
+  - Lookup_lookupPersons (GET /lookup/persons)
+  - Persons_getPerson (GET /persons/{mk_id})
+  - Search_searchPersons (POST /search/persons)
 - name: Activity
-  description: An engagement activity attached to an account or person.
-  endpoints:
-  - POST /accounts/{mk_id}/activities
-  - POST /persons/{mk_id}/activities
+  description: An engagement event attached to an account or a person — website visits, email
+    engagement, product usage, sales touchpoints.
+  schemas: [Common.Models.ActivityBase, Common.Models.AccountActivity,
+    Common.Models.AccountActivityResponse, Common.Models.PersonActivityResponse]
+  key_fields: [event_id, event, event_display, event_timestamp, activity_type, account_id]
+  operations:
+  - Accounts_getAccountActivities (POST /accounts/{mk_id}/activities)
+  - Persons_getPersonActivities (POST /persons/{mk_id}/activities)
+- name: Scores
+  description: The MadKudu prediction block carried on accounts and persons.
+  schemas: [Common.Models.Scores, Common.Models.CustomerFit, Common.Models.LikelihoodToBuy]
+  key_fields: [customer_fit.score, customer_fit.segment, customer_fit.signals,
+    likelihood_to_buy.score, likelihood_to_buy.segment]
+  note: Embedded value object, not independently addressable.
 - name: JobPosting
-  description: A hiring event / job posting for a company domain.
-  endpoints:
-  - POST /enrichment/job-postings
+  description: A hiring event / job opening for a company domain, used as a growth signal.
+  schemas: [JobPosting, JobPostingSearchResponse]
+  key_fields: [company_domain, job_opening_title, job_opening_url, keywords, categories, location,
+    event, event_on, first_event_on]
+  operations:
+  - Enrichment_searchJobPostings (POST /enrichment/job-postings)
 - name: SourcingProvider
-  description: A connected data/sourcing provider and its connection status.
-  endpoints:
-  - GET /sourcing/providers
+  description: A connected third-party data provider and its connection state.
+  schemas: [SourcingProvider]
+  key_fields: [provider, isConnected]
+  values: [apollo, cognism, zoominfo]
+  operations:
+  - Sourcing_getProviders (GET /sourcing/providers)
+- name: SourcingPersonResult
+  description: A net-new prospect discovered through a connected provider, before enrichment.
+  schemas: [SourcingPersonResult, PersonDiscoverResponse]
+  key_fields: [id, first_name, last_name, email, phone, photo, title, company_name, company_domain,
+    linkedin_url, provider, enrich_token]
+  operations:
+  - Sourcing_discoverPersons (POST /sourcing/persons/discover)
+  - Sourcing_enrichPerson (POST /sourcing/persons/enrich)
 - name: Organisation
-  description: The authenticated tenant organisation profile and its value props.
-  endpoints:
-  - GET /organisation
-  - GET /organisation/value-prop
+  id: _id
+  description: The authenticated tenant organisation.
+  schemas: [OrganisationResponse]
+  key_fields: [_id, domain, name, created_at, updated_at]
+  operations:
+  - Organisation_getOrganisation (GET /organisation)
+- name: ValueProposition
+  description: Persona-specific value propositions for the tenant, used to ground brief and email
+    generation.
+  schemas: [ValueProposition]
+  key_fields: [persona, valueProp]
+  operations:
+  - Organisation_getValueProposition (GET /organisation/value-prop)
+- name: WebSearchResult
+  description: A Tavily-backed web search result set, optionally with an LLM-generated answer and
+    images.
+  schemas: [WebSearchRequest, WebSearchResponse, WebSearchResult, WebSearchImageResult]
+  key_fields:
+  - query
+  - answer
+  - results[].title
+  - results[].url
+  - results[].content
+  - results[].score
+  - results[].publishedDate
+  - response_time
+  operations:
+  - AI_webSearch (POST /ai/web-search)
+- name: IngestionRecord
+  description: Customer-supplied data pushed into MadKudu — four object types, documented as
+    "Coming Soon".
+  schemas: [Account, Contact, AccountEvent, ContactEvent, JsonUploadRequest, UploadRequest,
+    UploadResponse, ConfirmUploadRequest, ConfirmUploadResponse]
+  key_fields: [type, account_id, contact_id, email, domain, event_type, event_id, event,
+    event_timestamp, account_properties, contact_properties, event_properties]
+  operations:
+  - Ingestion_uploadJson (POST /ingestion/upload-json)
+  - Ingestion_generateUploadUrl (POST /ingestion/generate-upload-url)
+  - Ingestion_confirmUpload (POST /ingestion/confirm-upload)
+  note: >-
+    Ingestion reuses the names Account and Contact for INBOUND shapes that are unrelated to the
+    read-side Account/Person schemas — the ingestion Account is {type, account_id, domain,
+    account_properties}, keyed on the customer's own account_id, not on mk_id.
 relationships:
 - from: Account
   to: Person
   kind: has_many
-  via: /accounts/{mk_id}/top-persons
+  via: GET /accounts/{mk_id}/top-persons (Accounts_getAccountTopPersons)
 - from: Account
   to: Activity
   kind: has_many
-  via: /accounts/{mk_id}/activities
+  via: POST /accounts/{mk_id}/activities; Activity.account_id
 - from: Person
   to: Activity
   kind: has_many
-  via: /persons/{mk_id}/activities
+  via: POST /persons/{mk_id}/activities
 - from: Person
-  to: SourcingProvider
+  to: Account
   kind: belongs_to
-  via: sourcing provider + provider-specific id (enrich/discover)
+  via: company (Common.Models.CompanyReference {domain, mk_id})
+- from: Account
+  to: Scores
+  kind: has_one
+  via: scores (Common.Models.Scores)
+- from: Person
+  to: Scores
+  kind: has_one
+  via: scores (Common.Models.Scores)
 - from: Account
   to: JobPosting
   kind: has_many
-  via: company domain (/enrichment/job-postings)
+  via: JobPosting.company_domain matched to Account.domain
+- from: SourcingPersonResult
+  to: SourcingProvider
+  kind: belongs_to
+  via: provider + provider_id (PersonEnrichRequest)
+- from: Account
+  to: SourceSystem
+  kind: has_one
+  via: source_system
+- from: Person
+  to: SourceSystem
+  kind: has_one
+  via: source_system
+- from: Organisation
+  to: ValueProposition
+  kind: has_many
+  via: GET /organisation/value-prop (one per persona)
+- from: ContactEvent
+  to: Contact
+  kind: belongs_to
+  via: contact_id (ingestion)
+- from: AccountEvent
+  to: Account
+  kind: belongs_to
+  via: account_id (ingestion)
+legacy_model:
+  note: >-
+    The legacy Scoring API models the same domain with a different vocabulary and no mk_id — it is
+    keyed directly on domain (GET /v1/companies) and email (GET /v1/persons) and returns a
+    customer-fit "demographics" score with top signals, plus a job-changes watch list. The two
+    surfaces do not share identifiers, so migrating from legacy to MadAPI means re-resolving every
+    record through the lookup endpoints.
+  operations:
+  - Companies_lookupCompany (GET /v1/companies)
+  - Companies_lookupCompanyWithPayload (POST /v1/companies)
+  - Persons_lookupPerson (GET /v1/persons)
+  - Persons_lookupPersonWithPayload (POST /v1/persons)
+  - JobChanges_setWatchList (POST /v1/integrations/job_changes/watch-list/csv)
+  - Utilities_ping (GET /v1/ping)

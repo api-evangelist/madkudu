@@ -1,0 +1,59 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.madkudu.com/legacy-api/introduction
+sources:
+- https://developers.madkudu.com/legacy-api/introduction
+- https://developers.madkudu.com/getting-started/usage-and-credits
+limit_count: 2
+headers_published: false
+headers:
+  request: []
+  response: []
+  retry_after: false
+  note: >-
+    MadKudu publishes NO rate-limit response headers — no X-RateLimit-*, no RateLimit-*, no
+    Retry-After — for either surface, and none appear in the OpenAPI documents it publishes. An
+    agent cannot read remaining quota or a reset time at runtime; the only runtime signal is the
+    429 itself, and the only way to see consumption is the human Admin console
+    (Settings > API Usage). This is the single largest runtime-semantics gap in the MadKudu
+    developer surface.
+limits:
+- api: MadKudu Legacy Scoring API
+  base_url: https://api.madkudu.com
+  scope: per-endpoint
+  window: 1 minute
+  limit: 600
+  burst: null
+  status_on_exhaustion: 429
+  quote: >-
+    "You can make up to 600 requests per endpoint per minute. Once you reach that limit, you will
+    start receiving errors (HTTP code 429)."
+  source: https://developers.madkudu.com/legacy-api/introduction
+- api: MadKudu API (MadAPI)
+  base_url: https://madapi.madkudu.com
+  scope: per-account
+  window: billing period
+  limit: null
+  limit_model: credit-metered
+  burst: null
+  status_on_exhaustion: 429
+  error_body: 'HTTP 429 with a "credits exhausted" message (the error envelope carries `message`
+    plus a `details` field on 429).'
+  quote: '"What happens if I hit my limit? API responses return 429 with a ''credits exhausted''
+    message."'
+  source: https://developers.madkudu.com/getting-started/usage-and-credits
+  note: >-
+    MadAPI publishes no requests-per-second or per-minute ceiling at all. The only documented
+    constraint is the credit allowance, which is negotiated per contract and never published as a
+    number — see plans/madkudu-plans-pricing.yml for the per-endpoint credit costs.
+payload_limits:
+- endpoint: POST /ingestion/upload-json
+  limit: 1 MB uncompressed JSON payload
+  source: https://developers.madkudu.com/custom-ingestion-api-coming-soon
+- endpoint: presigned S3 upload (POST /ingestion/generate-upload-url)
+  limit: 2 GB gzipped .jsonl.gz file
+  source: https://developers.madkudu.com/custom-ingestion-api-coming-soon
+related:
+  plans: plans/madkudu-plans-pricing.yml
+  conventions: conventions/madkudu-conventions.yml
+  errors: errors/madkudu-problem-types.yml
