@@ -44,6 +44,17 @@ tags:
 - Data Enrichment
 - MCP
 - Agents
+- Go-To-Market
+tags_raw:
+- Company
+- Applicative Saas
+- Sales Intelligence
+- Lead Scoring
+- Predictive Analytics
+- Account Intelligence
+- Data Enrichment
+- MCP
+- Agents
 - Go To Market
 apis:
 - name: MadKudu API (MadAPI)
