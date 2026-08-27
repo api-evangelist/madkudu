@@ -57,27 +57,18 @@ tags_raw:
 - Agents
 - Go To Market
 apis:
-- name: MadKudu API (MadAPI)
-  description: 'The current MadKudu API (MadAPI) exposes account and person lookup, full account/person
-    details and activities, company hiring/job-posting enrichment, advanced account and person search,
-    prospect discovery and contact enrichment through connected sourcing providers (Apollo, Cognism,
-    ZoomInfo), Tavily-backed AI web search, tenant organisation/value-prop endpoints, and a custom ingestion
-    API documented as "Coming Soon" — 19 operations in all. Authentication is a raw API key in the x-api-key
-    header; billing is credit-metered per call (HTTP 429 on exhaustion) with no rate-limit response headers.'
+- aid: madkudu:madkudu-accounts-api
+  name: MadKudu Accounts API
+  description: The Accounts API from MadKudu — 3 operation(s) for accounts.
   humanURL: https://developers.madkudu.com/api
   baseURL: https://madapi.madkudu.com
   tags:
-  - Sales Intelligence
-  - Enrichment
-  - Search
-  - Sourcing
+  - Accounts
   properties:
+  - type: OpenAPI
+    url: openapi/madkudu-accounts-api-openapi.yml
   - type: Documentation
     url: https://developers.madkudu.com/api
-  - type: OpenAPI
-    url: openapi/madkudu-madapi-openapi.yml
-  - type: Overlay
-    url: overlays/madkudu-madapi-overlay.yaml
   - type: Authentication
     url: authentication/madkudu-authentication.yml
   - type: ErrorCatalog
@@ -92,31 +83,338 @@ apis:
     url: rate-limits/madkudu-rate-limits.yml
   - type: Plans
     url: plans/madkudu-plans-pricing.yml
-- name: MadKudu Legacy Scoring API
-  description: 'The legacy MadKudu Scoring API returns customer-fit (demographics), likelihood-to-buy
-    and lead-grade scores for companies by domain and persons by email, plus a job-changes watch list
-    and a ping utility — 6 operations. Authentication is HTTP Basic (API key as username, empty password)
-    with a different key from MadAPI; rate limited to 600 requests per endpoint per minute (HTTP 429 when
-    exceeded). MadKudu labels this surface "Legacy" and steers new integrations to MadAPI, but publishes
-    no dated deprecation or sunset policy.'
-  humanURL: https://developers.madkudu.com/legacy-api
-  baseURL: https://api.madkudu.com
-  tags:
-  - Lead Scoring
-  - Predictive Analytics
-  properties:
   - type: Documentation
     url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-ai-api
+  name: MadKudu AI API
+  description: The AI API from MadKudu — 1 operation(s) for ai.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - AI
+  properties:
   - type: OpenAPI
-    url: openapi/madkudu-legacy-api-openapi.yml
-  - type: Overlay
-    url: overlays/madkudu-legacy-api-overlay.yaml
+    url: openapi/madkudu-ai-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
   - type: Authentication
     url: authentication/madkudu-authentication.yml
   - type: ErrorCatalog
     url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
   - type: RateLimits
     url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-companies-api
+  name: MadKudu Companies API
+  description: The Companies API from MadKudu — 1 operation(s) for companies.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Companies
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-companies-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-enrichment-api
+  name: MadKudu Enrichment API
+  description: The Enrichment API from MadKudu — 1 operation(s) for enrichment.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Enrichment
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-enrichment-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-ingestion-api
+  name: MadKudu Ingestion API
+  description: The Ingestion API from MadKudu — 3 operation(s) for ingestion.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Ingestion
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-ingestion-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-job-changes-api
+  name: MadKudu Job Changes API
+  description: The Job Changes API from MadKudu — 1 operation(s) for job changes.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Job Changes
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-job-changes-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-lookup-api
+  name: MadKudu Lookup API
+  description: The Lookup API from MadKudu — 2 operation(s) for lookup.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Lookup
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-lookup-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-organisation-api
+  name: MadKudu Organisation API
+  description: The Organisation API from MadKudu — 2 operation(s) for organisation.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Organisation
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-organisation-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-persons-api
+  name: MadKudu Persons API
+  description: The Persons API from MadKudu — 3 operation(s) for persons.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Persons
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-persons-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-search-api
+  name: MadKudu Search API
+  description: The Search API from MadKudu — 2 operation(s) for search.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-search-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-sourcing-api
+  name: MadKudu Sourcing API
+  description: The Sourcing API from MadKudu — 3 operation(s) for sourcing.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Sourcing
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-sourcing-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
+  - type: SDKs
+    url: packages/madkudu-packages.yml
+- aid: madkudu:madkudu-utilities-api
+  name: MadKudu Utilities API
+  description: The Utilities API from MadKudu — 1 operation(s) for utilities.
+  humanURL: https://developers.madkudu.com/api
+  baseURL: https://madapi.madkudu.com
+  tags:
+  - Utilities
+  properties:
+  - type: OpenAPI
+    url: openapi/madkudu-utilities-api-openapi.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/api
+  - type: Authentication
+    url: authentication/madkudu-authentication.yml
+  - type: ErrorCatalog
+    url: errors/madkudu-problem-types.yml
+  - type: Conventions
+    url: conventions/madkudu-conventions.yml
+  - type: DataModel
+    url: data-model/madkudu-data-model.yml
+  - type: Sandbox
+    url: sandbox/madkudu-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/madkudu-rate-limits.yml
+  - type: Plans
+    url: plans/madkudu-plans-pricing.yml
+  - type: Documentation
+    url: https://developers.madkudu.com/legacy-api
   - type: SDKs
     url: packages/madkudu-packages.yml
 maintainers:
@@ -125,6 +423,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/madkudu-madapi-overlay.yaml
+- type: Overlay
+  url: overlays/madkudu-legacy-api-overlay.yaml
 - type: Website
   url: https://madkudu.com/
 - type: DeveloperPortal
