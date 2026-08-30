@@ -1,0 +1,276 @@
+openapi: 3.2.0
+info:
+  title: Mad Enrichment API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Enrichment
+paths:
+  /enrichment/job-postings:
+    post:
+      operationId: Enrichment_searchJobPostings
+      summary: Search job postings from a company
+      description: Find a company's job openings to identify growth, expansion plans and relevant roles they are hiring for. Filter by department, seniority, or keywords.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobPostingSearchResponse'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Enrichment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobPostingSearchRequestBody'
+components:
+  schemas:
+    FilterLogic:
+      type: string
+      enum:
+      - AND
+      - OR
+    SearchMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results requested
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results available
+        next_cursor:
+          type: integer
+          format: int32
+          description: Cursor for the next page of results
+    SortOrder:
+      type: string
+      enum:
+      - asc
+      - desc
+    FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+    JobPostingSearchRequestBody:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain to search for job postings
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of results to return
+          default: 20
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+          default: 0
+        search:
+          type: string
+          description: Free text search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPostingFilter'
+          description: Array of filters to apply to the search
+        filter_logic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Logic to apply between filters (AND or OR)
+          default: AND
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortingParam'
+          description: Array of sorting parameters
+    JobPostingFilterField:
+      type: string
+      enum:
+      - job_opening_title
+      - keywords
+      - categories
+      - location
+      - event
+      - event_on
+      - first_event_on
+    JobPostingSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPosting'
+          description: Array of job posting results
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/SearchMeta'
+          description: Metadata about the search results
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    JobPosting:
+      type: object
+      required:
+      - company_domain
+      - job_opening_title
+      - job_opening_url
+      - event
+      - event_on
+      - first_event_on
+      properties:
+        company_domain:
+          type: string
+          description: Company domain
+        job_opening_title:
+          type: string
+          description: Job opening title
+        job_opening_url:
+          type: string
+          description: URL to the job posting
+        keywords:
+          type: string
+          description: Keywords associated with the job
+        categories:
+          type: string
+          description: Categories associated with the job
+        location:
+          type: string
+          description: Location of the job
+        event:
+          type: string
+          description: Event type
+        event_on:
+          type: string
+          description: Date when the event occurred
+        first_event_on:
+          type: string
+          description: Date when the first event occurred
+    JobPostingFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/JobPostingFilterField'
+          description: Property to filter on
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Operator to apply for the filter
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Value to filter by
+    SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
+          type: string
+          description: Field to sort by
+        sort_order:
+          allOf:
+          - $ref: '#/components/schemas/SortOrder'
+          description: Sort order (ascending or descending)
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

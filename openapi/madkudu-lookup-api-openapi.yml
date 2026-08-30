@@ -1,0 +1,349 @@
+openapi: 3.2.0
+info:
+  title: Mad Lookup API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Lookup
+paths:
+  /lookup/accounts:
+    get:
+      operationId: Lookup_lookupAccounts
+      summary: Lookup account by identifiers
+      description: Lookup accounts in your database using domain names, social media handles, or CRM IDs. Returns company profile with contact details, firmographics, and customer fit scoring. Use it to get the MadKudu ID to fetch more information in the Detailed Information endpoints.
+      parameters:
+      - name: domain
+        in: query
+        required: false
+        description: Company website domain (e.g., 'madkudu.com')
+        schema:
+          type: string
+        explode: false
+      - name: linkedin
+        in: query
+        required: false
+        description: LinkedIn company page handle (e.g., 'company/madkudu')
+        schema:
+          type: string
+        explode: false
+      - name: twitter
+        in: query
+        required: false
+        description: Twitter company handle
+        schema:
+          type: string
+        explode: false
+      - name: crunchbase
+        in: query
+        required: false
+        description: Crunchbase company profile handle (e.g., 'organization/madkudu')
+        schema:
+          type: string
+        explode: false
+      - name: external_id
+        in: query
+        required: false
+        description: Your CRM account ID (Salesforce, HubSpot, etc.)
+        schema:
+          type: string
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDetailsMini'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Lookup
+  /lookup/persons:
+    get:
+      operationId: Lookup_lookupPersons
+      summary: Lookup person by identifiers
+      description: 'Lookup people in your database using email addresses, social media profiles, or CRM IDs. Returns contact profile with job details, company information, and lead scoring. Use it to get the MadKudu ID to fetch more information in the Detailed Information endpoints. '
+      parameters:
+      - name: email
+        in: query
+        required: false
+        description: Person's email address
+        schema:
+          type: string
+        explode: false
+      - name: linkedin
+        in: query
+        required: false
+        description: LinkedIn profile handle (e.g., 'in/francisbrero')
+        schema:
+          type: string
+        explode: false
+      - name: twitter
+        in: query
+        required: false
+        description: Twitter profile handle
+        schema:
+          type: string
+        explode: false
+      - name: external_id
+        in: query
+        required: false
+        description: Your CRM contact ID (Salesforce Lead/Contact, HubSpot Contact, etc.)
+        schema:
+          type: string
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonDetailsMini'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+      tags:
+      - Lookup
+components:
+  schemas:
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+    PersonDetailsMini:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email of the person
+        name:
+          type: string
+          description: Full name of the person
+        first_name:
+          type: string
+          description: First name of the person
+        last_name:
+          type: string
+          description: Last name of the person
+        title:
+          type: string
+          description: Title of the person
+        persona:
+          type: string
+          description: Persona of the person
+        avatar:
+          type: string
+          description: Avatar URL of the person
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Whether the person has left the company
+        activities:
+          description: Activities information
+    Common.Models.CompanyReference:
+      type: object
+      required:
+      - domain
+      - mk_id
+      properties:
+        domain:
+          type: string
+          description: Domain of the company
+        mk_id:
+          type: string
+          description: MadKudu ID of the company
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
+    AccountDetailsMini:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - name
+      - domain
+      - socials
+      - location
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the account in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        name:
+          type: string
+          description: Name of the account
+        domain:
+          type: string
+          description: Domain of the account
+        logo:
+          type: string
+          description: URL of the account's logo
+        description:
+          type: string
+          description: Description of the account
+        industry:
+          type: string
+          description: Industry the account operates in
+        founded_year:
+          type: integer
+          format: int32
+          description: Year the account was founded
+        raised_amount:
+          type: number
+          format: double
+          description: Total amount raised by the account
+        employees_count:
+          type: integer
+          format: int32
+          description: Number of employees in the account
+        active_users:
+          type: integer
+          format: int32
+          description: Number of active users
+        activities_count:
+          type: integer
+          format: int32
+          description: Number of activities
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

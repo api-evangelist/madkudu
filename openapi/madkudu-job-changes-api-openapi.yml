@@ -1,0 +1,134 @@
+openapi: 3.2.0
+info:
+  title: MadKudu Legacy Job Changes API
+  version: 0.0.0
+servers:
+- url: https://api.madkudu.com
+  description: Legacy API server
+  variables: {}
+security:
+- BasicAuth: []
+tags:
+- name: Job Changes
+paths:
+  /v1/integrations/job_changes/watch-list/csv:
+    post:
+      operationId: JobChanges_setWatchList
+      summary: Set job changes watch list
+      description: You can define with this endpoint which person do you want to track with the job changes features. Posting a new watch list will replace the previous one (if existing).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services.JobChanges.WatchListUploadResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.AuthenticationError'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+        '429':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.RateLimitError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.InternalServerError'
+      tags:
+      - Job Changes
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                watch_list_csv:
+                  description: The csv file containing your watchlist, it should include at least one column containing the email
+              required:
+              - watch_list_csv
+        description: Multipart form data containing the CSV file
+components:
+  schemas:
+    Common.Errors.AuthenticationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Authentication error
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
+    Services.JobChanges.WatchListUploadResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of the upload
+        processed_count:
+          type: integer
+          format: int32
+          description: Number of emails processed
+        message:
+          type: string
+          description: Upload message
+      description: Watch list upload response
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: Basic

@@ -1,0 +1,312 @@
+openapi: 3.2.0
+info:
+  title: Mad Ingestion API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Ingestion
+paths:
+  /ingestion/upload-json:
+    post:
+      operationId: Ingestion_uploadJson
+      summary: Import data via API
+      description: Directly upload contact, account, or activity data in JSON format through the API for immediate processing.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonUploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonUploadRequest'
+  /ingestion/generate-upload-url:
+    post:
+      operationId: Ingestion_generateUploadUrl
+      summary: Generate Upload Url
+      description: Generate a presigned URL for file upload.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+  /ingestion/confirm-upload:
+    post:
+      operationId: Ingestion_confirmUpload
+      summary: Confirm Upload
+      description: Confirm that a file has been uploaded.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmUploadResponse'
+      tags:
+      - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmUploadRequest'
+components:
+  schemas:
+    UploadResponse:
+      type: object
+      required:
+      - upload_url
+      - file_key
+      properties:
+        upload_url:
+          type: string
+          description: Presigned URL for file upload
+        file_key:
+          type: string
+          description: Unique file key for the uploaded file
+    UploadRequest:
+      type: object
+      required:
+      - stream
+      - content_type
+      - content_encoding
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        content_type:
+          allOf:
+          - $ref: '#/components/schemas/ContentType'
+          description: Content type of the file to upload
+        content_encoding:
+          allOf:
+          - $ref: '#/components/schemas/ContentEncoding'
+          description: Content encoding for the file
+    JsonUploadRequest:
+      type: object
+      required:
+      - stream
+      - data
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        data:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+          - type: array
+            items:
+              $ref: '#/components/schemas/Account'
+          - type: array
+            items:
+              $ref: '#/components/schemas/ContactEvent'
+          - type: array
+            items:
+              $ref: '#/components/schemas/AccountEvent'
+          description: Data array - contents depend on stream type
+      description: Request model for direct JSON upload
+    JsonUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      - file_key
+      properties:
+        status:
+          type: string
+          description: Upload status
+        message:
+          type: string
+          description: Upload message
+        file_key:
+          type: string
+          description: Generated file key for the uploaded data
+      description: Response model for JSON upload
+    ContentType:
+      type: string
+      enum:
+      - application/jsonl
+      description: Content types for customer data
+    Account:
+      type: object
+      required:
+      - account_id
+      - domain
+      - account_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - account
+          description: Type identifier for account
+          default: account
+        account_id:
+          type: string
+          description: Unique identifier for the account
+        domain:
+          type: string
+          description: Domain of the account
+        account_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional account properties
+      description: Account model for ingestion
+    ConfirmUploadRequest:
+      type: object
+      required:
+      - file_key
+      properties:
+        file_key:
+          type: string
+          description: File key from the upload response
+    ConfirmUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      properties:
+        status:
+          type: string
+          description: Upload confirmation status
+        message:
+          type: string
+          description: Confirmation message
+    Contact:
+      type: object
+      required:
+      - contact_id
+      - email
+      - contact_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - contact
+          description: Type identifier for contact
+          default: contact
+        contact_id:
+          type: string
+          description: Unique identifier for the contact
+        email:
+          type: string
+          description: Email address of the contact
+        contact_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional contact properties
+      description: Contact model for ingestion
+    ContactEvent:
+      type: object
+      required:
+      - event_id
+      - contact_id
+      - event
+      - event_timestamp
+      - event_properties
+      properties:
+        event_type:
+          type: string
+          enum:
+          - contact_event
+          description: Event type identifier
+          default: contact_event
+        event_id:
+          type: string
+          description: Unique identifier for the event
+        contact_id:
+          type: string
+          description: Contact identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Contact event model for ingestion
+    AccountEvent:
+      type: object
+      required:
+      - event_id
+      - account_id
+      - event
+      - event_timestamp
+      - event_properties
+      properties:
+        event_type:
+          type: string
+          enum:
+          - account_event
+          description: Event type identifier
+          default: account_event
+        event_id:
+          type: string
+          description: Unique identifier for the event
+        account_id:
+          type: string
+          description: Account identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Account event model for ingestion
+    ContentEncoding:
+      type: string
+      enum:
+      - gzip
+      description: Content encodings for customer data
+    AcceptedStream:
+      type: string
+      enum:
+      - account
+      - account_event
+      - contact
+      - contact_event
+      description: Accepted streams for customer data
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

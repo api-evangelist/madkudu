@@ -1,0 +1,539 @@
+openapi: 3.2.0
+info:
+  title: Mad Accounts API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Accounts
+paths:
+  /accounts/{mk_id}:
+    get:
+      operationId: Accounts_getAccount
+      summary: Get Account By Id
+      description: Retrieve comprehensive account information including firmographics, customer fit scoring, activity metrics, and contact details.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.AccountDetail'
+      tags:
+      - Accounts
+  /accounts/{mk_id}/activities:
+    post:
+      operationId: Accounts_getAccountActivities
+      summary: Get Account Activities
+      description: Get activities associated with an account including website visits, email engagement, product usage, and sales touchpoints. Filter by activity type, date range, or specific team members.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Models.AccountActivityResponse'
+      tags:
+      - Accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Common.Models.AccountActivitySearchRequest'
+  /accounts/{mk_id}/top-persons:
+    get:
+      operationId: Accounts_getAccountTopPersons
+      summary: Get Account Top Persons
+      description: Fetch the most engaged contacts at a company, ranked by activity level and seniority. Helps identify champions, decision makers, and active stakeholders for targeted outreach and relationship building.
+      parameters:
+      - name: mk_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Common.Models.PersonDetail'
+      tags:
+      - Accounts
+components:
+  schemas:
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
+    Common.Models.AccountActivity:
+      type: object
+      required:
+      - person
+      properties:
+        person:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonDetail'
+          description: Person who performed the activity
+      allOf:
+      - $ref: '#/components/schemas/Common.Models.ActivityBase'
+    Common.Models.AccountActivityResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.AccountActivity'
+          description: Account activity data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
+    Common.Models.AccountActivitySearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.AccountActivityFilter'
+          description: Filters to apply
+        filterLogic:
+          type: string
+          enum:
+          - AND
+          - OR
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    Common.Models.CompanyReference:
+      type: object
+      required:
+      - domain
+      - mk_id
+      properties:
+        domain:
+          type: string
+          description: Domain of the company
+        mk_id:
+          type: string
+          description: MadKudu ID of the company
+    Common.Models.SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
+          type: string
+          description: Field to sort by
+        sort_order:
+          type: string
+          enum:
+          - asc
+          - desc
+          description: Sort order
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
+    Common.Models.Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results returned
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results
+        next_cursor:
+          type: integer
+          format: int32
+          description: Next cursor for pagination
+    Common.Models.AggregationValue:
+      type: object
+      required:
+      - aggregation_name_display
+      - aggregation_value
+      properties:
+        aggregation_name_display:
+          type: string
+          description: Display name for the aggregation
+        aggregation_value:
+          type: number
+          format: double
+          description: Aggregation value
+    Common.Models.LikelihoodToBuy:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Likelihood to buy score
+        segment:
+          type: string
+          description: Likelihood to buy segment
+    Common.Models.AccountActivityFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountActivityFilterProperty'
+          description: Property to filter by
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: array
+            items:
+              type: string
+          description: Filter value
+    Common.Models.ActivityBase:
+      type: object
+      required:
+      - event_id
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - account_id
+      properties:
+        event_id:
+          type: string
+          description: Event ID
+        event:
+          type: string
+          description: Event name
+        event_display:
+          type: string
+          description: Event display name
+        event_timestamp:
+          type: string
+          description: Event timestamp
+        activity_type:
+          type: string
+          description: Activity type
+        account_id:
+          type: string
+          description: Account ID
+    Common.Models.AccountActivityFilterProperty:
+      type: string
+      enum:
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - name
+      - email
+      - title
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Models.FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - LIKE
+      - NOT_LIKE
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+      - IS_EMPTY
+      - IS_NOT_EMPTY
+    Common.Models.CustomerFit:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Customer fit score
+        segment:
+          type: string
+          description: Customer fit segment
+        signals:
+          type: string
+          description: Customer fit signals
+    Common.Models.AccountDetail:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - name
+      - domain
+      - socials
+      - location
+      - scores
+      - aggregations
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the account in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        name:
+          type: string
+          description: Account name
+        domain:
+          type: string
+          description: Account domain
+        logo:
+          type: string
+          description: Logo URL
+        description:
+          type: string
+          description: Account description
+        industry:
+          type: string
+          description: Industry
+        founded_year:
+          type: integer
+          format: int32
+          description: Founded year
+        raised_amount:
+          type: number
+          format: double
+          description: Raised amount
+        employees_count:
+          type: integer
+          format: int32
+          description: Number of employees
+        active_users:
+          type: integer
+          format: int32
+          description: Number of active users
+        activities_count:
+          type: integer
+          format: int32
+          description: Total activities count
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.AccountSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        aggregations:
+          type: object
+          unevaluatedProperties:
+            $ref: '#/components/schemas/Common.Models.AggregationValue'
+          description: Aggregations data
+    Common.Models.PersonDetail:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      - scores
+      - aggregations
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email address
+        name:
+          type: string
+          description: Full name
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        title:
+          type: string
+          description: Job title
+        persona:
+          type: string
+          description: Persona
+        avatar:
+          type: string
+          description: Avatar URL
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Has left company
+        scores:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        activities:
+          description: Activities information
+        aggregations:
+          type: object
+          unevaluatedProperties:
+            $ref: '#/components/schemas/Common.Models.AggregationValue'
+          description: Aggregations data
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

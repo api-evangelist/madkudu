@@ -1,0 +1,93 @@
+openapi: 3.2.0
+info:
+  title: MadKudu Legacy Utilities API
+  version: 0.0.0
+servers:
+- url: https://api.madkudu.com
+  description: Legacy API server
+  variables: {}
+security:
+- BasicAuth: []
+tags:
+- name: Utilities
+paths:
+  /v1/ping:
+    get:
+      operationId: Utilities_ping
+      summary: Ping API endpoint
+      description: Test endpoint to verify API connectivity and authentication. Returns status 'ok' if the authorization is valid.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services.Utilities.PingResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.AuthenticationError'
+        '429':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.RateLimitError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.InternalServerError'
+      tags:
+      - Utilities
+components:
+  schemas:
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
+    Services.Utilities.PingResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          description: Status of the API
+      description: Ping response
+    Common.Errors.AuthenticationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Authentication error
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: Basic

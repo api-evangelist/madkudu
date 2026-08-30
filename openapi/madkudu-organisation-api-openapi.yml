@@ -1,0 +1,92 @@
+openapi: 3.2.0
+info:
+  title: Mad Organisation API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Organisation
+paths:
+  /organisation:
+    get:
+      operationId: Organisation_getOrganisation
+      summary: Get your Organisation information
+      description: Retrieve your organization's profile. Useful for verifying the account authenticated
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationResponse'
+      tags:
+      - Organisation
+  /organisation/value-prop:
+    get:
+      operationId: Organisation_getValueProposition
+      summary: Get Organisation Value Proposition
+      description: Retrieves the value proposition for your tenant, containing persona-specific value propositions
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValueProposition'
+      tags:
+      - Organisation
+components:
+  schemas:
+    OrganisationResponse:
+      type: object
+      required:
+      - _id
+      - domain
+      - name
+      - created_at
+      - updated_at
+      properties:
+        _id:
+          type: integer
+          format: int32
+          description: Organisation ID
+        domain:
+          type: string
+          description: Organisation domain
+        name:
+          type: string
+          description: Organisation name
+        created_at:
+          type: string
+          description: Creation timestamp
+        updated_at:
+          type: string
+          description: Last update timestamp
+    ValueProposition:
+      type: object
+      required:
+      - persona
+      - valueProp
+      properties:
+        persona:
+          type: string
+          description: Target persona or role
+        valueProp:
+          type: string
+          description: Value proposition for this persona
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

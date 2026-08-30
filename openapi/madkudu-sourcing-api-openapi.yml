@@ -1,0 +1,1156 @@
+openapi: 3.2.0
+info:
+  title: Mad Sourcing API
+  version: 0.0.0
+servers:
+- url: https://madapi.madkudu.com
+  description: Production server
+  variables: {}
+- url: https://madapi.wisekudu.com
+  description: Staging server
+  variables: {}
+security:
+- ApiKeyAuth: []
+tags:
+- name: Sourcing
+paths:
+  /sourcing/providers:
+    get:
+      operationId: Sourcing_getProviders
+      summary: Get available sourcing providers
+      description: Retrieves a list of all available sourcing data providers and their connection status for the current tenant.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SourcingProvider'
+      tags:
+      - Sourcing
+  /sourcing/persons/discover:
+    post:
+      operationId: Sourcing_discoverPersons
+      summary: Discover persons using data providers
+      description: Discovers persons using various data providers with optional filtering criteria including company domain, job title, location, and seniority level.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDiscoverResponse'
+      tags:
+      - Sourcing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonDiscoverRequest'
+  /sourcing/persons/enrich:
+    post:
+      operationId: Sourcing_enrichPerson
+      summary: Enrich person with contact information
+      description: Enriches an existing person record with additional contact information (email and phone) using the specified data provider and provider-specific ID.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourcingPersonResult'
+      tags:
+      - Sourcing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonEnrichRequest'
+components:
+  schemas:
+    CognismEmailQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality email
+        high:
+          type: boolean
+          description: Search contacts with high quality email
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality email
+    ZoomInfoGrowthRateRange:
+      type: object
+      properties:
+        min:
+          type: string
+          description: Minimum growth rate
+        max:
+          type: string
+          description: Maximum growth rate
+    ApolloFilters:
+      type: object
+      properties:
+        person_titles:
+          type: array
+          items:
+            type: string
+          description: Job titles held by the people you want to find. Use lowercase for better matching accuracy (e.g., 'software engineer', 'marketing manager')
+        include_similar_titles:
+          type: boolean
+          description: Whether people with similar job titles are included
+        q_keywords:
+          type: string
+          description: Keywords to search for
+        person_locations:
+          type: array
+          items:
+            type: string
+          description: Location where people live (cities, US states, countries)
+        person_seniorities:
+          type: array
+          items:
+            type: string
+          description: Job seniority levels
+        organization_locations:
+          type: array
+          items:
+            type: string
+          description: Company headquarters locations
+        q_organization_domains_list:
+          type: array
+          items:
+            type: string
+          description: Domain names for person's current or previous employer
+        contact_email_status:
+          type: array
+          items:
+            type: string
+          description: Email statuses for people
+        organization_ids:
+          type: array
+          items:
+            type: string
+          description: Apollo company IDs to include in search
+        organization_num_employees_ranges:
+          type: array
+          items:
+            type: string
+          description: Number of employees range for person's current company
+        revenue_range_min:
+          type: integer
+          format: int32
+          description: Minimum revenue for person's current employer
+        revenue_range_max:
+          type: integer
+          format: int32
+          description: Maximum revenue for person's current employer
+        currently_using_all_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must use (all of)
+        currently_using_any_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must use (any of)
+        currently_not_using_any_of_technology_uids:
+          type: array
+          items:
+            type: string
+          description: Technologies current employer must not use
+        q_organization_job_titles:
+          type: array
+          items:
+            type: string
+          description: Job titles in active job postings at current employer
+        organization_job_locations:
+          type: array
+          items:
+            type: string
+          description: Locations of jobs being recruited by employer
+        organization_num_jobs_range_min:
+          type: integer
+          format: int32
+          description: Minimum number of active job postings at current employer
+        organization_num_jobs_range_max:
+          type: integer
+          format: int32
+          description: Maximum number of active job postings at current employer
+        organization_job_posted_at_range_min:
+          type: string
+          format: date
+          description: Earliest date when jobs were posted by current employer
+        organization_job_posted_at_range_max:
+          type: string
+          format: date
+          description: Latest date when jobs were posted by current employer
+    PersonEnrichRequest:
+      type: object
+      required:
+      - provider
+      - provider_id
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider to use
+        provider_id:
+          type: string
+          description: Provider-specific identifier for the person to enrich
+    ZoomInfoRevenueRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int64
+          description: Minimum annual revenue in U.S. dollars
+        max:
+          type: integer
+          format: int64
+          description: Maximum annual revenue in U.S. dollars
+    PersonDiscoverResponsePagination:
+      type: object
+      required:
+      - size
+      - total
+      properties:
+        next_page:
+          type: integer
+          format: int32
+          description: Next page number (for Apollo/ZoomInfo)
+        page:
+          type: integer
+          format: int32
+          description: Current page number
+        size:
+          type: integer
+          format: int32
+          description: Number of results per page
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        next_cursor:
+          type: string
+          description: Next cursor for pagination (for Cognism)
+    ZoomInfoAccuracyScoreRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Minimum accuracy score (70-99)
+        max:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Maximum accuracy score (70-99)
+    SourcingPersonResult:
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - provider
+      properties:
+        id:
+          type: string
+          description: Provider-specific person ID
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        email:
+          type: string
+          description: Email address (available after enrichment)
+        phone:
+          type: string
+          description: Phone number (available after enrichment)
+        photo:
+          type: string
+          description: Photo URL
+        title:
+          type: string
+          description: Job title
+        company_name:
+          type: string
+          description: Company name
+        company_domain:
+          type: string
+          description: Company domain
+        linkedin_url:
+          type: string
+          description: LinkedIn profile URL
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider used
+        enrich_token:
+          type: string
+          description: Token for enrichment (optional)
+    CognismHeadcountRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int32
+          description: Headcount minimum
+        to:
+          type: integer
+          format: int32
+          description: Headcount maximum
+    CognismFoundedRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int32
+          description: Founded year range minimum
+        to:
+          type: integer
+          format: int32
+          description: Founded year range maximum
+    CognismAccountFilters:
+      type: object
+      properties:
+        names:
+          type: array
+          items:
+            type: string
+          description: Contact current account names
+        excludeNames:
+          type: array
+          items:
+            type: string
+          description: Contact current account exclude names
+        domains:
+          type: array
+          items:
+            type: string
+          description: Contact current account domains
+        excludeDomains:
+          type: array
+          items:
+            type: string
+          description: Contact current account exclude domains
+        websites:
+          type: array
+          items:
+            type: string
+          description: Contact current account websites
+        description:
+          type: string
+          description: Contact current account description keyword
+        shortDescription:
+          type: string
+          description: Contact current account short description keyword
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Contact current account keywords
+        revenue:
+          allOf:
+          - $ref: '#/components/schemas/CognismRevenueRange'
+          description: Contact current account revenue range
+        founded:
+          allOf:
+          - $ref: '#/components/schemas/CognismFoundedRange'
+          description: Contact current account founded year range
+        types:
+          type: array
+          items:
+            type: string
+            enum:
+            - Public Company
+            - Educational
+            - Educational Institution
+            - Government Agency
+            - Partnership
+            - Privately Held
+            - Self-Employed
+            - non profit
+          description: Contact current account types
+        regions:
+          type: array
+          items:
+            type: string
+          description: Contact current account world regions
+        countries:
+          type: array
+          items:
+            type: string
+          description: Contact current account countries
+        excludeCountries:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded countries
+        states:
+          type: array
+          items:
+            type: string
+          description: Contact current account states
+        excludeStates:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded states
+        cities:
+          type: array
+          items:
+            type: string
+          description: Contact current account cities
+        excludeCities:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded cities
+        zip:
+          type: array
+          items:
+            type: string
+          description: Contact current account zip codes
+        industries:
+          type: array
+          items:
+            type: string
+          description: Contact current account industries
+        excludeIndustries:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded industries
+        sic:
+          type: array
+          items:
+            type: string
+          description: Contact current account SIC codes
+        isic:
+          type: array
+          items:
+            type: string
+          description: Contact current account ISIC codes
+        naics:
+          type: array
+          items:
+            type: string
+          description: Contact current account NAICS codes
+        headcount:
+          allOf:
+          - $ref: '#/components/schemas/CognismHeadcountRange'
+          description: Contact current account headcount range
+        technologies:
+          type: array
+          items:
+            type: string
+          description: Contact current account technologies used
+        excludedTechnologies:
+          type: array
+          items:
+            type: string
+          description: Contact current account excluded technologies
+        lastConfirmed:
+          allOf:
+          - $ref: '#/components/schemas/CognismDateRange'
+          description: Contact current account time updated range
+        hqPhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with account having HQ phone numbers
+        officePhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with account having office phone numbers
+    ZoomInfoContactRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum number of ZoomInfo contacts
+        max:
+          type: integer
+          format: int32
+          description: Maximum number of ZoomInfo contacts
+    PersonDiscoverRequest:
+      anyOf:
+      - $ref: '#/components/schemas/ApolloDiscoverRequest'
+      - $ref: '#/components/schemas/ZoomInfoDiscoverRequest'
+      - $ref: '#/components/schemas/CognismDiscoverRequest'
+    ZoomInfoFundingRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum funding amount in thousands
+        max:
+          type: integer
+          format: int32
+          description: Maximum funding amount in thousands
+    CognismFilters:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: Contact ids
+        fullName:
+          type: string
+          description: Contact full name
+        firstName:
+          type: string
+          description: Contact first name
+        lastName:
+          type: string
+          description: Contact last name
+        jobTitles:
+          type: array
+          items:
+            type: string
+          description: Contact current position job titles
+        excludeJobTitles:
+          type: array
+          items:
+            type: string
+          description: Contact current position excluded job titles
+        seniority:
+          type: array
+          items:
+            type: string
+            enum:
+            - Manager
+            - Director
+            - Partner
+            - CXO
+            - Owner
+            - VP
+          description: Contact current position seniority
+        jobFunctions:
+          type: array
+          items:
+            type: string
+            enum:
+            - Oversight
+            - Technology
+            - Operations
+            - Sales
+            - Marketing
+            - Client Success
+            - HR
+            - Accounting
+            - Business
+            - Production
+          description: Contact current position job functions
+        managementLevel:
+          type: array
+          items:
+            type: string
+            enum:
+            - Entry-Level
+            - Team-Lead
+            - Experienced Staff
+            - Executive-Level
+            - Senior Leadership
+            - Middle-Management
+            - CxO
+          description: Contact current position management levels
+        regions:
+          type: array
+          items:
+            type: string
+          description: Contact location world regions
+        countries:
+          type: array
+          items:
+            type: string
+          description: Contact location countries
+        excludeCountries:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded countries
+        states:
+          type: array
+          items:
+            type: string
+          description: Contact location states
+        excludeStates:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded states
+        cities:
+          type: array
+          items:
+            type: string
+          description: Contact location cities
+        excludeCities:
+          type: array
+          items:
+            type: string
+          description: Contact location excluded cities
+        zip:
+          type: array
+          items:
+            type: string
+          description: Contact location zip codes
+        skills:
+          type: array
+          items:
+            type: string
+          description: Contact skills
+        excludeSkills:
+          type: array
+          items:
+            type: string
+          description: Contact excluded skills
+        linkedinUrl:
+          type: string
+          description: Contact LinkedIn URL
+        education:
+          allOf:
+          - $ref: '#/components/schemas/CognismEducation'
+          description: Contact education information
+        mobilePhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with mobile phone numbers
+        directPhoneNumbers:
+          allOf:
+          - $ref: '#/components/schemas/CognismPhoneQuality'
+          description: Search contacts with direct phone numbers
+        emailQuality:
+          allOf:
+          - $ref: '#/components/schemas/CognismEmailQuality'
+          description: Search contacts with email quality
+        sha256:
+          type: array
+          items:
+            type: string
+          description: Search contacts by sha256 hashed email
+        lastConfirmed:
+          allOf:
+          - $ref: '#/components/schemas/CognismDateRange'
+          description: Contact profile time updated range
+        account:
+          allOf:
+          - $ref: '#/components/schemas/CognismAccountFilters'
+          description: Contact current account filters
+        searchOptions:
+          allOf:
+          - $ref: '#/components/schemas/CognismSearchOptions'
+          description: Search options
+    ZoomInfoFilters:
+      type: object
+      properties:
+        rpp:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Limits the results returned to the given number of results per page. Default is 25.
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Provides the results for the given page, used in conjunction with rpp
+        sortBy:
+          type: string
+          enum:
+          - contactAccuracyScore
+          - lastName
+          - companyName
+          - hierarchy
+          - sourceCount
+          - lastMentioned
+          - relevance
+          description: Sort results by valid output fields
+        sortOrder:
+          type: string
+          enum:
+          - asc
+          - ascending
+          - desc
+          - descending
+          description: Sort order for results
+        personId:
+          type: string
+          description: Unique ZoomInfo identifier for the contact. Can include a comma-separated list.
+        emailAddress:
+          type: string
+          description: Work email address for the contact
+        supplementalEmail:
+          type: array
+          items:
+            type: string
+          description: Supplemental email address for the contact
+        hashedEmail:
+          type: string
+          description: Hashed email value for the contact (MD5, SHA1, SHA256, SHA512)
+        phone:
+          type: array
+          items:
+            type: string
+          description: List of person phones or mobile numbers
+        fullName:
+          type: string
+          description: Contact full name
+        firstName:
+          type: string
+          description: Contact first name
+        middleInitial:
+          type: string
+          description: Contact middle initial
+        lastName:
+          type: string
+          description: Contact last name
+        jobTitle:
+          type: string
+          description: Contact title at current place of employment. Use OR to input multiple job titles.
+        excludeJobTitle:
+          type: string
+          description: Exclude comma-separated list of job titles
+        managementLevel:
+          type: string
+          description: Contact management level at current place of employment
+        excludeManagementLevel:
+          type: string
+          description: Exclude contact based on management level
+        department:
+          type: string
+          description: Contact department at current place of employment
+        jobFunction:
+          type: string
+          description: Contact job function at their current place of employment
+        boardMember:
+          type: string
+          description: Exclude or include board members from search results
+        executivesOnly:
+          type: boolean
+          description: Return only executives
+        excludePartialProfiles:
+          type: boolean
+          description: Exclude contacts with a partial profile from search results
+        contactAccuracyScore:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoAccuracyScoreRange'
+          description: Contact accuracy score range
+        hasBeenNotified:
+          type: string
+          enum:
+          - exclude
+          - include
+          - only
+          description: Contacts who have been notified of inclusion in ZoomInfo's database
+        lastUpdatedDateAfter:
+          type: string
+          format: date
+          description: The date after which the contact's profile was last updated (YYYY-MM-DD)
+        validDateAfter:
+          type: string
+          format: date
+          description: The date after which the contact's profile was last validated (YYYY-MM-DD)
+        lastUpdatedInMonths:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Number of months within which the contact's profile was last updated
+        positionStartDateMin:
+          type: string
+          format: date
+          description: Minimum date for when a contact began current employment (YYYY-MM-DD)
+        positionStartDateMax:
+          type: string
+          format: date
+          description: Maximum date for when a contact began current employment (YYYY-MM-DD)
+        companyPastOrPresent:
+          type: string
+          enum:
+          - present
+          - past
+          - pastAndPresent
+          description: Returns companies based on a contact's work history
+        school:
+          type: string
+          description: Contact educational institution
+        degree:
+          type: string
+          description: Contact education degree
+        locationCompanyId:
+          type: array
+          items:
+            type: string
+          description: Searches by contact's location IDs
+        companyId:
+          type: string
+          description: ZoomInfo unique identifier for the company. Will accept a comma-separated list.
+        companyName:
+          type: string
+          description: Company name. Can use OR and NOT operators to include or exclude companies
+        companyWebsite:
+          type: string
+          description: URL to the company website
+        companyTicker:
+          type: array
+          items:
+            type: string
+          description: Company stock ticker symbol
+        companyDescription:
+          type: string
+          description: Text description unique to the company
+        parentId:
+          type: string
+          description: ZoomInfo Company ID for parent company
+        ultimateParentId:
+          type: string
+          description: ZoomInfo Company ID for ultimate parent company
+        companyType:
+          type: string
+          description: Company type (private, public, etc.)
+        address:
+          type: string
+          description: Company address
+        street:
+          type: string
+          description: Company street
+        state:
+          type: string
+          description: Company state (U.S.) or province (Canada)
+        zipCode:
+          type: string
+          description: Zip Code of the company's primary address
+        country:
+          type: string
+          description: Country for the company's primary address
+        continent:
+          type: string
+          description: Continent for the company's primary address
+        zipCodeRadiusMiles:
+          type: string
+          description: Geographical radius in miles from the zipCode provided
+        metroRegion:
+          type: string
+          description: Company metro area
+        excludedRegions:
+          type: string
+          description: Exclude a company metro area
+        locationSearchType:
+          type: string
+          enum:
+          - PersonOrHQ
+          - PersonAndHQ
+          - Person
+          - HQ
+          - PersonThenHQ
+          description: Location criteria for search
+        hashTagString:
+          type: string
+          description: Hash tags for a company
+        techAttributeTagList:
+          type: string
+          description: Technology product tags using numerical dot notation
+        subUnitTypes:
+          type: string
+          description: Company sub types (e.g., division, subsidiary)
+        companyStructureIncludedSubUnitTypes:
+          type: string
+          description: Company hierarchical structure
+        primaryIndustriesOnly:
+          type: boolean
+          description: Used with industryCodes - when true, results must have specified industries as primary
+        industryCodes:
+          type: string
+          description: Top-level industry that the contact works in
+        industryKeywords:
+          type: string
+          description: Industry keywords associated with a company
+        sicCodes:
+          type: string
+          description: Standard Industrial Classification four-digit codes
+        naicsCodes:
+          type: string
+          description: North American Industry Classification System codes
+        revenue:
+          type: string
+          description: Annual revenue range
+        revenueRange:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoRevenueRange'
+          description: Annual revenue range in U.S. dollars
+        employeeCount:
+          type: string
+          description: Employee count range
+        employeeRange:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoEmployeeRange'
+          description: Employee count range (granular)
+        companyRanking:
+          type: string
+          description: Company ranking list (e.g., Fortune 500)
+        zoominfoContacts:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoContactRange'
+          description: Number of ZoomInfo contacts associated with company
+        oneYearEmployeeGrowthRate:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoGrowthRateRange'
+          description: One year employee growth rate range
+        twoYearEmployeeGrowthRate:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoGrowthRateRange'
+          description: Two year employee growth rate range
+        fundingAmount:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoFundingRange'
+          description: Funding amount range in thousands
+        fundingStartDate:
+          type: string
+          format: date
+          description: Start date of the funding (YYYY-MM-DD)
+        fundingEndDate:
+          type: string
+          format: date
+          description: End date of the funding (YYYY-MM-DD)
+        webReferences:
+          type: array
+          items:
+            type: string
+          description: List of web references for a contact
+        filterByBuyingCommittee:
+          type: boolean
+          description: Boolean flag for Buying Committee filtering
+        techSkills:
+          type: array
+          items:
+            type: string
+          description: List of technology skills for a contact
+        yearsOfExperience:
+          type: string
+          description: Years of overall experience
+        engagementStartDate:
+          type: string
+          format: date
+          description: Engagement start date (YYYY-MM-DD)
+        engagementEndDate:
+          type: string
+          format: date
+          description: Engagement end date (YYYY-MM-DD)
+        engagementType:
+          type: array
+          items:
+            type: string
+            enum:
+            - email
+            - phone
+            - online meeting
+          description: List of engagement types to search for
+    CognismEducation:
+      type: object
+      properties:
+        schools:
+          type: array
+          items:
+            type: string
+          description: Contact education school names
+        degrees:
+          type: array
+          items:
+            type: string
+          description: Contact education degree names
+    CognismRevenueRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int64
+          description: Revenue range minimum
+        to:
+          type: integer
+          format: int64
+          description: Revenue range maximum
+    CognismDateRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int64
+          description: Start timestamp (Unix timestamp in milliseconds)
+        to:
+          type: integer
+          format: int64
+          description: End timestamp (Unix timestamp in milliseconds)
+    SourcingProvider:
+      type: object
+      required:
+      - provider
+      - isConnected
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: The name of the sourcing provider
+        isConnected:
+          type: boolean
+          description: Whether the provider is properly configured and connected for this tenant
+    CognismDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - cognism
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/CognismFilters'
+          description: Cognism-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    CognismSearchOptions:
+      type: object
+      properties:
+        match_exact_job_title:
+          type: boolean
+          description: Match exact job title
+        ai_job_title:
+          type: boolean
+          description: AI expansion of job titles
+        sort_fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - LastConfirmedContactDESC
+            - LastConfirmedContactASC
+            - EmailQualityDESC
+            - EmailQualityASC
+            - ProfileScoreDESC
+            - ProfileScoreASC
+          description: Sort fields
+    ZoomInfoEmployeeRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum employee count
+        max:
+          type: integer
+          format: int32
+          description: Maximum employee count
+    PersonDiscoverPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Page number (for Apollo/ZoomInfo)
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Number of results per page
+        cursor:
+          type: string
+          description: Cursor for pagination (for Cognism)
+    CognismPhoneQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality phone numbers
+        high:
+          type: boolean
+          description: Search contacts with high quality phone numbers
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality phone numbers
+    ZoomInfoDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - zoominfo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoFilters'
+          description: ZoomInfo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    PersonDiscoverResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourcingPersonResult'
+          description: Array of discovered persons
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverResponsePagination'
+          description: Pagination information
+    ApolloDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ApolloFilters'
+          description: Apollo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

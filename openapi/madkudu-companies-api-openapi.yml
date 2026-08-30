@@ -1,0 +1,609 @@
+openapi: 3.2.0
+info:
+  title: MadKudu Legacy Companies API
+  version: 0.0.0
+servers:
+- url: https://api.madkudu.com
+  description: Legacy API server
+  variables: {}
+security:
+- BasicAuth: []
+tags:
+- name: Companies
+paths:
+  /v1/companies:
+    get:
+      operationId: Companies_lookupCompany
+      summary: Lookup company by domain
+      description: Our Company API lets you lookup a company profile via a domain name. It returns the predictive customer fit of the company (aka. demographics score), the top signals behind this score (ie. why is this company a good fit or not), and some light demographics information (eg. number of employees, industry, etc.).
+      parameters:
+      - name: domain
+        in: query
+        required: true
+        description: The domain name of the company you would like to retrieve
+        schema:
+          type: string
+        explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services.Companies.CompanyLookupResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.AuthenticationError'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.NotFoundError'
+        '429':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.RateLimitError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.InternalServerError'
+      tags:
+      - Companies
+    post:
+      operationId: Companies_lookupCompanyWithPayload
+      summary: Lookup company with enriched payload
+      description: This API endpoint lets you provide your own enriched company data.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services.Companies.CompanyLookupResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.AuthenticationError'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.ValidationError'
+        '429':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.RateLimitError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Common.Errors.InternalServerError'
+      tags:
+      - Companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Services.Companies.CompanyLookupWithPayloadRequest'
+components:
+  schemas:
+    Common.Models.CompanySite:
+      type: object
+      properties:
+        phoneNumbers:
+          type: array
+          items:
+            type: string
+          description: Phone numbers
+        emailAddresses:
+          type: array
+          items:
+            type: string
+          description: Email addresses
+      description: Company site information
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
+    Common.Errors.NotFoundError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Resource not found error
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Common.Models.SocialProfile:
+      type: object
+      properties:
+        handle:
+          type: string
+          description: Social media handle
+        id:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int64
+          description: Profile ID
+        bio:
+          type: string
+          description: Profile bio
+        followers:
+          type: integer
+          format: int32
+          description: Number of followers
+        following:
+          type: integer
+          format: int32
+          description: Number of following
+        avatar:
+          type: string
+          description: Avatar URL
+        location:
+          type: string
+          description: Location
+        site:
+          type: string
+          description: Website URL
+        company:
+          type: string
+          description: Company
+        blog:
+          type: string
+          description: Blog URL
+        statuses:
+          type: integer
+          format: int32
+          description: Number of statuses
+        favorites:
+          type: integer
+          format: int32
+          description: Number of favorites
+        likes:
+          type: integer
+          format: int32
+          description: Number of likes
+      description: Social media profile
+    Common.Models.SignalType:
+      type: string
+      enum:
+      - positive
+      - negative
+      description: Signal type indicating positive or negative impact
+    Common.Models.Signal:
+      type: object
+      required:
+      - name
+      - value
+      - type
+      properties:
+        name:
+          type: string
+          description: Name of the signal
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          description: Value of the signal (can be string or number)
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SignalType'
+          description: Type of signal impact
+      description: Individual signal contributing to customer fit score
+    Common.Models.CompanyIdentifiers:
+      type: object
+      properties:
+        usEIN:
+          type: string
+          description: US EIN number
+      description: Company identifiers
+    Services.Companies.CompanyProperties:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the company associated with this person
+        domain:
+          type: string
+          description: The domain of the company associated with this person
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: The location of the company's headquarters
+        number_of_employees:
+          type: integer
+          format: int32
+          description: The number of employees at the company
+        industry:
+          type: string
+          description: The industry of the company
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: The standard MadKudu customer fit fields
+        predicted_value:
+          type: number
+          format: double
+          description: (Optional) The value of an account before they have reached the end of the funnel (aka made a purchase), based on the historical value of similar accounts who have made the purchase.
+      description: Company properties containing all company information
+    Common.Models.CompanyCategory:
+      type: object
+      properties:
+        sector:
+          type: string
+          description: Business sector
+        industryGroup:
+          type: string
+          description: Industry group
+        industry:
+          type: string
+          description: Industry
+        subIndustry:
+          type: string
+          description: Sub-industry
+        sicCode:
+          type: string
+          description: SIC code
+        naicsCode:
+          type: string
+          description: NAICS code
+      description: Company category classification
+    Common.Models.Location:
+      type: object
+      properties:
+        state:
+          type: string
+          description: The headquarters' state name
+        state_code:
+          type: string
+          description: The headquarters' two-character state code
+        country:
+          type: string
+          description: The headquarters's country
+        country_code:
+          type: string
+          description: The headquarters's two-character country code
+        tags:
+          type: array
+          items:
+            type: string
+          description: An array of tags describing the location
+      description: Geographic location information
+    Common.Models.GeoLocation:
+      type: object
+      properties:
+        streetNumber:
+          type: string
+          description: Street number
+        streetName:
+          type: string
+          description: Street name
+        subPremise:
+          type: string
+          description: Sub-premise information
+        city:
+          type: string
+          description: City name
+        postalCode:
+          type: string
+          description: Postal code
+        state:
+          type: string
+          description: State name
+        stateCode:
+          type: string
+          description: State code
+        country:
+          type: string
+          description: Country name
+        countryCode:
+          type: string
+          description: Country code
+        lat:
+          type: number
+          format: double
+          description: Latitude coordinate
+        lng:
+          type: number
+          format: double
+          description: Longitude coordinate
+      description: Detailed geographic coordinates
+    Common.Models.CompanyParent:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Parent company domain
+      description: Company parent information
+    Common.Models.CustomerFitSegment:
+      type: string
+      enum:
+      - low
+      - medium
+      - good
+      - very good
+      description: Customer fit segment values
+    Common.Models.CustomerFit:
+      type: object
+      required:
+      - segment
+      - score
+      - top_signals
+      - top_signals_formated
+      properties:
+        segment:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFitSegment'
+          description: The standard MadKudu Customer Fit segment which is either "low", "medium", "good" or "very good"
+        score:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: The standard MadKudu Customer Fit score which ranges from 0 to 100
+        top_signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.Signal'
+          description: The standard MadKudu Customer Fit signals presented in array format where each signal line is shown in name, value and type
+        top_signals_formated:
+          type: string
+          description: The standard MadKudu Customer Fit signals presented all in one string
+      description: Customer fit analysis with score and signals
+    Common.Models.ObjectType:
+      type: string
+      enum:
+      - company
+      - person
+      description: Object type identifier
+    Common.Models.ClearbitCompany:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Company ID
+        name:
+          type: string
+          description: Company name
+        legalName:
+          type: string
+          description: Legal name
+        domain:
+          type: string
+          description: Primary domain
+        domainAliases:
+          type: array
+          items:
+            type: string
+          description: Domain aliases
+        site:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanySite'
+          description: Site information
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyCategory'
+          description: Category classification
+        tags:
+          type: array
+          items:
+            type: string
+          description: Company tags
+        description:
+          type: string
+          description: Company description
+        foundedYear:
+          type: integer
+          format: int32
+          description: Founded year
+        location:
+          type: string
+          description: Location string
+        timeZone:
+          type: string
+          description: Time zone
+        utcOffset:
+          type: integer
+          format: int32
+          description: UTC offset
+        geo:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.GeoLocation'
+          description: Geographic location
+        logo:
+          type: string
+          description: Logo URL
+        facebook:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Facebook profile
+        linkedin:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: LinkedIn profile
+        twitter:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Twitter profile
+        crunchbase:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Crunchbase profile
+        emailProvider:
+          type: boolean
+          description: Email provider flag
+        type:
+          type: string
+          description: Company type
+        ticker:
+          type: string
+          description: Stock ticker
+        identifiers:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyIdentifiers'
+          description: Company identifiers
+        phone:
+          type: string
+          description: Phone number
+        metrics:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyMetrics'
+          description: Company metrics
+        indexedAt:
+          type: string
+          description: Index timestamp
+        tech:
+          type: array
+          items:
+            type: string
+          description: Technology stack
+        parent:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyParent'
+          description: Parent company
+      description: Complete Clearbit company payload
+    Common.Errors.AuthenticationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Authentication error
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
+    Services.Companies.CompanyLookupResponse:
+      type: object
+      required:
+      - object_type
+      - domain
+      - properties
+      properties:
+        object_type:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.ObjectType'
+          description: Object type identifier
+        domain:
+          type: string
+          description: Company domain
+        properties:
+          allOf:
+          - $ref: '#/components/schemas/Services.Companies.CompanyProperties'
+          description: Company properties
+      description: Company lookup response
+    Common.Models.CompanyMetrics:
+      type: object
+      properties:
+        alexaUsRank:
+          type: integer
+          format: int32
+          description: Alexa US rank
+        alexaGlobalRank:
+          type: integer
+          format: int32
+          description: Alexa global rank
+        employees:
+          type: integer
+          format: int32
+          description: Number of employees
+        employeesRange:
+          type: string
+          description: Employee range
+        marketCap:
+          type: integer
+          format: int64
+          description: Market cap
+        raised:
+          type: integer
+          format: int64
+          description: Capital raised
+        annualRevenue:
+          type: integer
+          format: int64
+          description: Annual revenue
+        estimatedAnnualRevenue:
+          type: string
+          description: Estimated annual revenue
+        fiscalYearEnd:
+          type: integer
+          format: int32
+          description: Fiscal year end month
+      description: Company metrics
+    Services.Companies.CompanyLookupWithPayloadRequest:
+      type: object
+      required:
+      - domain
+      - company
+      properties:
+        domain:
+          type: string
+          description: Company domain
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.ClearbitCompany'
+          description: Clearbit company payload
+      description: Company lookup with payload request
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: Basic
