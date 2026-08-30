@@ -75,6 +75,8 @@ apis:
   humanURL: https://developers.madkudu.com/api
   baseURL: https://madapi.madkudu.com
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -105,6 +107,8 @@ apis:
   humanURL: https://developers.madkudu.com/api
   baseURL: https://madapi.madkudu.com
   tags:
+  - Artificial Intelligence
+  tags_raw:
   - AI
   properties:
   - type: OpenAPI
