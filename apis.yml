@@ -40,6 +40,7 @@ accessModel:
   source:
   - https://developers.madkudu.com/getting-started/usage-and-credits
   - https://developers.madkudu.com/readme.md
+  - {url: 'https://madkudu.com/', status: 301, note: 'declared website redirects to https://hginsights.com/ — a different registrable domain (madkudu.com -> hginsights.com), possible rename or acquisition (probed 2026-09-03, roadmap#169)'}
   generated: '2026-08-14'
   method: searched
 specificationVersion: '0.23'
