@@ -88,18 +88,6 @@ components:
           type: string
           description: Error message
       description: Internal server error
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-        details:
-          type: string
-          description: Invalid parameter details
-      description: Validation error for request parameters
     Services.JobChanges.WatchListUploadResponse:
       type: object
       required:
@@ -128,6 +116,18 @@ components:
           type: string
           description: Rate limit details
       description: Rate limit exceeded error
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
   securitySchemes:
     BasicAuth:
       type: http

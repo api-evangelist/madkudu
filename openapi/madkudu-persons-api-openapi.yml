@@ -192,6 +192,37 @@ paths:
       variables: {}
 components:
   schemas:
+    Common.Models.GravatarAvatar:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Avatar URL
+        type:
+          type: string
+          description: Avatar type
+      description: Gravatar avatar information
+    Common.Models.CustomerFitSegment:
+      type: string
+      enum:
+      - low
+      - medium
+      - good
+      - very good
+      description: Customer fit segment values
+    Common.Models.ClearbitPersonName:
+      type: object
+      properties:
+        fullName:
+          type: string
+          description: Full name
+        givenName:
+          type: string
+          description: Given name (first name)
+        familyName:
+          type: string
+          description: Family name (last name)
+      description: Clearbit person name structure
     Services.Persons.CompanyInfoProperties:
       type: object
       properties:
@@ -217,19 +248,6 @@ components:
           format: double
           description: Predicted value of the company
       description: Company properties within person response
-    Common.Models.ClearbitPersonName:
-      type: object
-      properties:
-        fullName:
-          type: string
-          description: Full name
-        givenName:
-          type: string
-          description: Given name (first name)
-        familyName:
-          type: string
-          description: Family name (last name)
-      description: Clearbit person name structure
     Common.Models.CompanySite:
       type: object
       properties:
@@ -244,18 +262,36 @@ components:
             type: string
           description: Email addresses
       description: Company site information
-    Common.Errors.RateLimitError:
+    Services.Persons.PersonProperties:
       type: object
-      required:
-      - message
       properties:
-        message:
+        first_name:
           type: string
-          description: Error message
-        details:
+          description: First name of the person
+        last_name:
           type: string
-          description: Rate limit details
-      description: Rate limit exceeded error
+          description: Last name of the the person
+        domain:
+          type: string
+          description: The domain associated with this email address
+        is_student:
+          type: boolean
+          description: true if the email is identified as a student email
+        is_spam:
+          type: boolean
+          description: true if the email is identified as a spam email
+        is_personal_email:
+          type: boolean
+          description: true if the email is identified as a personal (or disposable) email address (e.g. gmail.com)
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: The standard MadKudu customer fit fields
+        predicted_value:
+          type: number
+          format: double
+          description: (Optional) The value of a lead before they have reached the end of the funnel (aka made a purchase), based on the historical value of similar leads who have made the purchase.
+      description: Person properties containing all person information
     Common.Errors.NotFoundError:
       type: object
       required:
@@ -265,37 +301,7 @@ components:
           type: string
           description: Error message
       description: Resource not found error
-    Common.Models.GravatarProfile:
-      type: object
-      properties:
-        handle:
-          type: string
-          description: Handle
-        urls:
-          type: array
-          items:
-            type: string
-          description: URLs
-        avatar:
-          type: string
-          description: Avatar URL
-        avatars:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.GravatarAvatar'
-          description: Avatar variations
-      description: Gravatar profile
-    Common.Models.GravatarAvatar:
-      type: object
-      properties:
-        url:
-          type: string
-          description: Avatar URL
-        type:
-          type: string
-          description: Avatar type
-      description: Gravatar avatar information
-    Common.Errors.InternalServerError:
+    Common.Errors.AuthenticationError:
       type: object
       required:
       - message
@@ -303,7 +309,7 @@ components:
         message:
           type: string
           description: Error message
-      description: Internal server error
+      description: Authentication error
     Common.Models.SocialProfile:
       type: object
       properties:
@@ -355,93 +361,64 @@ components:
           format: int32
           description: Number of likes
       description: Social media profile
-    Common.Models.SignalType:
-      type: string
-      enum:
-      - positive
-      - negative
-      description: Signal type indicating positive or negative impact
-    Common.Models.Signal:
-      type: object
-      required:
-      - name
-      - value
-      - type
-      properties:
-        name:
-          type: string
-          description: Name of the signal
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          description: Value of the signal (can be string or number)
-        type:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SignalType'
-          description: Type of signal impact
-      description: Individual signal contributing to customer fit score
-    Common.Models.CompanyIdentifiers:
+    Common.Models.CompanyMetrics:
       type: object
       properties:
-        usEIN:
+        alexaUsRank:
+          type: integer
+          format: int32
+          description: Alexa US rank
+        alexaGlobalRank:
+          type: integer
+          format: int32
+          description: Alexa global rank
+        employees:
+          type: integer
+          format: int32
+          description: Number of employees
+        employeesRange:
           type: string
-          description: US EIN number
-      description: Company identifiers
-    Services.Persons.PersonLookupWithPayloadRequest:
+          description: Employee range
+        marketCap:
+          type: integer
+          format: int64
+          description: Market cap
+        raised:
+          type: integer
+          format: int64
+          description: Capital raised
+        annualRevenue:
+          type: integer
+          format: int64
+          description: Annual revenue
+        estimatedAnnualRevenue:
+          type: string
+          description: Estimated annual revenue
+        fiscalYearEnd:
+          type: integer
+          format: int32
+          description: Fiscal year end month
+      description: Company metrics
+    Common.Models.GravatarProfile:
       type: object
-      required:
-      - email
-      - person
-      - company
       properties:
-        email:
+        handle:
           type: string
-          description: Person email
-        person:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.ClearbitPerson'
-          description: Clearbit person payload
-        company:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.ClearbitCompany'
-          description: Clearbit company payload
-      description: Person lookup with payload request
-    Common.Models.CompanyCategory:
-      type: object
-      properties:
-        sector:
+          description: Handle
+        urls:
+          type: array
+          items:
+            type: string
+          description: URLs
+        avatar:
           type: string
-          description: Business sector
-        industryGroup:
-          type: string
-          description: Industry group
-        industry:
-          type: string
-          description: Industry
-        subIndustry:
-          type: string
-          description: Sub-industry
-        sicCode:
-          type: string
-          description: SIC code
-        naicsCode:
-          type: string
-          description: NAICS code
-      description: Company category classification
-    Services.Persons.CompanyInfo:
-      type: object
-      required:
-      - properties
-      properties:
-        properties:
-          allOf:
-          - $ref: '#/components/schemas/Services.Persons.CompanyInfoProperties'
-          description: Company properties
-      description: Company information associated with person
+          description: Avatar URL
+        avatars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.GravatarAvatar'
+          description: Avatar variations
+      description: Gravatar profile
     Services.Persons.PersonLookupResponse:
       type: object
       required:
@@ -465,27 +442,178 @@ components:
           - $ref: '#/components/schemas/Services.Persons.CompanyInfo'
           description: Associated company information
       description: Person lookup response
-    Common.Models.Location:
+    Common.Models.SignalType:
+      type: string
+      enum:
+      - positive
+      - negative
+      description: Signal type indicating positive or negative impact
+    Common.Models.ClearbitCompany:
       type: object
       properties:
-        state:
+        id:
           type: string
-          description: The headquarters' state name
-        state_code:
+          description: Company ID
+        name:
           type: string
-          description: The headquarters' two-character state code
-        country:
+          description: Company name
+        legalName:
           type: string
-          description: The headquarters's country
-        country_code:
+          description: Legal name
+        domain:
           type: string
-          description: The headquarters's two-character country code
+          description: Primary domain
+        domainAliases:
+          type: array
+          items:
+            type: string
+          description: Domain aliases
+        site:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanySite'
+          description: Site information
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyCategory'
+          description: Category classification
         tags:
           type: array
           items:
             type: string
-          description: An array of tags describing the location
-      description: Geographic location information
+          description: Company tags
+        description:
+          type: string
+          description: Company description
+        foundedYear:
+          type: integer
+          format: int32
+          description: Founded year
+        location:
+          type: string
+          description: Location string
+        timeZone:
+          type: string
+          description: Time zone
+        utcOffset:
+          type: integer
+          format: int32
+          description: UTC offset
+        geo:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.GeoLocation'
+          description: Geographic location
+        logo:
+          type: string
+          description: Logo URL
+        facebook:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Facebook profile
+        linkedin:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: LinkedIn profile
+        twitter:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Twitter profile
+        crunchbase:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SocialProfile'
+          description: Crunchbase profile
+        emailProvider:
+          type: boolean
+          description: Email provider flag
+        type:
+          type: string
+          description: Company type
+        ticker:
+          type: string
+          description: Stock ticker
+        identifiers:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyIdentifiers'
+          description: Company identifiers
+        phone:
+          type: string
+          description: Phone number
+        metrics:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyMetrics'
+          description: Company metrics
+        indexedAt:
+          type: string
+          description: Index timestamp
+        tech:
+          type: array
+          items:
+            type: string
+          description: Technology stack
+        parent:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyParent'
+          description: Parent company
+      description: Complete Clearbit company payload
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
+    Common.Models.CompanyCategory:
+      type: object
+      properties:
+        sector:
+          type: string
+          description: Business sector
+        industryGroup:
+          type: string
+          description: Industry group
+        industry:
+          type: string
+          description: Industry
+        subIndustry:
+          type: string
+          description: Sub-industry
+        sicCode:
+          type: string
+          description: SIC code
+        naicsCode:
+          type: string
+          description: NAICS code
+      description: Company category classification
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
+    Common.Models.CompanyParent:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Parent company domain
+      description: Company parent information
+    Common.Models.CompanyIdentifiers:
+      type: object
+      properties:
+        usEIN:
+          type: string
+          description: US EIN number
+      description: Company identifiers
     Common.Models.GeoLocation:
       type: object
       properties:
@@ -525,21 +653,6 @@ components:
           format: double
           description: Longitude coordinate
       description: Detailed geographic coordinates
-    Common.Models.CompanyParent:
-      type: object
-      properties:
-        domain:
-          type: string
-          description: Parent company domain
-      description: Company parent information
-    Common.Models.CustomerFitSegment:
-      type: string
-      enum:
-      - low
-      - medium
-      - good
-      - very good
-      description: Customer fit segment values
     Common.Models.CustomerFit:
       type: object
       required:
@@ -654,133 +767,6 @@ components:
       - company
       - person
       description: Object type identifier
-    Common.Models.ClearbitCompany:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Company ID
-        name:
-          type: string
-          description: Company name
-        legalName:
-          type: string
-          description: Legal name
-        domain:
-          type: string
-          description: Primary domain
-        domainAliases:
-          type: array
-          items:
-            type: string
-          description: Domain aliases
-        site:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanySite'
-          description: Site information
-        category:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyCategory'
-          description: Category classification
-        tags:
-          type: array
-          items:
-            type: string
-          description: Company tags
-        description:
-          type: string
-          description: Company description
-        foundedYear:
-          type: integer
-          format: int32
-          description: Founded year
-        location:
-          type: string
-          description: Location string
-        timeZone:
-          type: string
-          description: Time zone
-        utcOffset:
-          type: integer
-          format: int32
-          description: UTC offset
-        geo:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.GeoLocation'
-          description: Geographic location
-        logo:
-          type: string
-          description: Logo URL
-        facebook:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SocialProfile'
-          description: Facebook profile
-        linkedin:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SocialProfile'
-          description: LinkedIn profile
-        twitter:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SocialProfile'
-          description: Twitter profile
-        crunchbase:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SocialProfile'
-          description: Crunchbase profile
-        emailProvider:
-          type: boolean
-          description: Email provider flag
-        type:
-          type: string
-          description: Company type
-        ticker:
-          type: string
-          description: Stock ticker
-        identifiers:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyIdentifiers'
-          description: Company identifiers
-        phone:
-          type: string
-          description: Phone number
-        metrics:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyMetrics'
-          description: Company metrics
-        indexedAt:
-          type: string
-          description: Index timestamp
-        tech:
-          type: array
-          items:
-            type: string
-          description: Technology stack
-        parent:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyParent'
-          description: Parent company
-      description: Complete Clearbit company payload
-    Common.Errors.AuthenticationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-      description: Authentication error
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-        details:
-          type: string
-          description: Invalid parameter details
-      description: Validation error for request parameters
     Common.Models.Employment:
       type: object
       properties:
@@ -800,146 +786,117 @@ components:
           type: string
           description: Seniority level
       description: Employment information
-    Common.Models.CompanyMetrics:
-      type: object
-      properties:
-        alexaUsRank:
-          type: integer
-          format: int32
-          description: Alexa US rank
-        alexaGlobalRank:
-          type: integer
-          format: int32
-          description: Alexa global rank
-        employees:
-          type: integer
-          format: int32
-          description: Number of employees
-        employeesRange:
-          type: string
-          description: Employee range
-        marketCap:
-          type: integer
-          format: int64
-          description: Market cap
-        raised:
-          type: integer
-          format: int64
-          description: Capital raised
-        annualRevenue:
-          type: integer
-          format: int64
-          description: Annual revenue
-        estimatedAnnualRevenue:
-          type: string
-          description: Estimated annual revenue
-        fiscalYearEnd:
-          type: integer
-          format: int32
-          description: Fiscal year end month
-      description: Company metrics
-    Services.Persons.PersonProperties:
-      type: object
-      properties:
-        first_name:
-          type: string
-          description: First name of the person
-        last_name:
-          type: string
-          description: Last name of the the person
-        domain:
-          type: string
-          description: The domain associated with this email address
-        is_student:
-          type: boolean
-          description: true if the email is identified as a student email
-        is_spam:
-          type: boolean
-          description: true if the email is identified as a spam email
-        is_personal_email:
-          type: boolean
-          description: true if the email is identified as a personal (or disposable) email address (e.g. gmail.com)
-        customer_fit:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit'
-          description: The standard MadKudu customer fit fields
-        predicted_value:
-          type: number
-          format: double
-          description: (Optional) The value of a lead before they have reached the end of the funnel (aka made a purchase), based on the historical value of similar leads who have made the purchase.
-      description: Person properties containing all person information
-    Common.Models.PersonActivityResponse:
+    Services.Persons.PersonLookupWithPayloadRequest:
       type: object
       required:
-      - data
-      - meta
+      - email
+      - person
+      - company
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.PersonActivity'
-          description: Person activity data
-        meta:
+        email:
+          type: string
+          description: Person email
+        person:
           allOf:
-          - $ref: '#/components/schemas/Common.Models.Meta'
-          description: Metadata
-    Common.Models.PersonActivity:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Common.Models.ActivityBase'
-    Common.Models.Scores:
+          - $ref: '#/components/schemas/Common.Models.ClearbitPerson'
+          description: Clearbit person payload
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.ClearbitCompany'
+          description: Clearbit company payload
+      description: Person lookup with payload request
+    Common.Models.Signal:
       type: object
       required:
-      - customer_fit
-      - likelihood_to_buy
+      - name
+      - value
+      - type
       properties:
-        customer_fit:
+        name:
+          type: string
+          description: Name of the signal
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          description: Value of the signal (can be string or number)
+        type:
           allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit_2'
-          description: Customer fit information
-        likelihood_to_buy:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
-          description: Likelihood to buy information
-    Common.Models.CompanyReference:
-      type: object
-      required:
-      - domain
-      - mk_id
-      properties:
-        domain:
-          type: string
-          description: Domain of the company
-        mk_id:
-          type: string
-          description: MadKudu ID of the company
-    Common.Models.SortingParam:
-      type: object
-      required:
-      - sort_by
-      - sort_order
-      properties:
-        sort_by:
-          type: string
-          description: Field to sort by
-        sort_order:
-          type: string
-          enum:
-          - asc
-          - desc
-          description: Sort order
-    Common.Models.Location_2:
+          - $ref: '#/components/schemas/Common.Models.SignalType'
+          description: Type of signal impact
+      description: Individual signal contributing to customer fit score
+    Common.Models.Location:
       type: object
       properties:
-        country:
-          type: string
-          description: Country
         state:
           type: string
-          description: State or region
-        city:
+          description: The headquarters' state name
+        state_code:
           type: string
-          description: City
+          description: The headquarters' two-character state code
+        country:
+          type: string
+          description: The headquarters's country
+        country_code:
+          type: string
+          description: The headquarters's two-character country code
+        tags:
+          type: array
+          items:
+            type: string
+          description: An array of tags describing the location
+      description: Geographic location information
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Services.Persons.CompanyInfo:
+      type: object
+      required:
+      - properties
+      properties:
+        properties:
+          allOf:
+          - $ref: '#/components/schemas/Services.Persons.CompanyInfoProperties'
+          description: Company properties
+      description: Company information associated with person
+    Common.Models.AggregationValue:
+      type: object
+      required:
+      - aggregation_name_display
+      - aggregation_value
+      properties:
+        aggregation_name_display:
+          type: string
+          description: Display name for the aggregation
+        aggregation_value:
+          type: number
+          format: double
+          description: Aggregation value
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
     Common.Models.PersonSocials:
       type: object
       properties:
@@ -973,59 +930,6 @@ components:
           type: integer
           format: int32
           description: Next cursor for pagination
-    Common.Models.AggregationValue:
-      type: object
-      required:
-      - aggregation_name_display
-      - aggregation_value
-      properties:
-        aggregation_name_display:
-          type: string
-          description: Display name for the aggregation
-        aggregation_value:
-          type: number
-          format: double
-          description: Aggregation value
-    Common.Models.LikelihoodToBuy:
-      type: object
-      required:
-      - score
-      - segment
-      properties:
-        score:
-          type: number
-          format: double
-          description: Likelihood to buy score
-        segment:
-          type: string
-          description: Likelihood to buy segment
-    Common.Models.PersonActivityFilter:
-      type: object
-      required:
-      - property
-      - operator
-      - value
-      properties:
-        property:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.PersonActivityFilterProperty'
-          description: Property to filter by
-        operator:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.FilterOperator'
-          description: Filter operator
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          - type: boolean
-          - type: array
-            items:
-              type: string
-          description: Filter value
     Common.Models.PersonActivityFilterProperty:
       type: string
       enum:
@@ -1056,6 +960,21 @@ components:
       - ENDS_WITH
       - IS_EMPTY
       - IS_NOT_EMPTY
+    Common.Models.PersonActivityResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.PersonActivity'
+          description: Person activity data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
     Common.Models.CustomerFit_2:
       type: object
       required:
@@ -1072,36 +991,18 @@ components:
         signals:
           type: string
           description: Customer fit signals
-    Common.Models.PersonActivitySearchRequest:
+    Common.Models.CompanyReference:
       type: object
+      required:
+      - domain
+      - mk_id
       properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results to return
-        cursor:
-          type: integer
-          format: int32
-          description: Cursor for pagination
-        search:
+        domain:
           type: string
-          description: Search query
-        filters:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.PersonActivityFilter'
-          description: Filters to apply
-        filterLogic:
+          description: Domain of the company
+        mk_id:
           type: string
-          enum:
-          - AND
-          - OR
-          description: Filter logic
-        sort:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.SortingParam'
-          description: Sorting parameters
+          description: MadKudu ID of the company
     Common.Models.PersonDetail:
       type: object
       required:
@@ -1169,22 +1070,6 @@ components:
           unevaluatedProperties:
             $ref: '#/components/schemas/Common.Models.AggregationValue'
           description: Aggregations data
-    Common.Models.SourceSystem:
-      type: object
-      required:
-      - id
-      - system
-      - object
-      properties:
-        id:
-          type: string
-          description: Unique identifier in the source system
-        system:
-          type: string
-          description: Name of the source system
-        object:
-          type: string
-          description: Object type in the source system
     Common.Models.ActivityBase:
       type: object
       required:
@@ -1213,6 +1098,121 @@ components:
         account_id:
           type: string
           description: Account ID
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit_2'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
+    Common.Models.PersonActivitySearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
+          type: string
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.PersonActivityFilter'
+          description: Filters to apply
+        filterLogic:
+          type: string
+          enum:
+          - AND
+          - OR
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
+    Common.Models.LikelihoodToBuy:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Likelihood to buy score
+        segment:
+          type: string
+          description: Likelihood to buy segment
+    Common.Models.PersonActivity:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Common.Models.ActivityBase'
+    Common.Models.Location_2:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Models.PersonActivityFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonActivityFilterProperty'
+          description: Property to filter by
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: array
+            items:
+              type: string
+          description: Filter value
+    Common.Models.SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
+          type: string
+          description: Field to sort by
+        sort_order:
+          type: string
+          enum:
+          - asc
+          - desc
+          description: Sort order
   securitySchemes:
     BasicAuth:
       type: http

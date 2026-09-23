@@ -75,27 +75,85 @@ paths:
               $ref: '#/components/schemas/PersonEnrichRequest'
 components:
   schemas:
-    CognismEmailQuality:
-      type: object
-      properties:
-        medium:
-          type: boolean
-          description: Search contacts with medium quality email
-        high:
-          type: boolean
-          description: Search contacts with high quality email
-        highPlus:
-          type: boolean
-          description: Search contacts with highPlus quality email
-    ZoomInfoGrowthRateRange:
+    ZoomInfoEmployeeRange:
       type: object
       properties:
         min:
-          type: string
-          description: Minimum growth rate
+          type: integer
+          format: int32
+          description: Minimum employee count
         max:
+          type: integer
+          format: int32
+          description: Maximum employee count
+    CognismSearchOptions:
+      type: object
+      properties:
+        match_exact_job_title:
+          type: boolean
+          description: Match exact job title
+        ai_job_title:
+          type: boolean
+          description: AI expansion of job titles
+        sort_fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - LastConfirmedContactDESC
+            - LastConfirmedContactASC
+            - EmailQualityDESC
+            - EmailQualityASC
+            - ProfileScoreDESC
+            - ProfileScoreASC
+          description: Sort fields
+    ZoomInfoRevenueRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int64
+          description: Minimum annual revenue in U.S. dollars
+        max:
+          type: integer
+          format: int64
+          description: Maximum annual revenue in U.S. dollars
+    ApolloDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
           type: string
-          description: Maximum growth rate
+          enum:
+          - apollo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ApolloFilters'
+          description: Apollo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    CognismDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - cognism
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/CognismFilters'
+          description: Cognism-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
     ApolloFilters:
       type: object
       properties:
@@ -194,143 +252,6 @@ components:
           type: string
           format: date
           description: Latest date when jobs were posted by current employer
-    PersonEnrichRequest:
-      type: object
-      required:
-      - provider
-      - provider_id
-      properties:
-        provider:
-          type: string
-          enum:
-          - apollo
-          - cognism
-          - zoominfo
-          description: Data provider to use
-        provider_id:
-          type: string
-          description: Provider-specific identifier for the person to enrich
-    ZoomInfoRevenueRange:
-      type: object
-      properties:
-        min:
-          type: integer
-          format: int64
-          description: Minimum annual revenue in U.S. dollars
-        max:
-          type: integer
-          format: int64
-          description: Maximum annual revenue in U.S. dollars
-    PersonDiscoverResponsePagination:
-      type: object
-      required:
-      - size
-      - total
-      properties:
-        next_page:
-          type: integer
-          format: int32
-          description: Next page number (for Apollo/ZoomInfo)
-        page:
-          type: integer
-          format: int32
-          description: Current page number
-        size:
-          type: integer
-          format: int32
-          description: Number of results per page
-        total:
-          type: integer
-          format: int32
-          description: Total number of results available
-        next_cursor:
-          type: string
-          description: Next cursor for pagination (for Cognism)
-    ZoomInfoAccuracyScoreRange:
-      type: object
-      properties:
-        min:
-          type: integer
-          format: int32
-          minimum: 70
-          maximum: 99
-          description: Minimum accuracy score (70-99)
-        max:
-          type: integer
-          format: int32
-          minimum: 70
-          maximum: 99
-          description: Maximum accuracy score (70-99)
-    SourcingPersonResult:
-      type: object
-      required:
-      - id
-      - first_name
-      - last_name
-      - provider
-      properties:
-        id:
-          type: string
-          description: Provider-specific person ID
-        first_name:
-          type: string
-          description: First name
-        last_name:
-          type: string
-          description: Last name
-        email:
-          type: string
-          description: Email address (available after enrichment)
-        phone:
-          type: string
-          description: Phone number (available after enrichment)
-        photo:
-          type: string
-          description: Photo URL
-        title:
-          type: string
-          description: Job title
-        company_name:
-          type: string
-          description: Company name
-        company_domain:
-          type: string
-          description: Company domain
-        linkedin_url:
-          type: string
-          description: LinkedIn profile URL
-        provider:
-          type: string
-          enum:
-          - apollo
-          - cognism
-          - zoominfo
-          description: Data provider used
-        enrich_token:
-          type: string
-          description: Token for enrichment (optional)
-    CognismHeadcountRange:
-      type: object
-      properties:
-        from:
-          type: integer
-          format: int32
-          description: Headcount minimum
-        to:
-          type: integer
-          format: int32
-          description: Headcount maximum
-    CognismFoundedRange:
-      type: object
-      properties:
-        from:
-          type: integer
-          format: int32
-          description: Founded year range minimum
-        to:
-          type: integer
-          format: int32
-          description: Founded year range maximum
     CognismAccountFilters:
       type: object
       properties:
@@ -483,22 +404,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/CognismPhoneQuality'
           description: Search contacts with account having office phone numbers
-    ZoomInfoContactRange:
-      type: object
-      properties:
-        min:
-          type: integer
-          format: int32
-          description: Minimum number of ZoomInfo contacts
-        max:
-          type: integer
-          format: int32
-          description: Maximum number of ZoomInfo contacts
-    PersonDiscoverRequest:
-      anyOf:
-      - $ref: '#/components/schemas/ApolloDiscoverRequest'
-      - $ref: '#/components/schemas/ZoomInfoDiscoverRequest'
-      - $ref: '#/components/schemas/CognismDiscoverRequest'
     ZoomInfoFundingRange:
       type: object
       properties:
@@ -510,6 +415,106 @@ components:
           type: integer
           format: int32
           description: Maximum funding amount in thousands
+    PersonDiscoverResponsePagination:
+      type: object
+      required:
+      - size
+      - total
+      properties:
+        next_page:
+          type: integer
+          format: int32
+          description: Next page number (for Apollo/ZoomInfo)
+        page:
+          type: integer
+          format: int32
+          description: Current page number
+        size:
+          type: integer
+          format: int32
+          description: Number of results per page
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        next_cursor:
+          type: string
+          description: Next cursor for pagination (for Cognism)
+    CognismRevenueRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int64
+          description: Revenue range minimum
+        to:
+          type: integer
+          format: int64
+          description: Revenue range maximum
+    PersonDiscoverPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Page number (for Apollo/ZoomInfo)
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Number of results per page
+        cursor:
+          type: string
+          description: Cursor for pagination (for Cognism)
+    PersonDiscoverRequest:
+      anyOf:
+      - $ref: '#/components/schemas/ApolloDiscoverRequest'
+      - $ref: '#/components/schemas/ZoomInfoDiscoverRequest'
+      - $ref: '#/components/schemas/CognismDiscoverRequest'
+    ZoomInfoContactRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          description: Minimum number of ZoomInfo contacts
+        max:
+          type: integer
+          format: int32
+          description: Maximum number of ZoomInfo contacts
+    ZoomInfoAccuracyScoreRange:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Minimum accuracy score (70-99)
+        max:
+          type: integer
+          format: int32
+          minimum: 70
+          maximum: 99
+          description: Maximum accuracy score (70-99)
+    PersonEnrichRequest:
+      type: object
+      required:
+      - provider
+      - provider_id
+      properties:
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider to use
+        provider_id:
+          type: string
+          description: Provider-specific identifier for the person to enrich
     CognismFilters:
       type: object
       properties:
@@ -664,6 +669,133 @@ components:
           allOf:
           - $ref: '#/components/schemas/CognismSearchOptions'
           description: Search options
+    PersonDiscoverResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourcingPersonResult'
+          description: Array of discovered persons
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverResponsePagination'
+          description: Pagination information
+    ZoomInfoGrowthRateRange:
+      type: object
+      properties:
+        min:
+          type: string
+          description: Minimum growth rate
+        max:
+          type: string
+          description: Maximum growth rate
+    SourcingPersonResult:
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - provider
+      properties:
+        id:
+          type: string
+          description: Provider-specific person ID
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        email:
+          type: string
+          description: Email address (available after enrichment)
+        phone:
+          type: string
+          description: Phone number (available after enrichment)
+        photo:
+          type: string
+          description: Photo URL
+        title:
+          type: string
+          description: Job title
+        company_name:
+          type: string
+          description: Company name
+        company_domain:
+          type: string
+          description: Company domain
+        linkedin_url:
+          type: string
+          description: LinkedIn profile URL
+        provider:
+          type: string
+          enum:
+          - apollo
+          - cognism
+          - zoominfo
+          description: Data provider used
+        enrich_token:
+          type: string
+          description: Token for enrichment (optional)
+    CognismEducation:
+      type: object
+      properties:
+        schools:
+          type: array
+          items:
+            type: string
+          description: Contact education school names
+        degrees:
+          type: array
+          items:
+            type: string
+          description: Contact education degree names
+    CognismPhoneQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality phone numbers
+        high:
+          type: boolean
+          description: Search contacts with high quality phone numbers
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality phone numbers
+    ZoomInfoDiscoverRequest:
+      type: object
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          enum:
+          - zoominfo
+          description: Data provider
+        filters:
+          allOf:
+          - $ref: '#/components/schemas/ZoomInfoFilters'
+          description: ZoomInfo-specific filtering criteria
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/PersonDiscoverPagination'
+          description: Pagination parameters
+    CognismEmailQuality:
+      type: object
+      properties:
+        medium:
+          type: boolean
+          description: Search contacts with medium quality email
+        high:
+          type: boolean
+          description: Search contacts with high quality email
+        highPlus:
+          type: boolean
+          description: Search contacts with highPlus quality email
     ZoomInfoFilters:
       type: object
       properties:
@@ -968,30 +1100,6 @@ components:
             - phone
             - online meeting
           description: List of engagement types to search for
-    CognismEducation:
-      type: object
-      properties:
-        schools:
-          type: array
-          items:
-            type: string
-          description: Contact education school names
-        degrees:
-          type: array
-          items:
-            type: string
-          description: Contact education degree names
-    CognismRevenueRange:
-      type: object
-      properties:
-        from:
-          type: integer
-          format: int64
-          description: Revenue range minimum
-        to:
-          type: integer
-          format: int64
-          description: Revenue range maximum
     CognismDateRange:
       type: object
       properties:
@@ -1003,6 +1111,17 @@ components:
           type: integer
           format: int64
           description: End timestamp (Unix timestamp in milliseconds)
+    CognismFoundedRange:
+      type: object
+      properties:
+        from:
+          type: integer
+          format: int32
+          description: Founded year range minimum
+        to:
+          type: integer
+          format: int32
+          description: Founded year range maximum
     SourcingProvider:
       type: object
       required:
@@ -1019,136 +1138,17 @@ components:
         isConnected:
           type: boolean
           description: Whether the provider is properly configured and connected for this tenant
-    CognismDiscoverRequest:
-      type: object
-      required:
-      - provider
-      properties:
-        provider:
-          type: string
-          enum:
-          - cognism
-          description: Data provider
-        filters:
-          allOf:
-          - $ref: '#/components/schemas/CognismFilters'
-          description: Cognism-specific filtering criteria
-        pagination:
-          allOf:
-          - $ref: '#/components/schemas/PersonDiscoverPagination'
-          description: Pagination parameters
-    CognismSearchOptions:
+    CognismHeadcountRange:
       type: object
       properties:
-        match_exact_job_title:
-          type: boolean
-          description: Match exact job title
-        ai_job_title:
-          type: boolean
-          description: AI expansion of job titles
-        sort_fields:
-          type: array
-          items:
-            type: string
-            enum:
-            - LastConfirmedContactDESC
-            - LastConfirmedContactASC
-            - EmailQualityDESC
-            - EmailQualityASC
-            - ProfileScoreDESC
-            - ProfileScoreASC
-          description: Sort fields
-    ZoomInfoEmployeeRange:
-      type: object
-      properties:
-        min:
+        from:
           type: integer
           format: int32
-          description: Minimum employee count
-        max:
+          description: Headcount minimum
+        to:
           type: integer
           format: int32
-          description: Maximum employee count
-    PersonDiscoverPagination:
-      type: object
-      properties:
-        page:
-          type: integer
-          format: int32
-          minimum: 1
-          description: Page number (for Apollo/ZoomInfo)
-        size:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 100
-          description: Number of results per page
-        cursor:
-          type: string
-          description: Cursor for pagination (for Cognism)
-    CognismPhoneQuality:
-      type: object
-      properties:
-        medium:
-          type: boolean
-          description: Search contacts with medium quality phone numbers
-        high:
-          type: boolean
-          description: Search contacts with high quality phone numbers
-        highPlus:
-          type: boolean
-          description: Search contacts with highPlus quality phone numbers
-    ZoomInfoDiscoverRequest:
-      type: object
-      required:
-      - provider
-      properties:
-        provider:
-          type: string
-          enum:
-          - zoominfo
-          description: Data provider
-        filters:
-          allOf:
-          - $ref: '#/components/schemas/ZoomInfoFilters'
-          description: ZoomInfo-specific filtering criteria
-        pagination:
-          allOf:
-          - $ref: '#/components/schemas/PersonDiscoverPagination'
-          description: Pagination parameters
-    PersonDiscoverResponse:
-      type: object
-      required:
-      - data
-      - pagination
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourcingPersonResult'
-          description: Array of discovered persons
-        pagination:
-          allOf:
-          - $ref: '#/components/schemas/PersonDiscoverResponsePagination'
-          description: Pagination information
-    ApolloDiscoverRequest:
-      type: object
-      required:
-      - provider
-      properties:
-        provider:
-          type: string
-          enum:
-          - apollo
-          description: Data provider
-        filters:
-          allOf:
-          - $ref: '#/components/schemas/ApolloFilters'
-          description: Apollo-specific filtering criteria
-        pagination:
-          allOf:
-          - $ref: '#/components/schemas/PersonDiscoverPagination'
-          description: Pagination parameters
+          description: Headcount maximum
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

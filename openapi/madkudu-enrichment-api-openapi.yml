@@ -43,145 +43,19 @@ paths:
               $ref: '#/components/schemas/JobPostingSearchRequestBody'
 components:
   schemas:
-    FilterLogic:
-      type: string
-      enum:
-      - AND
-      - OR
-    SearchMeta:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results requested
-        total:
-          type: integer
-          format: int32
-          description: Total number of results available
-        has_next_page:
-          type: boolean
-          description: Whether there are more results available
-        next_cursor:
-          type: integer
-          format: int32
-          description: Cursor for the next page of results
-    SortOrder:
-      type: string
-      enum:
-      - asc
-      - desc
-    FilterOperator:
-      type: string
-      enum:
-      - IS
-      - IS_NOT
-      - GT
-      - GTE
-      - LT
-      - LTE
-      - IN
-      - NOT_IN
-      - BETWEEN
-      - NOT_BETWEEN
-      - IS_NULL
-      - IS_NOT_NULL
-      - CONTAINS
-      - NOT_CONTAINS
-      - STARTS_WITH
-      - ENDS_WITH
-    JobPostingSearchRequestBody:
+    SortingParam:
       type: object
       required:
-      - domain
+      - sort_by
+      - sort_order
       properties:
-        domain:
+        sort_by:
           type: string
-          description: Domain to search for job postings
-        limit:
-          type: integer
-          format: int32
-          description: Maximum number of results to return
-          default: 20
-        cursor:
-          type: integer
-          format: int32
-          description: Cursor for pagination
-          default: 0
-        search:
-          type: string
-          description: Free text search query
-        filters:
-          type: array
-          items:
-            $ref: '#/components/schemas/JobPostingFilter'
-          description: Array of filters to apply to the search
-        filter_logic:
+          description: Field to sort by
+        sort_order:
           allOf:
-          - $ref: '#/components/schemas/FilterLogic'
-          description: Logic to apply between filters (AND or OR)
-          default: AND
-        sort:
-          type: array
-          items:
-            $ref: '#/components/schemas/SortingParam'
-          description: Array of sorting parameters
-    JobPostingFilterField:
-      type: string
-      enum:
-      - job_opening_title
-      - keywords
-      - categories
-      - location
-      - event
-      - event_on
-      - first_event_on
-    JobPostingSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/JobPosting'
-          description: Array of job posting results
-        meta:
-          allOf:
-          - $ref: '#/components/schemas/SearchMeta'
-          description: Metadata about the search results
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          type: array
-          items:
-            type: object
-            properties:
-              loc:
-                type: array
-                prefixItems:
-                - anyOf:
-                  - type: string
-                  - type: integer
-                    format: int32
-                description: What part is invalid
-              msg:
-                type: string
-                description: Message discribing the error
-              type:
-                type: string
-                description: Type of the error
-              input: {}
-              ctx: {}
-            required:
-            - loc
-            - msg
-            - type
-      description: Error return when body sent is invalid
+          - $ref: '#/components/schemas/SortOrder'
+          description: Sort order (ascending or descending)
     JobPosting:
       type: object
       required:
@@ -219,6 +93,81 @@ components:
         first_event_on:
           type: string
           description: Date when the first event occurred
+    JobPostingSearchRequestBody:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain to search for job postings
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of results to return
+          default: 20
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+          default: 0
+        search:
+          type: string
+          description: Free text search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPostingFilter'
+          description: Array of filters to apply to the search
+        filter_logic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Logic to apply between filters (AND or OR)
+          default: AND
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortingParam'
+          description: Array of sorting parameters
+    SortOrder:
+      type: string
+      enum:
+      - asc
+      - desc
+    FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+    JobPostingFilterField:
+      type: string
+      enum:
+      - job_opening_title
+      - keywords
+      - categories
+      - location
+      - event
+      - event_on
+      - first_event_on
+    FilterLogic:
+      type: string
+      enum:
+      - AND
+      - OR
     JobPostingFilter:
       type: object
       required:
@@ -256,19 +205,70 @@ components:
               - type: string
                 format: date-time
           description: Value to filter by
-    SortingParam:
+    Common.Errors.ValidationError:
       type: object
       required:
-      - sort_by
-      - sort_order
+      - detail
       properties:
-        sort_by:
-          type: string
-          description: Field to sort by
-        sort_order:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    SearchMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results requested
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results available
+        next_cursor:
+          type: integer
+          format: int32
+          description: Cursor for the next page of results
+    JobPostingSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPosting'
+          description: Array of job posting results
+        meta:
           allOf:
-          - $ref: '#/components/schemas/SortOrder'
-          description: Sort order (ascending or descending)
+          - $ref: '#/components/schemas/SearchMeta'
+          description: Metadata about the search results
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

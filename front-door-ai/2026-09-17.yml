@@ -1,0 +1,34 @@
+# Front Door AI Index — madkudu — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: madkudu
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: madkudu.com
+  final_host: hginsights.com
+  ownership: own
+  owner: madkudu
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 83
+  host_score: 83
+  density: 25.41
+  words: 3267
+  tiers:
+    agentic: 20
+    core: 63
+    model: 0
+  ambiguous: 47
+  top_terms:
+    AI: 63
+    intelligence: 25
+    copilot: 12
+    agent: 11
+    MCP: 4
+    automation: 4
+    smart: 4
+    predictive: 3
+    AI agent: 2
+    agentic: 2

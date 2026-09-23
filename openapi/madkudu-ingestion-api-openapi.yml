@@ -79,63 +79,23 @@ paths:
               $ref: '#/components/schemas/ConfirmUploadRequest'
 components:
   schemas:
-    UploadResponse:
+    ConfirmUploadResponse:
       type: object
       required:
-      - upload_url
-      - file_key
+      - status
+      - message
       properties:
-        upload_url:
+        status:
           type: string
-          description: Presigned URL for file upload
-        file_key:
+          description: Upload confirmation status
+        message:
           type: string
-          description: Unique file key for the uploaded file
-    UploadRequest:
-      type: object
-      required:
-      - stream
-      - content_type
-      - content_encoding
-      properties:
-        stream:
-          allOf:
-          - $ref: '#/components/schemas/AcceptedStream'
-          description: Stream type for the data
-        content_type:
-          allOf:
-          - $ref: '#/components/schemas/ContentType'
-          description: Content type of the file to upload
-        content_encoding:
-          allOf:
-          - $ref: '#/components/schemas/ContentEncoding'
-          description: Content encoding for the file
-    JsonUploadRequest:
-      type: object
-      required:
-      - stream
-      - data
-      properties:
-        stream:
-          allOf:
-          - $ref: '#/components/schemas/AcceptedStream'
-          description: Stream type for the data
-        data:
-          anyOf:
-          - type: array
-            items:
-              $ref: '#/components/schemas/Contact'
-          - type: array
-            items:
-              $ref: '#/components/schemas/Account'
-          - type: array
-            items:
-              $ref: '#/components/schemas/ContactEvent'
-          - type: array
-            items:
-              $ref: '#/components/schemas/AccountEvent'
-          description: Data array - contents depend on stream type
-      description: Request model for direct JSON upload
+          description: Confirmation message
+    ContentType:
+      type: string
+      enum:
+      - application/jsonl
+      description: Content types for customer data
     JsonUploadResponse:
       type: object
       required:
@@ -153,79 +113,14 @@ components:
           type: string
           description: Generated file key for the uploaded data
       description: Response model for JSON upload
-    ContentType:
+    AcceptedStream:
       type: string
       enum:
-      - application/jsonl
-      description: Content types for customer data
-    Account:
-      type: object
-      required:
-      - account_id
-      - domain
-      - account_properties
-      properties:
-        type:
-          type: string
-          enum:
-          - account
-          description: Type identifier for account
-          default: account
-        account_id:
-          type: string
-          description: Unique identifier for the account
-        domain:
-          type: string
-          description: Domain of the account
-        account_properties:
-          type: object
-          unevaluatedProperties: {}
-          description: Additional account properties
-      description: Account model for ingestion
-    ConfirmUploadRequest:
-      type: object
-      required:
-      - file_key
-      properties:
-        file_key:
-          type: string
-          description: File key from the upload response
-    ConfirmUploadResponse:
-      type: object
-      required:
-      - status
-      - message
-      properties:
-        status:
-          type: string
-          description: Upload confirmation status
-        message:
-          type: string
-          description: Confirmation message
-    Contact:
-      type: object
-      required:
-      - contact_id
-      - email
-      - contact_properties
-      properties:
-        type:
-          type: string
-          enum:
-          - contact
-          description: Type identifier for contact
-          default: contact
-        contact_id:
-          type: string
-          description: Unique identifier for the contact
-        email:
-          type: string
-          description: Email address of the contact
-        contact_properties:
-          type: object
-          unevaluatedProperties: {}
-          description: Additional contact properties
-      description: Contact model for ingestion
+      - account
+      - account_event
+      - contact
+      - contact_event
+      description: Accepted streams for customer data
     ContactEvent:
       type: object
       required:
@@ -259,6 +154,38 @@ components:
           unevaluatedProperties: {}
           description: Additional event properties
       description: Contact event model for ingestion
+    Account:
+      type: object
+      required:
+      - account_id
+      - domain
+      - account_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - account
+          description: Type identifier for account
+          default: account
+        account_id:
+          type: string
+          description: Unique identifier for the account
+        domain:
+          type: string
+          description: Domain of the account
+        account_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional account properties
+      description: Account model for ingestion
+    ConfirmUploadRequest:
+      type: object
+      required:
+      - file_key
+      properties:
+        file_key:
+          type: string
+          description: File key from the upload response
     AccountEvent:
       type: object
       required:
@@ -292,19 +219,92 @@ components:
           unevaluatedProperties: {}
           description: Additional event properties
       description: Account event model for ingestion
+    UploadResponse:
+      type: object
+      required:
+      - upload_url
+      - file_key
+      properties:
+        upload_url:
+          type: string
+          description: Presigned URL for file upload
+        file_key:
+          type: string
+          description: Unique file key for the uploaded file
+    UploadRequest:
+      type: object
+      required:
+      - stream
+      - content_type
+      - content_encoding
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        content_type:
+          allOf:
+          - $ref: '#/components/schemas/ContentType'
+          description: Content type of the file to upload
+        content_encoding:
+          allOf:
+          - $ref: '#/components/schemas/ContentEncoding'
+          description: Content encoding for the file
+    Contact:
+      type: object
+      required:
+      - contact_id
+      - email
+      - contact_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - contact
+          description: Type identifier for contact
+          default: contact
+        contact_id:
+          type: string
+          description: Unique identifier for the contact
+        email:
+          type: string
+          description: Email address of the contact
+        contact_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional contact properties
+      description: Contact model for ingestion
+    JsonUploadRequest:
+      type: object
+      required:
+      - stream
+      - data
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        data:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+          - type: array
+            items:
+              $ref: '#/components/schemas/Account'
+          - type: array
+            items:
+              $ref: '#/components/schemas/ContactEvent'
+          - type: array
+            items:
+              $ref: '#/components/schemas/AccountEvent'
+          description: Data array - contents depend on stream type
+      description: Request model for direct JSON upload
     ContentEncoding:
       type: string
       enum:
       - gzip
       description: Content encodings for customer data
-    AcceptedStream:
-      type: string
-      enum:
-      - account
-      - account_event
-      - contact
-      - contact_event
-      description: Accepted streams for customer data
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -1,0 +1,45 @@
+{
+  "provider": "madkudu",
+  "sources": [
+    "_original/madkudu-legacy-api-openapi.yml",
+    "_original/madkudu-madapi-openapi.yml"
+  ],
+  "outputs": [
+    "madkudu-companies-api-openapi.yml",
+    "madkudu-job-changes-api-openapi.yml",
+    "madkudu-persons-api-openapi.yml",
+    "madkudu-utilities-api-openapi.yml",
+    "madkudu-ai-api-openapi.yml",
+    "madkudu-accounts-api-openapi.yml",
+    "madkudu-enrichment-api-openapi.yml",
+    "madkudu-ingestion-api-openapi.yml",
+    "madkudu-lookup-api-openapi.yml",
+    "madkudu-organisation-api-openapi.yml",
+    "madkudu-search-api-openapi.yml",
+    "madkudu-sourcing-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "madkudu-legacy-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "madkudu-madapi-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "tag 'Persons' spans 2 source specs (madkudu-legacy-api-openapi.yml, madkudu-madapi-openapi.yml): per-path servers applied",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "madkudu-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-ai-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-companies-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-enrichment-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-ingestion-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-job-changes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-lookup-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-organisation-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-persons-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-search-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-sourcing-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "madkudu-utilities-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
