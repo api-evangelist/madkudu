@@ -79,7 +79,7 @@ components:
           type: string
           description: Error message
       description: Authentication error
-    Common.Errors.InternalServerError:
+    Common.Errors.ValidationError:
       type: object
       required:
       - message
@@ -87,7 +87,22 @@ components:
         message:
           type: string
           description: Error message
-      description: Internal server error
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
     Services.JobChanges.WatchListUploadResponse:
       type: object
       required:
@@ -104,7 +119,7 @@ components:
           type: string
           description: Upload message
       description: Watch list upload response
-    Common.Errors.RateLimitError:
+    Common.Errors.InternalServerError:
       type: object
       required:
       - message
@@ -112,22 +127,7 @@ components:
         message:
           type: string
           description: Error message
-        details:
-          type: string
-          description: Rate limit details
-      description: Rate limit exceeded error
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-        details:
-          type: string
-          description: Invalid parameter details
-      description: Validation error for request parameters
+      description: Internal server error
   securitySchemes:
     BasicAuth:
       type: http

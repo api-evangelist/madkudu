@@ -70,6 +70,86 @@ paths:
               $ref: '#/components/schemas/PersonSearchRequest'
 components:
   schemas:
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    PersonSearchFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
+          type: string
+          enum:
+          - email
+          - first_name
+          - last_name
+          - name
+          - title
+          - persona
+          - company_domain
+          - country
+          - state
+          - city
+          - activities
+          - has_left_company
+          description: Property to filter by - restricted to person fields
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Filter value
     AccountDetailSearch:
       type: object
       required:
@@ -135,37 +215,26 @@ components:
           allOf:
           - $ref: '#/components/schemas/Common.Models.Scores'
           description: Scoring information
-    Common.Models.LikelihoodToBuy:
+    FilterLogic:
+      type: string
+      enum:
+      - AND
+      - OR
+    Common.Models.SortingParam:
       type: object
       required:
-      - score
-      - segment
+      - sort_by
+      - sort_order
       properties:
-        score:
-          type: number
-          format: double
-          description: Likelihood to buy score
-        segment:
+        sort_by:
           type: string
-          description: Likelihood to buy segment
-    Common.Models.Meta:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results returned
-        total:
-          type: integer
-          format: int32
-          description: Total number of results available
-        has_next_page:
-          type: boolean
-          description: Whether there are more results
-        next_cursor:
-          type: integer
-          format: int32
-          description: Next cursor for pagination
+          description: Field to sort by
+        sort_order:
+          type: string
+          enum:
+          - asc
+          - desc
+          description: Sort order
     PersonDetailSearch:
       type: object
       required:
@@ -227,120 +296,6 @@ components:
           description: Scoring information
         activities:
           description: Activities information
-    FilterOperator:
-      type: string
-      enum:
-      - IS
-      - IS_NOT
-      - GT
-      - GTE
-      - LT
-      - LTE
-      - IN
-      - NOT_IN
-      - BETWEEN
-      - NOT_BETWEEN
-      - IS_NULL
-      - IS_NOT_NULL
-      - CONTAINS
-      - NOT_CONTAINS
-      - STARTS_WITH
-      - ENDS_WITH
-    PersonSearchFilter:
-      type: object
-      required:
-      - property
-      - operator
-      - value
-      properties:
-        property:
-          type: string
-          enum:
-          - email
-          - first_name
-          - last_name
-          - name
-          - title
-          - persona
-          - company_domain
-          - country
-          - state
-          - city
-          - activities
-          - has_left_company
-          description: Property to filter by - restricted to person fields
-        operator:
-          allOf:
-          - $ref: '#/components/schemas/FilterOperator'
-          description: Filter operator
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          - type: boolean
-          - type: string
-            format: date-time
-          - type: array
-            items:
-              anyOf:
-              - type: string
-              - type: integer
-                format: int32
-              - type: number
-                format: double
-              - type: boolean
-              - type: string
-                format: date-time
-          description: Filter value
-    PersonSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonDetailSearch'
-          description: Person search data
-        meta:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Meta'
-          description: Metadata
-    Common.Models.SortingParam:
-      type: object
-      required:
-      - sort_by
-      - sort_order
-      properties:
-        sort_by:
-          type: string
-          description: Field to sort by
-        sort_order:
-          type: string
-          enum:
-          - asc
-          - desc
-          description: Sort order
-    Common.Models.SourceSystem:
-      type: object
-      required:
-      - id
-      - system
-      - object
-      properties:
-        id:
-          type: string
-          description: Unique identifier in the source system
-        system:
-          type: string
-          description: Name of the source system
-        object:
-          type: string
-          description: Object type in the source system
     PersonSearchRequest:
       type: object
       properties:
@@ -369,6 +324,98 @@ components:
           items:
             $ref: '#/components/schemas/Common.Models.SortingParam'
           description: Sorting parameters
+    Common.Models.Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results returned
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results
+        next_cursor:
+          type: integer
+          format: int32
+          description: Next cursor for pagination
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
+    FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Models.LikelihoodToBuy:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Likelihood to buy score
+        segment:
+          type: string
+          description: Likelihood to buy segment
     Common.Models.CompanyReference:
       type: object
       required:
@@ -381,7 +428,7 @@ components:
         mk_id:
           type: string
           description: MadKudu ID of the company
-    AccountSearchResponse:
+    PersonSearchResponse:
       type: object
       required:
       - data
@@ -390,57 +437,12 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/AccountDetailSearch'
-          description: Account search data
+            $ref: '#/components/schemas/PersonDetailSearch'
+          description: Person search data
         meta:
           allOf:
           - $ref: '#/components/schemas/Common.Models.Meta'
           description: Metadata
-    Common.Models.Scores:
-      type: object
-      required:
-      - customer_fit
-      - likelihood_to_buy
-      properties:
-        customer_fit:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit'
-          description: Customer fit information
-        likelihood_to_buy:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
-          description: Likelihood to buy information
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          type: array
-          items:
-            type: object
-            properties:
-              loc:
-                type: array
-                prefixItems:
-                - anyOf:
-                  - type: string
-                  - type: integer
-                    format: int32
-                description: What part is invalid
-              msg:
-                type: string
-                description: Message discribing the error
-              type:
-                type: string
-                description: Type of the error
-              input: {}
-              ctx: {}
-            required:
-            - loc
-            - msg
-            - type
-      description: Error return when body sent is invalid
     AccountSearchRequest:
       type: object
       properties:
@@ -469,21 +471,6 @@ components:
           items:
             $ref: '#/components/schemas/Common.Models.SortingParam'
           description: Sorting parameters
-    Common.Models.PersonSocials:
-      type: object
-      properties:
-        linkedin_handle:
-          type: string
-          description: LinkedIn handle
-        twitter_handle:
-          type: string
-          description: Twitter handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase handle
-        website:
-          type: string
-          description: Website URL
     Common.Models.CustomerFit:
       type: object
       required:
@@ -500,21 +487,21 @@ components:
         signals:
           type: string
           description: Customer fit signals
-    Common.Models.AccountSocials:
+    AccountSearchResponse:
       type: object
+      required:
+      - data
+      - meta
       properties:
-        linkedin_handle:
-          type: string
-          description: LinkedIn company handle
-        twitter_handle:
-          type: string
-          description: Twitter company handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase organization handle
-        website:
-          type: string
-          description: Company website URL
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDetailSearch'
+          description: Account search data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
     AccountSearchFilter:
       type: object
       required:
@@ -562,23 +549,36 @@ components:
               - type: string
                 format: date-time
           description: Filter value
-    FilterLogic:
-      type: string
-      enum:
-      - AND
-      - OR
-    Common.Models.Location:
+    Common.Models.SourceSystem:
       type: object
+      required:
+      - id
+      - system
+      - object
       properties:
-        country:
+        id:
           type: string
-          description: Country
-        state:
+          description: Unique identifier in the source system
+        system:
           type: string
-          description: State or region
-        city:
+          description: Name of the source system
+        object:
           type: string
-          description: City
+          description: Object type in the source system
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

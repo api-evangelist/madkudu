@@ -46,6 +46,24 @@ paths:
       - Utilities
 components:
   schemas:
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Common.Errors.AuthenticationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Authentication error
     Services.Utilities.PingResponse:
       type: object
       required:
@@ -57,24 +75,6 @@ components:
           - ok
           description: Status of the API
       description: Ping response
-    Common.Errors.AuthenticationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-      description: Authentication error
-    Common.Errors.InternalServerError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-      description: Internal server error
     Common.Errors.RateLimitError:
       type: object
       required:
