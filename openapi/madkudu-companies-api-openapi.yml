@@ -115,6 +115,20 @@ paths:
               $ref: '#/components/schemas/Services.Companies.CompanyLookupWithPayloadRequest'
 components:
   schemas:
+    Common.Models.CompanySite:
+      type: object
+      properties:
+        phoneNumbers:
+          type: array
+          items:
+            type: string
+          description: Phone numbers
+        emailAddresses:
+          type: array
+          items:
+            type: string
+          description: Email addresses
+      description: Company site information
     Common.Models.CompanyCategory:
       type: object
       properties:
@@ -137,25 +151,70 @@ components:
           type: string
           description: NAICS code
       description: Company category classification
-    Common.Models.CompanyIdentifiers:
+    Common.Models.CompanyParent:
       type: object
       properties:
-        usEIN:
+        domain:
           type: string
-          description: US EIN number
-      description: Company identifiers
-    Common.Errors.ValidationError:
+          description: Parent company domain
+      description: Company parent information
+    Common.Models.SignalType:
+      type: string
+      enum:
+      - positive
+      - negative
+      description: Signal type indicating positive or negative impact
+    Common.Models.SocialProfile:
       type: object
-      required:
-      - message
       properties:
-        message:
+        handle:
           type: string
-          description: Error message
-        details:
+          description: Social media handle
+        id:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int64
+          description: Profile ID
+        bio:
           type: string
-          description: Invalid parameter details
-      description: Validation error for request parameters
+          description: Profile bio
+        followers:
+          type: integer
+          format: int32
+          description: Number of followers
+        following:
+          type: integer
+          format: int32
+          description: Number of following
+        avatar:
+          type: string
+          description: Avatar URL
+        location:
+          type: string
+          description: Location
+        site:
+          type: string
+          description: Website URL
+        company:
+          type: string
+          description: Company
+        blog:
+          type: string
+          description: Blog URL
+        statuses:
+          type: integer
+          format: int32
+          description: Number of statuses
+        favorites:
+          type: integer
+          format: int32
+          description: Number of favorites
+        likes:
+          type: integer
+          format: int32
+          description: Number of likes
+      description: Social media profile
     Services.Companies.CompanyLookupResponse:
       type: object
       required:
@@ -175,94 +234,91 @@ components:
           - $ref: '#/components/schemas/Services.Companies.CompanyProperties'
           description: Company properties
       description: Company lookup response
-    Common.Models.CompanySite:
-      type: object
-      properties:
-        phoneNumbers:
-          type: array
-          items:
-            type: string
-          description: Phone numbers
-        emailAddresses:
-          type: array
-          items:
-            type: string
-          description: Email addresses
-      description: Company site information
-    Common.Models.SignalType:
-      type: string
-      enum:
-      - positive
-      - negative
-      description: Signal type indicating positive or negative impact
-    Common.Models.GeoLocation:
-      type: object
-      properties:
-        streetNumber:
-          type: string
-          description: Street number
-        streetName:
-          type: string
-          description: Street name
-        subPremise:
-          type: string
-          description: Sub-premise information
-        city:
-          type: string
-          description: City name
-        postalCode:
-          type: string
-          description: Postal code
-        state:
-          type: string
-          description: State name
-        stateCode:
-          type: string
-          description: State code
-        country:
-          type: string
-          description: Country name
-        countryCode:
-          type: string
-          description: Country code
-        lat:
-          type: number
-          format: double
-          description: Latitude coordinate
-        lng:
-          type: number
-          format: double
-          description: Longitude coordinate
-      description: Detailed geographic coordinates
-    Common.Models.Signal:
+    Common.Errors.RateLimitError:
       type: object
       required:
-      - name
-      - value
-      - type
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
+    Services.Companies.CompanyLookupWithPayloadRequest:
+      type: object
+      required:
+      - domain
+      - company
+      properties:
+        domain:
+          type: string
+          description: Company domain
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.ClearbitCompany'
+          description: Clearbit company payload
+      description: Company lookup with payload request
+    Common.Errors.InternalServerError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+      description: Internal server error
+    Services.Companies.CompanyProperties:
+      type: object
       properties:
         name:
           type: string
-          description: Name of the signal
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          description: Value of the signal (can be string or number)
-        type:
+          description: The name of the company associated with this person
+        domain:
+          type: string
+          description: The domain of the company associated with this person
+        location:
           allOf:
-          - $ref: '#/components/schemas/Common.Models.SignalType'
-          description: Type of signal impact
-      description: Individual signal contributing to customer fit score
-    Common.Models.ObjectType:
-      type: string
-      enum:
-      - company
-      - person
-      description: Object type identifier
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: The location of the company's headquarters
+        number_of_employees:
+          type: integer
+          format: int32
+          description: The number of employees at the company
+        industry:
+          type: string
+          description: The industry of the company
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: The standard MadKudu customer fit fields
+        predicted_value:
+          type: number
+          format: double
+          description: (Optional) The value of an account before they have reached the end of the funnel (aka made a purchase), based on the historical value of similar accounts who have made the purchase.
+      description: Company properties containing all company information
+    Common.Models.Location:
+      type: object
+      properties:
+        state:
+          type: string
+          description: The headquarters' state name
+        state_code:
+          type: string
+          description: The headquarters' two-character state code
+        country:
+          type: string
+          description: The headquarters's country
+        country_code:
+          type: string
+          description: The headquarters's two-character country code
+        tags:
+          type: array
+          items:
+            type: string
+          description: An array of tags describing the location
+      description: Geographic location information
     Common.Models.ClearbitCompany:
       type: object
       properties:
@@ -369,43 +425,51 @@ components:
           - $ref: '#/components/schemas/Common.Models.CompanyParent'
           description: Parent company
       description: Complete Clearbit company payload
-    Services.Companies.CompanyProperties:
+    Common.Models.GeoLocation:
       type: object
       properties:
-        name:
+        streetNumber:
           type: string
-          description: The name of the company associated with this person
-        domain:
+          description: Street number
+        streetName:
           type: string
-          description: The domain of the company associated with this person
-        location:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Location'
-          description: The location of the company's headquarters
-        number_of_employees:
-          type: integer
-          format: int32
-          description: The number of employees at the company
-        industry:
+          description: Street name
+        subPremise:
           type: string
-          description: The industry of the company
-        customer_fit:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit'
-          description: The standard MadKudu customer fit fields
-        predicted_value:
+          description: Sub-premise information
+        city:
+          type: string
+          description: City name
+        postalCode:
+          type: string
+          description: Postal code
+        state:
+          type: string
+          description: State name
+        stateCode:
+          type: string
+          description: State code
+        country:
+          type: string
+          description: Country name
+        countryCode:
+          type: string
+          description: Country code
+        lat:
           type: number
           format: double
-          description: (Optional) The value of an account before they have reached the end of the funnel (aka made a purchase), based on the historical value of similar accounts who have made the purchase.
-      description: Company properties containing all company information
-    Common.Models.CustomerFitSegment:
+          description: Latitude coordinate
+        lng:
+          type: number
+          format: double
+          description: Longitude coordinate
+      description: Detailed geographic coordinates
+    Common.Models.ObjectType:
       type: string
       enum:
-      - low
-      - medium
-      - good
-      - very good
-      description: Customer fit segment values
+      - company
+      - person
+      description: Object type identifier
     Common.Errors.NotFoundError:
       type: object
       required:
@@ -415,94 +479,37 @@ components:
           type: string
           description: Error message
       description: Resource not found error
-    Common.Models.Location:
-      type: object
-      properties:
-        state:
-          type: string
-          description: The headquarters' state name
-        state_code:
-          type: string
-          description: The headquarters' two-character state code
-        country:
-          type: string
-          description: The headquarters's country
-        country_code:
-          type: string
-          description: The headquarters's two-character country code
-        tags:
-          type: array
-          items:
-            type: string
-          description: An array of tags describing the location
-      description: Geographic location information
-    Common.Errors.InternalServerError:
+    Common.Models.CustomerFitSegment:
+      type: string
+      enum:
+      - low
+      - medium
+      - good
+      - very good
+      description: Customer fit segment values
+    Common.Models.Signal:
       type: object
       required:
-      - message
+      - name
+      - value
+      - type
       properties:
-        message:
+        name:
           type: string
-          description: Error message
-      description: Internal server error
-    Common.Models.CompanyParent:
-      type: object
-      properties:
-        domain:
-          type: string
-          description: Parent company domain
-      description: Company parent information
-    Common.Models.SocialProfile:
-      type: object
-      properties:
-        handle:
-          type: string
-          description: Social media handle
-        id:
+          description: Name of the signal
+        value:
           anyOf:
           - type: string
           - type: integer
-            format: int64
-          description: Profile ID
-        bio:
-          type: string
-          description: Profile bio
-        followers:
-          type: integer
-          format: int32
-          description: Number of followers
-        following:
-          type: integer
-          format: int32
-          description: Number of following
-        avatar:
-          type: string
-          description: Avatar URL
-        location:
-          type: string
-          description: Location
-        site:
-          type: string
-          description: Website URL
-        company:
-          type: string
-          description: Company
-        blog:
-          type: string
-          description: Blog URL
-        statuses:
-          type: integer
-          format: int32
-          description: Number of statuses
-        favorites:
-          type: integer
-          format: int32
-          description: Number of favorites
-        likes:
-          type: integer
-          format: int32
-          description: Number of likes
-      description: Social media profile
+            format: int32
+          - type: number
+            format: double
+          description: Value of the signal (can be string or number)
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SignalType'
+          description: Type of signal impact
+      description: Individual signal contributing to customer fit score
     Common.Models.CompanyMetrics:
       type: object
       properties:
@@ -541,6 +548,13 @@ components:
           format: int32
           description: Fiscal year end month
       description: Company metrics
+    Common.Models.CompanyIdentifiers:
+      type: object
+      properties:
+        usEIN:
+          type: string
+          description: US EIN number
+      description: Company identifiers
     Common.Models.CustomerFit:
       type: object
       required:
@@ -577,7 +591,7 @@ components:
           type: string
           description: Error message
       description: Authentication error
-    Common.Errors.RateLimitError:
+    Common.Errors.ValidationError:
       type: object
       required:
       - message
@@ -587,22 +601,8 @@ components:
           description: Error message
         details:
           type: string
-          description: Rate limit details
-      description: Rate limit exceeded error
-    Services.Companies.CompanyLookupWithPayloadRequest:
-      type: object
-      required:
-      - domain
-      - company
-      properties:
-        domain:
-          type: string
-          description: Company domain
-        company:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.ClearbitCompany'
-          description: Clearbit company payload
-      description: Company lookup with payload request
+          description: Invalid parameter details
+      description: Validation error for request parameters
   securitySchemes:
     BasicAuth:
       type: http

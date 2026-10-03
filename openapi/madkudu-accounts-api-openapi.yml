@@ -91,6 +91,48 @@ paths:
       - Accounts
 components:
   schemas:
+    Common.Models.LikelihoodToBuy:
+      type: object
+      required:
+      - score
+      - segment
+      properties:
+        score:
+          type: number
+          format: double
+          description: Likelihood to buy score
+        segment:
+          type: string
+          description: Likelihood to buy segment
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
     Common.Models.FilterOperator:
       type: string
       enum:
@@ -114,6 +156,28 @@ components:
       - ENDS_WITH
       - IS_EMPTY
       - IS_NOT_EMPTY
+    Common.Models.AccountActivityFilterProperty:
+      type: string
+      enum:
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - name
+      - email
+      - title
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
     Common.Models.AggregationValue:
       type: object
       required:
@@ -127,87 +191,6 @@ components:
           type: number
           format: double
           description: Aggregation value
-    Common.Models.AccountActivityFilter:
-      type: object
-      required:
-      - property
-      - operator
-      - value
-      properties:
-        property:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.AccountActivityFilterProperty'
-          description: Property to filter by
-        operator:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.FilterOperator'
-          description: Filter operator
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          - type: boolean
-          - type: array
-            items:
-              type: string
-          description: Filter value
-    Common.Models.AccountActivity:
-      type: object
-      required:
-      - person
-      properties:
-        person:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.PersonDetail'
-          description: Person who performed the activity
-      allOf:
-      - $ref: '#/components/schemas/Common.Models.ActivityBase'
-    Common.Models.SortingParam:
-      type: object
-      required:
-      - sort_by
-      - sort_order
-      properties:
-        sort_by:
-          type: string
-          description: Field to sort by
-        sort_order:
-          type: string
-          enum:
-          - asc
-          - desc
-          description: Sort order
-    Common.Models.AccountActivityFilterProperty:
-      type: string
-      enum:
-      - event
-      - event_display
-      - event_timestamp
-      - activity_type
-      - name
-      - email
-      - title
-    Common.Models.Meta:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results returned
-        total:
-          type: integer
-          format: int32
-          description: Total number of results available
-        has_next_page:
-          type: boolean
-          description: Whether there are more results
-        next_cursor:
-          type: integer
-          format: int32
-          description: Next cursor for pagination
     Common.Models.PersonDetail:
       type: object
       required:
@@ -275,6 +258,65 @@ components:
           unevaluatedProperties:
             $ref: '#/components/schemas/Common.Models.AggregationValue'
           description: Aggregations data
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
+    Common.Models.ActivityBase:
+      type: object
+      required:
+      - event_id
+      - event
+      - event_display
+      - event_timestamp
+      - activity_type
+      - account_id
+      properties:
+        event_id:
+          type: string
+          description: Event ID
+        event:
+          type: string
+          description: Event name
+        event_display:
+          type: string
+          description: Event display name
+        event_timestamp:
+          type: string
+          description: Event timestamp
+        activity_type:
+          type: string
+          description: Activity type
+        account_id:
+          type: string
+          description: Account ID
     Common.Models.AccountDetail:
       type: object
       required:
@@ -346,89 +388,6 @@ components:
           unevaluatedProperties:
             $ref: '#/components/schemas/Common.Models.AggregationValue'
           description: Aggregations data
-    Common.Models.AccountSocials:
-      type: object
-      properties:
-        linkedin_handle:
-          type: string
-          description: LinkedIn company handle
-        twitter_handle:
-          type: string
-          description: Twitter company handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase organization handle
-        website:
-          type: string
-          description: Company website URL
-    Common.Models.PersonSocials:
-      type: object
-      properties:
-        linkedin_handle:
-          type: string
-          description: LinkedIn handle
-        twitter_handle:
-          type: string
-          description: Twitter handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase handle
-        website:
-          type: string
-          description: Website URL
-    Common.Models.Location:
-      type: object
-      properties:
-        country:
-          type: string
-          description: Country
-        state:
-          type: string
-          description: State or region
-        city:
-          type: string
-          description: City
-    Common.Models.ActivityBase:
-      type: object
-      required:
-      - event_id
-      - event
-      - event_display
-      - event_timestamp
-      - activity_type
-      - account_id
-      properties:
-        event_id:
-          type: string
-          description: Event ID
-        event:
-          type: string
-          description: Event name
-        event_display:
-          type: string
-          description: Event display name
-        event_timestamp:
-          type: string
-          description: Event timestamp
-        activity_type:
-          type: string
-          description: Activity type
-        account_id:
-          type: string
-          description: Account ID
-    Common.Models.LikelihoodToBuy:
-      type: object
-      required:
-      - score
-      - segment
-      properties:
-        score:
-          type: number
-          format: double
-          description: Likelihood to buy score
-        segment:
-          type: string
-          description: Likelihood to buy segment
     Common.Models.CompanyReference:
       type: object
       required:
@@ -441,37 +400,6 @@ components:
         mk_id:
           type: string
           description: MadKudu ID of the company
-    Common.Models.AccountActivityResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.AccountActivity'
-          description: Account activity data
-        meta:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Meta'
-          description: Metadata
-    Common.Models.CustomerFit:
-      type: object
-      required:
-      - score
-      - segment
-      properties:
-        score:
-          type: number
-          format: double
-          description: Customer fit score
-        segment:
-          type: string
-          description: Customer fit segment
-        signals:
-          type: string
-          description: Customer fit signals
     Common.Models.AccountActivitySearchRequest:
       type: object
       properties:
@@ -502,36 +430,108 @@ components:
           items:
             $ref: '#/components/schemas/Common.Models.SortingParam'
           description: Sorting parameters
-    Common.Models.SourceSystem:
+    Common.Models.SortingParam:
       type: object
       required:
-      - id
-      - system
-      - object
+      - sort_by
+      - sort_order
       properties:
-        id:
+        sort_by:
           type: string
-          description: Unique identifier in the source system
-        system:
+          description: Field to sort by
+        sort_order:
           type: string
-          description: Name of the source system
-        object:
-          type: string
-          description: Object type in the source system
-    Common.Models.Scores:
+          enum:
+          - asc
+          - desc
+          description: Sort order
+    Common.Models.CustomerFit:
       type: object
       required:
-      - customer_fit
-      - likelihood_to_buy
+      - score
+      - segment
       properties:
-        customer_fit:
+        score:
+          type: number
+          format: double
+          description: Customer fit score
+        segment:
+          type: string
+          description: Customer fit segment
+        signals:
+          type: string
+          description: Customer fit signals
+    Common.Models.AccountActivityFilter:
+      type: object
+      required:
+      - property
+      - operator
+      - value
+      properties:
+        property:
           allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit'
-          description: Customer fit information
-        likelihood_to_buy:
+          - $ref: '#/components/schemas/Common.Models.AccountActivityFilterProperty'
+          description: Property to filter by
+        operator:
           allOf:
-          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
-          description: Likelihood to buy information
+          - $ref: '#/components/schemas/Common.Models.FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: array
+            items:
+              type: string
+          description: Filter value
+    Common.Models.AccountActivityResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.AccountActivity'
+          description: Account activity data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    Common.Models.Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results returned
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results
+        next_cursor:
+          type: integer
+          format: int32
+          description: Next cursor for pagination
+    Common.Models.AccountActivity:
+      type: object
+      required:
+      - person
+      properties:
+        person:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonDetail'
+          description: Person who performed the activity
+      allOf:
+      - $ref: '#/components/schemas/Common.Models.ActivityBase'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
