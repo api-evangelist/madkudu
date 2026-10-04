@@ -79,77 +79,6 @@ paths:
               $ref: '#/components/schemas/ConfirmUploadRequest'
 components:
   schemas:
-    ContentType:
-      type: string
-      enum:
-      - application/jsonl
-      description: Content types for customer data
-    Contact:
-      type: object
-      required:
-      - contact_id
-      - email
-      - contact_properties
-      properties:
-        type:
-          type: string
-          enum:
-          - contact
-          description: Type identifier for contact
-          default: contact
-        contact_id:
-          type: string
-          description: Unique identifier for the contact
-        email:
-          type: string
-          description: Email address of the contact
-        contact_properties:
-          type: object
-          unevaluatedProperties: {}
-          description: Additional contact properties
-      description: Contact model for ingestion
-    ContentEncoding:
-      type: string
-      enum:
-      - gzip
-      description: Content encodings for customer data
-    JsonUploadResponse:
-      type: object
-      required:
-      - status
-      - message
-      - file_key
-      properties:
-        status:
-          type: string
-          description: Upload status
-        message:
-          type: string
-          description: Upload message
-        file_key:
-          type: string
-          description: Generated file key for the uploaded data
-      description: Response model for JSON upload
-    AcceptedStream:
-      type: string
-      enum:
-      - account
-      - account_event
-      - contact
-      - contact_event
-      description: Accepted streams for customer data
-    UploadResponse:
-      type: object
-      required:
-      - upload_url
-      - file_key
-      properties:
-        upload_url:
-          type: string
-          description: Presigned URL for file upload
-        file_key:
-          type: string
-          description: Unique file key for the uploaded file
     JsonUploadRequest:
       type: object
       required:
@@ -176,6 +105,14 @@ components:
               $ref: '#/components/schemas/AccountEvent'
           description: Data array - contents depend on stream type
       description: Request model for direct JSON upload
+    AcceptedStream:
+      type: string
+      enum:
+      - account
+      - account_event
+      - contact
+      - contact_event
+      description: Accepted streams for customer data
     ConfirmUploadResponse:
       type: object
       required:
@@ -188,39 +125,54 @@ components:
         message:
           type: string
           description: Confirmation message
-    AccountEvent:
+    Contact:
       type: object
       required:
-      - event_id
-      - account_id
-      - event
-      - event_timestamp
-      - event_properties
+      - contact_id
+      - email
+      - contact_properties
       properties:
-        event_type:
+        type:
           type: string
           enum:
-          - account_event
-          description: Event type identifier
-          default: account_event
-        event_id:
+          - contact
+          description: Type identifier for contact
+          default: contact
+        contact_id:
           type: string
-          description: Unique identifier for the event
-        account_id:
+          description: Unique identifier for the contact
+        email:
           type: string
-          description: Account identifier for the event
-        event:
-          type: string
-          description: Event name
-        event_timestamp:
-          type: string
-          format: date-time
-          description: Timestamp when the event occurred (ISO 8601 format)
-        event_properties:
+          description: Email address of the contact
+        contact_properties:
           type: object
           unevaluatedProperties: {}
-          description: Additional event properties
-      description: Account event model for ingestion
+          description: Additional contact properties
+      description: Contact model for ingestion
+    Account:
+      type: object
+      required:
+      - account_id
+      - domain
+      - account_properties
+      properties:
+        type:
+          type: string
+          enum:
+          - account
+          description: Type identifier for account
+          default: account
+        account_id:
+          type: string
+          description: Unique identifier for the account
+        domain:
+          type: string
+          description: Domain of the account
+        account_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional account properties
+      description: Account model for ingestion
     ContactEvent:
       type: object
       required:
@@ -273,30 +225,23 @@ components:
           allOf:
           - $ref: '#/components/schemas/ContentEncoding'
           description: Content encoding for the file
-    Account:
+    UploadResponse:
       type: object
       required:
-      - account_id
-      - domain
-      - account_properties
+      - upload_url
+      - file_key
       properties:
-        type:
+        upload_url:
           type: string
-          enum:
-          - account
-          description: Type identifier for account
-          default: account
-        account_id:
+          description: Presigned URL for file upload
+        file_key:
           type: string
-          description: Unique identifier for the account
-        domain:
-          type: string
-          description: Domain of the account
-        account_properties:
-          type: object
-          unevaluatedProperties: {}
-          description: Additional account properties
-      description: Account model for ingestion
+          description: Unique file key for the uploaded file
+    ContentType:
+      type: string
+      enum:
+      - application/jsonl
+      description: Content types for customer data
     ConfirmUploadRequest:
       type: object
       required:
@@ -305,6 +250,61 @@ components:
         file_key:
           type: string
           description: File key from the upload response
+    JsonUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      - file_key
+      properties:
+        status:
+          type: string
+          description: Upload status
+        message:
+          type: string
+          description: Upload message
+        file_key:
+          type: string
+          description: Generated file key for the uploaded data
+      description: Response model for JSON upload
+    ContentEncoding:
+      type: string
+      enum:
+      - gzip
+      description: Content encodings for customer data
+    AccountEvent:
+      type: object
+      required:
+      - event_id
+      - account_id
+      - event
+      - event_timestamp
+      - event_properties
+      properties:
+        event_type:
+          type: string
+          enum:
+          - account_event
+          description: Event type identifier
+          default: account_event
+        event_id:
+          type: string
+          description: Unique identifier for the event
+        account_id:
+          type: string
+          description: Account identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Account event model for ingestion
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

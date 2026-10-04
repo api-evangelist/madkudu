@@ -128,44 +128,6 @@ components:
           minimum: 1
           maximum: 300
           description: A timeout to be used in requests to the Tavily API
-    WebSearchResult:
-      type: object
-      required:
-      - title
-      - url
-      - content
-      - score
-      properties:
-        title:
-          type: string
-          description: The title of the search result
-        url:
-          type: string
-          description: The URL of the search result
-        content:
-          type: string
-          description: The most query-related content from the scraped URL
-        score:
-          type: number
-          format: double
-          description: The relevance score of the search result
-        raw_content:
-          type: string
-          description: The parsed and cleaned HTML content of the site. This is only available if includeRawContent is set to true
-        publishedDate:
-          type: string
-          description: The publication date of the source. This is only available if the search topic is set to news
-    WebSearchImageResult:
-      type: object
-      required:
-      - url
-      properties:
-        url:
-          type: string
-          description: The URL of the image
-        description:
-          type: string
-          description: An LLM-generated description of the image. This is only available if includeImageDescriptions is set to true
     WebSearchResponse:
       type: object
       required:
@@ -197,6 +159,44 @@ components:
           type: number
           format: double
           description: Your search result response time
+    WebSearchImageResult:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+          description: The URL of the image
+        description:
+          type: string
+          description: An LLM-generated description of the image. This is only available if includeImageDescriptions is set to true
+    WebSearchResult:
+      type: object
+      required:
+      - title
+      - url
+      - content
+      - score
+      properties:
+        title:
+          type: string
+          description: The title of the search result
+        url:
+          type: string
+          description: The URL of the search result
+        content:
+          type: string
+          description: The most query-related content from the scraped URL
+        score:
+          type: number
+          format: double
+          description: The relevance score of the search result
+        raw_content:
+          type: string
+          description: The parsed and cleaned HTML content of the site. This is only available if includeRawContent is set to true
+        publishedDate:
+          type: string
+          description: The publication date of the source. This is only available if the search topic is set to news
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
