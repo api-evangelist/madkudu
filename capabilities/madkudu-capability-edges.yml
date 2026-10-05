@@ -1,0 +1,26 @@
+slug: madkudu
+provider: MadKudu
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Accounts
+  spec_file: madkudu-accounts-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: '''Get Account By Id'', ''Get Account Activities'', schemas Common.Models.LikelihoodToBuy,
+    Common.Models.CustomerFit, Common.Models.Scores'
+  reason: Predictive propensity scoring of B2B accounts to surface buying likelihood supports lead/opportunity
+    prioritisation in sales; account-level fit and likelihood-to-buy scoring sits in Sales Management,
+    though Account Management (BC-410.20) is a plausible alternative sub-capability.
