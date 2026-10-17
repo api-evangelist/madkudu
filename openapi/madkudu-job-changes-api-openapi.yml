@@ -70,34 +70,6 @@ paths:
         description: Multipart form data containing the CSV file
 components:
   schemas:
-    Common.Errors.ValidationError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-        details:
-          type: string
-          description: Invalid parameter details
-      description: Validation error for request parameters
-    Services.JobChanges.WatchListUploadResponse:
-      type: object
-      required:
-      - status
-      properties:
-        status:
-          type: string
-          description: Status of the upload
-        processed_count:
-          type: integer
-          format: int32
-          description: Number of emails processed
-        message:
-          type: string
-          description: Upload message
-      description: Watch list upload response
     Common.Errors.RateLimitError:
       type: object
       required:
@@ -119,6 +91,18 @@ components:
           type: string
           description: Error message
       description: Authentication error
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Invalid parameter details
+      description: Validation error for request parameters
     Common.Errors.InternalServerError:
       type: object
       required:
@@ -128,6 +112,22 @@ components:
           type: string
           description: Error message
       description: Internal server error
+    Services.JobChanges.WatchListUploadResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of the upload
+        processed_count:
+          type: integer
+          format: int32
+          description: Number of emails processed
+        message:
+          type: string
+          description: Upload message
+      description: Watch list upload response
   securitySchemes:
     BasicAuth:
       type: http

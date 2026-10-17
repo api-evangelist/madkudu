@@ -48,6 +48,18 @@ paths:
       - Organisation
 components:
   schemas:
+    ValueProposition:
+      type: object
+      required:
+      - persona
+      - valueProp
+      properties:
+        persona:
+          type: string
+          description: Target persona or role
+        valueProp:
+          type: string
+          description: Value proposition for this persona
     OrganisationResponse:
       type: object
       required:
@@ -73,18 +85,6 @@ components:
         updated_at:
           type: string
           description: Last update timestamp
-    ValueProposition:
-      type: object
-      required:
-      - persona
-      - valueProp
-      properties:
-        persona:
-          type: string
-          description: Target persona or role
-        valueProp:
-          type: string
-          description: Value proposition for this persona
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

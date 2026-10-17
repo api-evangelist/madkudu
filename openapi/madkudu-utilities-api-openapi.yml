@@ -46,18 +46,6 @@ paths:
       - Utilities
 components:
   schemas:
-    Common.Errors.RateLimitError:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error message
-        details:
-          type: string
-          description: Rate limit details
-      description: Rate limit exceeded error
     Services.Utilities.PingResponse:
       type: object
       required:
@@ -87,6 +75,18 @@ components:
           type: string
           description: Error message
       description: Authentication error
+    Common.Errors.RateLimitError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Rate limit details
+      description: Rate limit exceeded error
   securitySchemes:
     BasicAuth:
       type: http

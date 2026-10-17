@@ -70,138 +70,67 @@ paths:
               $ref: '#/components/schemas/PersonSearchRequest'
 components:
   schemas:
-    Common.Models.AccountSocials:
+    PersonDetailSearch:
       type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      - scores
       properties:
-        linkedin_handle:
+        mk_id:
           type: string
-          description: LinkedIn company handle
-        twitter_handle:
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
           type: string
-          description: Twitter company handle
-        crunchbase_handle:
+          description: Email address
+        name:
           type: string
-          description: Crunchbase organization handle
-        website:
+          description: Full name
+        first_name:
           type: string
-          description: Company website URL
-    Common.Models.Meta:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results returned
-        total:
-          type: integer
-          format: int32
-          description: Total number of results available
-        has_next_page:
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        title:
+          type: string
+          description: Job title
+        persona:
+          type: string
+          description: Persona
+        avatar:
+          type: string
+          description: Avatar URL
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
           type: boolean
-          description: Whether there are more results
-        next_cursor:
-          type: integer
-          format: int32
-          description: Next cursor for pagination
-    Common.Models.SortingParam:
-      type: object
-      required:
-      - sort_by
-      - sort_order
-      properties:
-        sort_by:
-          type: string
-          description: Field to sort by
-        sort_order:
-          type: string
-          enum:
-          - asc
-          - desc
-          description: Sort order
-    Common.Models.SourceSystem:
-      type: object
-      required:
-      - id
-      - system
-      - object
-      properties:
-        id:
-          type: string
-          description: Unique identifier in the source system
-        system:
-          type: string
-          description: Name of the source system
-        object:
-          type: string
-          description: Object type in the source system
-    AccountSearchRequest:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-          description: Number of results to return
-        cursor:
-          type: integer
-          format: int32
-          description: Cursor for pagination
-        search:
-          type: string
-          description: Search query
-        filters:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountSearchFilter'
-          description: Filters to apply - restricted to account fields
-        filterLogic:
+          description: Has left company
+        scores:
           allOf:
-          - $ref: '#/components/schemas/FilterLogic'
-          description: Filter logic
-        sort:
-          type: array
-          items:
-            $ref: '#/components/schemas/Common.Models.SortingParam'
-          description: Sorting parameters
-    Common.Models.LikelihoodToBuy:
-      type: object
-      required:
-      - score
-      - segment
-      properties:
-        score:
-          type: number
-          format: double
-          description: Likelihood to buy score
-        segment:
-          type: string
-          description: Likelihood to buy segment
-    Common.Models.Location:
-      type: object
-      properties:
-        country:
-          type: string
-          description: Country
-        state:
-          type: string
-          description: State or region
-        city:
-          type: string
-          description: City
-    PersonSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonDetailSearch'
-          description: Person search data
-        meta:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Meta'
-          description: Metadata
+          - $ref: '#/components/schemas/Common.Models.Scores'
+          description: Scoring information
+        activities:
+          description: Activities information
     PersonSearchRequest:
       type: object
       properties:
@@ -230,117 +159,22 @@ components:
           items:
             $ref: '#/components/schemas/Common.Models.SortingParam'
           description: Sorting parameters
-    FilterOperator:
-      type: string
-      enum:
-      - IS
-      - IS_NOT
-      - GT
-      - GTE
-      - LT
-      - LTE
-      - IN
-      - NOT_IN
-      - BETWEEN
-      - NOT_BETWEEN
-      - IS_NULL
-      - IS_NOT_NULL
-      - CONTAINS
-      - NOT_CONTAINS
-      - STARTS_WITH
-      - ENDS_WITH
-    Common.Errors.ValidationError:
+    Common.Models.CustomerFit:
       type: object
       required:
-      - detail
+      - score
+      - segment
       properties:
-        detail:
-          type: array
-          items:
-            type: object
-            properties:
-              loc:
-                type: array
-                prefixItems:
-                - anyOf:
-                  - type: string
-                  - type: integer
-                    format: int32
-                description: What part is invalid
-              msg:
-                type: string
-                description: Message discribing the error
-              type:
-                type: string
-                description: Type of the error
-              input: {}
-              ctx: {}
-            required:
-            - loc
-            - msg
-            - type
-      description: Error return when body sent is invalid
-    Common.Models.Scores:
-      type: object
-      required:
-      - customer_fit
-      - likelihood_to_buy
-      properties:
-        customer_fit:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CustomerFit'
-          description: Customer fit information
-        likelihood_to_buy:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
-          description: Likelihood to buy information
-    AccountSearchFilter:
-      type: object
-      required:
-      - property
-      - operator
-      - value
-      properties:
-        property:
+        score:
+          type: number
+          format: double
+          description: Customer fit score
+        segment:
           type: string
-          enum:
-          - name
-          - domain
-          - industry
-          - employees_count
-          - founded_year
-          - raised_amount
-          - country
-          - city
-          - active_users
-          - activities_count
-          description: Property to filter by - restricted to account fields
-        operator:
-          allOf:
-          - $ref: '#/components/schemas/FilterOperator'
-          description: Filter operator
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-            format: int32
-          - type: number
-            format: double
-          - type: boolean
-          - type: string
-            format: date-time
-          - type: array
-            items:
-              anyOf:
-              - type: string
-              - type: integer
-                format: int32
-              - type: number
-                format: double
-              - type: boolean
-              - type: string
-                format: date-time
-          description: Filter value
+          description: Customer fit segment
+        signals:
+          type: string
+          description: Customer fit signals
     AccountDetailSearch:
       type: object
       required:
@@ -406,7 +240,40 @@ components:
           allOf:
           - $ref: '#/components/schemas/Common.Models.Scores'
           description: Scoring information
-    Common.Models.CustomerFit:
+    PersonSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonDetailSearch'
+          description: Person search data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    Common.Models.Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results returned
+        total:
+          type: integer
+          format: int32
+          description: Total number of results available
+        has_next_page:
+          type: boolean
+          description: Whether there are more results
+        next_cursor:
+          type: integer
+          format: int32
+          description: Next cursor for pagination
+    Common.Models.LikelihoodToBuy:
       type: object
       required:
       - score
@@ -415,79 +282,235 @@ components:
         score:
           type: number
           format: double
-          description: Customer fit score
+          description: Likelihood to buy score
         segment:
           type: string
-          description: Customer fit segment
-        signals:
+          description: Likelihood to buy segment
+    AccountSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDetailSearch'
+          description: Account search data
+        meta:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Meta'
+          description: Metadata
+    AccountSearchRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Number of results to return
+        cursor:
+          type: integer
+          format: int32
+          description: Cursor for pagination
+        search:
           type: string
-          description: Customer fit signals
+          description: Search query
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountSearchFilter'
+          description: Filters to apply - restricted to account fields
+        filterLogic:
+          allOf:
+          - $ref: '#/components/schemas/FilterLogic'
+          description: Filter logic
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/Common.Models.SortingParam'
+          description: Sorting parameters
     FilterLogic:
       type: string
       enum:
       - AND
       - OR
-    PersonDetailSearch:
+    AccountSearchFilter:
       type: object
       required:
-      - mk_id
-      - source_system
-      - email
-      - name
-      - company
-      - socials
-      - location
-      - scores
+      - property
+      - operator
+      - value
       properties:
+        property:
+          type: string
+          enum:
+          - name
+          - domain
+          - industry
+          - employees_count
+          - founded_year
+          - raised_amount
+          - country
+          - city
+          - active_users
+          - activities_count
+          description: Property to filter by - restricted to account fields
+        operator:
+          allOf:
+          - $ref: '#/components/schemas/FilterOperator'
+          description: Filter operator
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: double
+          - type: boolean
+          - type: string
+            format: date-time
+          - type: array
+            items:
+              anyOf:
+              - type: string
+              - type: integer
+                format: int32
+              - type: number
+                format: double
+              - type: boolean
+              - type: string
+                format: date-time
+          description: Filter value
+    Common.Models.SourceSystem:
+      type: object
+      required:
+      - id
+      - system
+      - object
+      properties:
+        id:
+          type: string
+          description: Unique identifier in the source system
+        system:
+          type: string
+          description: Name of the source system
+        object:
+          type: string
+          description: Object type in the source system
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
+    Common.Errors.ValidationError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                prefixItems:
+                - anyOf:
+                  - type: string
+                  - type: integer
+                    format: int32
+                description: What part is invalid
+              msg:
+                type: string
+                description: Message discribing the error
+              type:
+                type: string
+                description: Type of the error
+              input: {}
+              ctx: {}
+            required:
+            - loc
+            - msg
+            - type
+      description: Error return when body sent is invalid
+    Common.Models.Scores:
+      type: object
+      required:
+      - customer_fit
+      - likelihood_to_buy
+      properties:
+        customer_fit:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CustomerFit'
+          description: Customer fit information
+        likelihood_to_buy:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.LikelihoodToBuy'
+          description: Likelihood to buy information
+    Common.Models.PersonSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn handle
+        twitter_handle:
+          type: string
+          description: Twitter handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase handle
+        website:
+          type: string
+          description: Website URL
+    Common.Models.CompanyReference:
+      type: object
+      required:
+      - domain
+      - mk_id
+      properties:
+        domain:
+          type: string
+          description: Domain of the company
         mk_id:
           type: string
-          description: Unique identifier for the person in MadKudu
-        source_system:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SourceSystem'
-          description: Source system information
-        email:
+          description: MadKudu ID of the company
+    Common.Models.SortingParam:
+      type: object
+      required:
+      - sort_by
+      - sort_order
+      properties:
+        sort_by:
           type: string
-          description: Email address
-        name:
+          description: Field to sort by
+        sort_order:
           type: string
-          description: Full name
-        first_name:
-          type: string
-          description: First name
-        last_name:
-          type: string
-          description: Last name
-        title:
-          type: string
-          description: Job title
-        persona:
-          type: string
-          description: Persona
-        avatar:
-          type: string
-          description: Avatar URL
-        company:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyReference'
-          description: Company information
-        socials:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.PersonSocials'
-          description: Social media handles
-        location:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Location'
-          description: Location information
-        has_left_company:
-          type: boolean
-          description: Has left company
-        scores:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Scores'
-          description: Scoring information
-        activities:
-          description: Activities information
+          enum:
+          - asc
+          - desc
+          description: Sort order
     PersonSearchFilter:
       type: object
       required:
@@ -537,48 +560,25 @@ components:
               - type: string
                 format: date-time
           description: Filter value
-    Common.Models.CompanyReference:
-      type: object
-      required:
-      - domain
-      - mk_id
-      properties:
-        domain:
-          type: string
-          description: Domain of the company
-        mk_id:
-          type: string
-          description: MadKudu ID of the company
-    Common.Models.PersonSocials:
-      type: object
-      properties:
-        linkedin_handle:
-          type: string
-          description: LinkedIn handle
-        twitter_handle:
-          type: string
-          description: Twitter handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase handle
-        website:
-          type: string
-          description: Website URL
-    AccountSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountDetailSearch'
-          description: Account search data
-        meta:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Meta'
-          description: Metadata
+    FilterOperator:
+      type: string
+      enum:
+      - IS
+      - IS_NOT
+      - GT
+      - GTE
+      - LT
+      - LTE
+      - IN
+      - NOT_IN
+      - BETWEEN
+      - NOT_BETWEEN
+      - IS_NULL
+      - IS_NOT_NULL
+      - CONTAINS
+      - NOT_CONTAINS
+      - STARTS_WITH
+      - ENDS_WITH
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

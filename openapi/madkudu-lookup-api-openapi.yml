@@ -125,6 +125,33 @@ paths:
       - Lookup
 components:
   schemas:
+    Common.Models.Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        state:
+          type: string
+          description: State or region
+        city:
+          type: string
+          description: City
+    Common.Models.AccountSocials:
+      type: object
+      properties:
+        linkedin_handle:
+          type: string
+          description: LinkedIn company handle
+        twitter_handle:
+          type: string
+          description: Twitter company handle
+        crunchbase_handle:
+          type: string
+          description: Crunchbase organization handle
+        website:
+          type: string
+          description: Company website URL
     Common.Errors.ValidationError:
       type: object
       required:
@@ -156,49 +183,89 @@ components:
             - msg
             - type
       description: Error return when body sent is invalid
-    Common.Models.AccountSocials:
+    PersonDetailsMini:
+      type: object
+      required:
+      - mk_id
+      - source_system
+      - email
+      - name
+      - company
+      - socials
+      - location
+      properties:
+        mk_id:
+          type: string
+          description: Unique identifier for the person in MadKudu
+        source_system:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.SourceSystem'
+          description: Source system information
+        email:
+          type: string
+          description: Email of the person
+        name:
+          type: string
+          description: Full name of the person
+        first_name:
+          type: string
+          description: First name of the person
+        last_name:
+          type: string
+          description: Last name of the person
+        title:
+          type: string
+          description: Title of the person
+        persona:
+          type: string
+          description: Persona of the person
+        avatar:
+          type: string
+          description: Avatar URL of the person
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.CompanyReference'
+          description: Company information
+        socials:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.PersonSocials'
+          description: Social media handles
+        location:
+          allOf:
+          - $ref: '#/components/schemas/Common.Models.Location'
+          description: Location information
+        has_left_company:
+          type: boolean
+          description: Whether the person has left the company
+        activities:
+          description: Activities information
+    Common.Models.PersonSocials:
       type: object
       properties:
         linkedin_handle:
           type: string
-          description: LinkedIn company handle
+          description: LinkedIn handle
         twitter_handle:
           type: string
-          description: Twitter company handle
+          description: Twitter handle
         crunchbase_handle:
           type: string
-          description: Crunchbase organization handle
+          description: Crunchbase handle
         website:
           type: string
-          description: Company website URL
-    Common.Models.Location:
-      type: object
-      properties:
-        country:
-          type: string
-          description: Country
-        state:
-          type: string
-          description: State or region
-        city:
-          type: string
-          description: City
-    Common.Models.SourceSystem:
+          description: Website URL
+    Common.Models.CompanyReference:
       type: object
       required:
-      - id
-      - system
-      - object
+      - domain
+      - mk_id
       properties:
-        id:
+        domain:
           type: string
-          description: Unique identifier in the source system
-        system:
+          description: Domain of the company
+        mk_id:
           type: string
-          description: Name of the source system
-        object:
-          type: string
-          description: Object type in the source system
+          description: MadKudu ID of the company
     AccountDetailsMini:
       type: object
       required:
@@ -259,89 +326,22 @@ components:
           allOf:
           - $ref: '#/components/schemas/Common.Models.Location'
           description: Location information
-    Common.Models.CompanyReference:
+    Common.Models.SourceSystem:
       type: object
       required:
-      - domain
-      - mk_id
+      - id
+      - system
+      - object
       properties:
-        domain:
+        id:
           type: string
-          description: Domain of the company
-        mk_id:
+          description: Unique identifier in the source system
+        system:
           type: string
-          description: MadKudu ID of the company
-    Common.Models.PersonSocials:
-      type: object
-      properties:
-        linkedin_handle:
+          description: Name of the source system
+        object:
           type: string
-          description: LinkedIn handle
-        twitter_handle:
-          type: string
-          description: Twitter handle
-        crunchbase_handle:
-          type: string
-          description: Crunchbase handle
-        website:
-          type: string
-          description: Website URL
-    PersonDetailsMini:
-      type: object
-      required:
-      - mk_id
-      - source_system
-      - email
-      - name
-      - company
-      - socials
-      - location
-      properties:
-        mk_id:
-          type: string
-          description: Unique identifier for the person in MadKudu
-        source_system:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.SourceSystem'
-          description: Source system information
-        email:
-          type: string
-          description: Email of the person
-        name:
-          type: string
-          description: Full name of the person
-        first_name:
-          type: string
-          description: First name of the person
-        last_name:
-          type: string
-          description: Last name of the person
-        title:
-          type: string
-          description: Title of the person
-        persona:
-          type: string
-          description: Persona of the person
-        avatar:
-          type: string
-          description: Avatar URL of the person
-        company:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.CompanyReference'
-          description: Company information
-        socials:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.PersonSocials'
-          description: Social media handles
-        location:
-          allOf:
-          - $ref: '#/components/schemas/Common.Models.Location'
-          description: Location information
-        has_left_company:
-          type: boolean
-          description: Whether the person has left the company
-        activities:
-          description: Activities information
+          description: Object type in the source system
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

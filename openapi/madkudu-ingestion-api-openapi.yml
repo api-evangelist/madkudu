@@ -79,52 +79,44 @@ paths:
               $ref: '#/components/schemas/ConfirmUploadRequest'
 components:
   schemas:
-    JsonUploadRequest:
-      type: object
-      required:
-      - stream
-      - data
-      properties:
-        stream:
-          allOf:
-          - $ref: '#/components/schemas/AcceptedStream'
-          description: Stream type for the data
-        data:
-          anyOf:
-          - type: array
-            items:
-              $ref: '#/components/schemas/Contact'
-          - type: array
-            items:
-              $ref: '#/components/schemas/Account'
-          - type: array
-            items:
-              $ref: '#/components/schemas/ContactEvent'
-          - type: array
-            items:
-              $ref: '#/components/schemas/AccountEvent'
-          description: Data array - contents depend on stream type
-      description: Request model for direct JSON upload
-    AcceptedStream:
+    ContentType:
       type: string
       enum:
-      - account
-      - account_event
-      - contact
-      - contact_event
-      description: Accepted streams for customer data
-    ConfirmUploadResponse:
+      - application/jsonl
+      description: Content types for customer data
+    ContactEvent:
       type: object
       required:
-      - status
-      - message
+      - event_id
+      - contact_id
+      - event
+      - event_timestamp
+      - event_properties
       properties:
-        status:
+        event_type:
           type: string
-          description: Upload confirmation status
-        message:
+          enum:
+          - contact_event
+          description: Event type identifier
+          default: contact_event
+        event_id:
           type: string
-          description: Confirmation message
+          description: Unique identifier for the event
+        contact_id:
+          type: string
+          description: Contact identifier for the event
+        event:
+          type: string
+          description: Event name
+        event_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (ISO 8601 format)
+        event_properties:
+          type: object
+          unevaluatedProperties: {}
+          description: Additional event properties
+      description: Contact event model for ingestion
     Contact:
       type: object
       required:
@@ -173,58 +165,6 @@ components:
           unevaluatedProperties: {}
           description: Additional account properties
       description: Account model for ingestion
-    ContactEvent:
-      type: object
-      required:
-      - event_id
-      - contact_id
-      - event
-      - event_timestamp
-      - event_properties
-      properties:
-        event_type:
-          type: string
-          enum:
-          - contact_event
-          description: Event type identifier
-          default: contact_event
-        event_id:
-          type: string
-          description: Unique identifier for the event
-        contact_id:
-          type: string
-          description: Contact identifier for the event
-        event:
-          type: string
-          description: Event name
-        event_timestamp:
-          type: string
-          format: date-time
-          description: Timestamp when the event occurred (ISO 8601 format)
-        event_properties:
-          type: object
-          unevaluatedProperties: {}
-          description: Additional event properties
-      description: Contact event model for ingestion
-    UploadRequest:
-      type: object
-      required:
-      - stream
-      - content_type
-      - content_encoding
-      properties:
-        stream:
-          allOf:
-          - $ref: '#/components/schemas/AcceptedStream'
-          description: Stream type for the data
-        content_type:
-          allOf:
-          - $ref: '#/components/schemas/ContentType'
-          description: Content type of the file to upload
-        content_encoding:
-          allOf:
-          - $ref: '#/components/schemas/ContentEncoding'
-          description: Content encoding for the file
     UploadResponse:
       type: object
       required:
@@ -237,41 +177,6 @@ components:
         file_key:
           type: string
           description: Unique file key for the uploaded file
-    ContentType:
-      type: string
-      enum:
-      - application/jsonl
-      description: Content types for customer data
-    ConfirmUploadRequest:
-      type: object
-      required:
-      - file_key
-      properties:
-        file_key:
-          type: string
-          description: File key from the upload response
-    JsonUploadResponse:
-      type: object
-      required:
-      - status
-      - message
-      - file_key
-      properties:
-        status:
-          type: string
-          description: Upload status
-        message:
-          type: string
-          description: Upload message
-        file_key:
-          type: string
-          description: Generated file key for the uploaded data
-      description: Response model for JSON upload
-    ContentEncoding:
-      type: string
-      enum:
-      - gzip
-      description: Content encodings for customer data
     AccountEvent:
       type: object
       required:
@@ -305,6 +210,101 @@ components:
           unevaluatedProperties: {}
           description: Additional event properties
       description: Account event model for ingestion
+    ContentEncoding:
+      type: string
+      enum:
+      - gzip
+      description: Content encodings for customer data
+    UploadRequest:
+      type: object
+      required:
+      - stream
+      - content_type
+      - content_encoding
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        content_type:
+          allOf:
+          - $ref: '#/components/schemas/ContentType'
+          description: Content type of the file to upload
+        content_encoding:
+          allOf:
+          - $ref: '#/components/schemas/ContentEncoding'
+          description: Content encoding for the file
+    ConfirmUploadRequest:
+      type: object
+      required:
+      - file_key
+      properties:
+        file_key:
+          type: string
+          description: File key from the upload response
+    ConfirmUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      properties:
+        status:
+          type: string
+          description: Upload confirmation status
+        message:
+          type: string
+          description: Confirmation message
+    JsonUploadRequest:
+      type: object
+      required:
+      - stream
+      - data
+      properties:
+        stream:
+          allOf:
+          - $ref: '#/components/schemas/AcceptedStream'
+          description: Stream type for the data
+        data:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+          - type: array
+            items:
+              $ref: '#/components/schemas/Account'
+          - type: array
+            items:
+              $ref: '#/components/schemas/ContactEvent'
+          - type: array
+            items:
+              $ref: '#/components/schemas/AccountEvent'
+          description: Data array - contents depend on stream type
+      description: Request model for direct JSON upload
+    JsonUploadResponse:
+      type: object
+      required:
+      - status
+      - message
+      - file_key
+      properties:
+        status:
+          type: string
+          description: Upload status
+        message:
+          type: string
+          description: Upload message
+        file_key:
+          type: string
+          description: Generated file key for the uploaded data
+      description: Response model for JSON upload
+    AcceptedStream:
+      type: string
+      enum:
+      - account
+      - account_event
+      - contact
+      - contact_event
+      description: Accepted streams for customer data
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
