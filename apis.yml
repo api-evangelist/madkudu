@@ -173,6 +173,8 @@ apis:
   humanURL: https://developers.madkudu.com/api
   baseURL: https://madapi.madkudu.com
   tags:
+  - Data Enrichment
+  tags_raw:
   - Enrichment
   properties:
   - type: OpenAPI
