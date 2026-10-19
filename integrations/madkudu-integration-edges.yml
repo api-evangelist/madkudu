@@ -52,8 +52,54 @@ edges:
     builder: unknown (not in the directory record)
   detected_by: sweep-workflow-automation.py
   first_seen: '2026-10-15'
+- partner_name: npm registry
+  partner: npm
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: official SDK (JavaScript/TypeScript)
+  evidence: https://www.npmjs.com/package/@madkudu/madkudu-node
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: npm registry (public registry JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@madkudu/madkudu-node'
+      version: 0.2.1
+      released: '2022-06-12'
+      released_field: modified
+      lapsed: true
+      page: https://www.npmjs.com/package/@madkudu/madkudu-node
+      repo_leg: github-org:madkudu
+      publisher_leg: email:madkudu.com
+      matched_by: domain
+    - name: '@madkudu/madkudu.js'
+      version: 1.7.0
+      released: '2023-05-24'
+      released_field: modified
+      lapsed: true
+      page: https://www.npmjs.com/package/@madkudu/madkudu.js
+      repo_leg: github-org:madkudu
+      publisher_leg: email:madkudu.com
+      matched_by: domain
+    current: false
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  detected_by: sweep-official-sdks.py
+  first_seen: '2026-10-18'
 method: searched
 checked:
+- https://api.nuget.org/v3
+- https://crates.io/api/v1
+- https://proxy.golang.org
+- https://pypi.org/pypi
+- https://registry.npmjs.org
+- https://repo1.maven.org/maven2
+- https://rubygems.org/api/v1
 - https://www.twilio.com/docs/segment/connections/destinations/catalog/madkudu
 - https://zapier.com/api/v4/apps/
 source: https://www.twilio.com/docs/segment/connections/destinations/catalog/madkudu
