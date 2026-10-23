@@ -93,3 +93,16 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
+- slug: madkudu-intercom-own
+  label: Intercom (own)
+  partner: intercom
+  partner_name: Intercom (own)
+  category: Customer data & CRM
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://www.intercom.com/app-store/?app_package_code=madkudu-4ih3
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null

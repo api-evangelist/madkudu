@@ -108,6 +108,23 @@ edges:
   detected: '2026-10-21'
   detected_by: mirror-platform-listings.py
   category: ACCOUNT_BASED_MARKETING
+- partner_name: Intercom (own)
+  partner: intercom
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://www.intercom.com/app-store/?app_package_code=madkudu-4ih3
+  mirror_of: intercom/integrations/intercom-integration-edges.yml
+  apps:
+  - MadKudu Lead Scoring
+  listing_count: 1
+  detected: '2026-10-23'
+  detected_by: mirror-platform-listings.py
+  category: Customer data & CRM
 method: searched
 checked:
 - https://api.nuget.org/v3
@@ -120,4 +137,5 @@ checked:
 - https://www.twilio.com/docs/segment/connections/destinations/catalog/madkudu
 - https://zapier.com/api/v4/apps/
 - hubspot/integrations/hubspot-integration-edges.yml
+- intercom/integrations/intercom-integration-edges.yml
 source: https://www.twilio.com/docs/segment/connections/destinations/catalog/madkudu
