@@ -64,6 +64,132 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-MadKudu is a company surfaced as a portfolio company of partech, techstars and added to the API Evangelist network as a stub for enrichment. Sector: Applicative SaaS. This profile is a lead awaiting the enrichment pipeline.
+MadKudu is a predictive lead scoring and account intelligence platform for B2B sales and marketing teams, using AI-driven propensity modeling and dynamic scoring across fit, intent, and engagement signals to surface high-propensity accounts and people. Its developer surface (MadAPI) programmatically exposes account and person lookup, enrichment, activity, search, sourcing discovery, AI web search, organisation endpoints and a "coming soon" custom ingestion API, alongside a legacy Scoring API and a hosted Model Context Protocol (MCP) server for AI agents. MadKudu publishes OpenAPI 3.1.0 for both surfaces, but only as per-operation blocks embedded in its GitBook reference — no spec document is served. MadKudu was acquired by HG Insights in 2025; the docs are now titled "HG Platform API" and API access is contact-sales. Originally backed by Partech and Techstars.
 
-Backed by: partech, techstars — http://madkudu.com/
+**Areas:** Company · Applicative Saas · Sales Intelligence · Lead Scoring · Predictive Analytics · Account Intelligence · Data Enrichment · MCP · Agents · Go-To-Market
+
+## MadKudu on APIs.io
+
+Everything profiled for MadKudu is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/madkudu/](https://apis.io/providers/madkudu/)** — or go straight to one of the APIs or properties below.
+
+### APIs (12)
+
+- [MadKudu Accounts API](https://apis.io/apis/madkudu/madkudu-accounts-api/) — The Accounts API from MadKudu — 3 operation(s) for accounts.
+- [MadKudu AI API](https://apis.io/apis/madkudu/madkudu-ai-api/) — The AI API from MadKudu — 1 operation(s) for ai.
+- [MadKudu Companies API](https://apis.io/apis/madkudu/madkudu-companies-api/) — The Companies API from MadKudu — 1 operation(s) for companies.
+- [MadKudu Enrichment API](https://apis.io/apis/madkudu/madkudu-enrichment-api/) — The Enrichment API from MadKudu — 1 operation(s) for enrichment.
+- [MadKudu Ingestion API](https://apis.io/apis/madkudu/madkudu-ingestion-api/) — The Ingestion API from MadKudu — 3 operation(s) for ingestion.
+- [MadKudu Job Changes API](https://apis.io/apis/madkudu/madkudu-job-changes-api/) — The Job Changes API from MadKudu — 1 operation(s) for job changes.
+- [MadKudu Lookup API](https://apis.io/apis/madkudu/madkudu-lookup-api/) — The Lookup API from MadKudu — 2 operation(s) for lookup.
+- [MadKudu Organisation API](https://apis.io/apis/madkudu/madkudu-organisation-api/) — The Organisation API from MadKudu — 2 operation(s) for organisation.
+- [MadKudu Persons API](https://apis.io/apis/madkudu/madkudu-persons-api/) — The Persons API from MadKudu — 3 operation(s) for persons.
+- [MadKudu Search API](https://apis.io/apis/madkudu/madkudu-search-api/) — The Search API from MadKudu — 2 operation(s) for search.
+- [MadKudu Sourcing API](https://apis.io/apis/madkudu/madkudu-sourcing-api/) — The Sourcing API from MadKudu — 3 operation(s) for sourcing.
+- [MadKudu Utilities API](https://apis.io/apis/madkudu/madkudu-utilities-api/) — The Utilities API from MadKudu — 1 operation(s) for utilities.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [MadMCP](https://apis.io/servers/madkudu/madmcp/)
+
+#### Overlays (2)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Madkudu Legacy Api Overlay](https://apis.io/overlays/madkudu/madkudu-legacy-api-overlay/)
+- [Madkudu Madapi Overlay](https://apis.io/overlays/madkudu/madkudu-madapi-overlay/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Madkudu Authentication](https://apis.io/security/madkudu/madkudu-authentication/)
+- [Madkudu Domain Security](https://apis.io/security/madkudu/madkudu-domain-security/)
+- [Madkudu Trust Center](https://apis.io/security/madkudu/madkudu-trust-center/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Madkudu Plans Pricing](https://apis.io/plans/madkudu/madkudu-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Madkudu Rate Limits](https://apis.io/rate-limits/madkudu/madkudu-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://madkudu.com/)
+- [Documentation](https://developers.madkudu.com/getting-started)
+- [Getting started](https://developers.madkudu.com/getting-started/quickstart)
+- [API reference](https://developers.madkudu.com/api)
+- [Pricing](https://hginsights.com/product/pricing-guide/)
+- [Blog](https://madkudu.com/blog)
+- [Terms of service](https://hginsights.com/terms-of-service/)
+- [Privacy policy](https://hginsights.com/privacy-page/)
+- [GitHub](https://github.com/MadKudu)
+- [Status](https://status.madkudu.com)
+
+## API Evangelist rating
+
+**Kin Score 51.2** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 68.3 |
+| Contract quality | 49.3 |
+| Contract governance | 4.5 |
+| Operational transparency | 39.5 |
+| Developer ergonomics | 70.8 |
+| Access clarity | 53.9 |
+
+**Agent readiness 33.0** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | templated |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 29.4** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/madkudu/](https://apis.io/providers/madkudu/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for MadKudu: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/madkudu/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
